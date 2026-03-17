@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocaRace - Duel contre Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .input-correct { border-color: #22c55e !important; background-color: #f0fdf4 !important; color: #166534 !important; }
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #991b1b !important; }
+        .input-hint { border-color: #f59e0b !important; background-color: #fffbeb !important; color: #92400e !important; font-weight: bold; }
+        .letter-box { width: 1.4rem; height: 2rem; font-size: 0.8rem; transition: all 0.2s ease; border-width: 2px; text-align: center; font-weight: 900; text-transform: uppercase; border-radius: 0.5rem; }
+        @media (min-width: 640px) { .letter-box { width: 2.2rem; height: 3.2rem; font-size: 1.25rem; } }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .mode-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .mode-card:hover { transform: translateY(-5px); }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        .btn-disabled { opacity: 0.5; cursor: not-allowed; transform: scale(0.98); }
+        .space-box { width: 1rem; }
+        @media (min-width: 640px) { .space-box { width: 2rem; } }
+        .progress-bot { filter: hue-rotate(140deg); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col font-sans text-slate-800 overflow-x-hidden">
+
+    <!-- MENU PRINCIPAL -->
+    <div id="mode-selection-screen" class="fixed inset-0 bg-slate-900 z-[60] flex items-center justify-center p-6">
+        <div class="max-w-4xl w-full text-center">
+            <h2 class="text-5xl font-black text-white mb-4 italic tracking-tighter uppercase">VocaRace</h2>
+            <p class="text-slate-400 mb-12 text-lg uppercase tracking-widest text-xs">Maîtrisez l'orthographe espagnole</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div onclick="showDifficulty('solo')" class="mode-card bg-white rounded-[2.5rem] p-10 text-left shadow-2xl group border-4 border-transparent hover:border-indigo-500">
+                    <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">👤</div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-2">Entraînement Solo</h3>
+                    <p class="text-slate-500 text-sm mb-6">Pratiquez à votre rythme sans pression.</p>
+                    <div class="inline-flex items-center gap-2 text-indigo-600 font-black text-xs uppercase tracking-widest">Choisir le niveau <span>→</span></div>
+                </div>
+                <div onclick="showDifficulty('bot')" class="mode-card bg-slate-800 rounded-[2.5rem] p-10 text-left shadow-2xl group border-4 border-transparent hover:border-amber-500">
+                    <div class="bg-slate-700 text-amber-500 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">🤖</div>
+                    <h3 class="text-2xl font-black text-white mb-2">Duel contre Bot</h3>
+                    <p class="text-slate-400 text-sm mb-6">Soyez plus rapide que l'IA pour gagner !</p>
+                    <div class="inline-flex items-center gap-2 text-amber-500 font-black text-xs uppercase tracking-widest">Défier le Bot <span>→</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHOIX DIFFICULTÉ -->
+    <div id="difficulty-screen" class="fixed inset-0 bg-slate-900 z-[61] flex items-center justify-center p-6 hidden">
+        <div class="max-w-2xl w-full text-center">
+            <h2 id="diff-title" class="text-3xl font-black text-white mb-8 italic uppercase tracking-widest">Nivel de Dificultad</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                <button onclick="confirmStart('debutant')" class="p-6 bg-emerald-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Débutant <span class="block text-[10px] opacity-70">Aide ++ • Bot lent</span>
+                </button>
+                <button onclick="confirmStart('intermediaire')" class="p-6 bg-indigo-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Intermédiaire <span class="block text-[10px] opacity-70">Aide + • Bot normal</span>
+                </button>
+                <button onclick="confirmStart('expert')" class="p-6 bg-purple-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Expert <span class="block text-[10px] opacity-70">Sans aide • Bot rapide</span>
+                </button>
+                <button onclick="confirmStart('hardcore')" class="p-6 bg-rose-600 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Hardcore <span class="block text-[10px] opacity-70">3 Vies • Bot Elite</span>
+                </button>
+            </div>
+            <button onclick="hideDifficulty()" class="text-slate-400 font-black uppercase text-xs hover:text-white transition-colors">← Retour</button>
+        </div>
+    </div>
+
+    <!-- HEADER JEU -->
+    <header id="game-header" class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-100 p-4 sticky top-0 z-40 flex justify-between items-center hidden">
+        <div id="lives-display" class="flex gap-1.5 bg-rose-50 px-4 py-2 rounded-2xl border border-rose-100 hidden">
+            <span id="heart-1" class="text-xl">❤️</span>
+            <span id="heart-2" class="text-xl">❤️</span>
+            <span id="heart-3" class="text-xl">❤️</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="bg-slate-900 px-6 py-2 rounded-2xl text-center shadow-lg">
+                <span id="score" class="text-xl font-black text-white">0</span>
+                <p class="text-[8px] uppercase font-black text-slate-400 tracking-tighter">Puntos</p>
+            </div>
+        </div>
+        <div id="streak-container" class="bg-amber-50 px-4 py-2 rounded-2xl border border-amber-100">
+             <span id="streak-val" class="text-xs font-black text-amber-600 uppercase italic">🔥 Série: 0</span>
+        </div>
+    </header>
+
+    <!-- ZONE DE JEU -->
+    <main id="game-main" class="p-4 sm:p-6 max-w-3xl mx-auto w-full flex-grow flex flex-col gap-6 hidden">
+        
+        <!-- BARRE DUEL (Si mode bot) -->
+        <div id="duel-bar" class="hidden glass-card rounded-3xl p-4 flex flex-col gap-3">
+            <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                <span class="text-indigo-600">Toi (Joueur)</span>
+                <span class="text-rose-500">Robot IA</span>
+            </div>
+            <div class="relative w-full h-4 bg-slate-100 rounded-full overflow-hidden">
+                <div id="player-progress" class="absolute h-full bg-indigo-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="relative w-full h-4 bg-slate-100 rounded-full overflow-hidden">
+                <div id="bot-progress" class="absolute h-full bg-rose-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="question-card" class="glass-card rounded-[2.5rem] p-6 sm:p-10 text-center border border-white">
+            <div class="mb-4">
+                <span id="current-mode-label" class="px-4 py-1 bg-indigo-100 rounded-full text-[10px] font-black text-indigo-600 uppercase tracking-widest italic">MODO</span>
+            </div>
+            <h2 id="fr-word" class="text-xl sm:text-3xl font-black text-slate-800 mb-10 italic uppercase tracking-tight">"Cargando..."</h2>
+            <div id="letter-inputs" class="flex flex-wrap justify-center gap-1.5 mb-10"></div>
+            
+            <div id="feedback-area" class="h-6 mb-4 text-[10px] font-black uppercase tracking-widest text-rose-500 hidden">Râté ! Réessaie...</div>
+
+            <button id="btn-check" onclick="checkAnswer()" class="w-full bg-indigo-600 text-white font-black py-5 rounded-3xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs shadow-xl active:scale-95 flex items-center justify-center gap-2 mb-6">
+                <span id="btn-text">Valider la réponse</span>
+                <span id="btn-timer" class="hidden text-indigo-300">(0.8s)</span>
+            </button>
+
+            <!-- PROGRESSION SOLO (Si pas duel) -->
+            <div id="solo-progress-ui" class="border-t border-slate-100 pt-6 flex flex-col items-center gap-1">
+                <div class="flex items-baseline gap-1">
+                    <span id="words-mastered" class="text-lg font-black text-slate-800">0</span>
+                    <span class="text-xs font-black text-slate-300 italic">/</span>
+                    <span id="total-words" class="text-xs font-black text-slate-400 italic">41</span>
+                </div>
+                <div class="w-24 h-1 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                    <div id="progress-bar-fill" class="h-full bg-indigo-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL FIN -->
+    <div id="end-modal" class="fixed inset-0 bg-slate-900/90 z-[100] flex items-center justify-center p-6 hidden">
+        <div class="bg-white rounded-[3rem] p-10 max-w-md w-full text-center shadow-2xl">
+            <div id="modal-icon" class="text-6xl mb-6">🏆</div>
+            <h2 id="modal-title" class="text-3xl font-black text-slate-800 mb-2 italic uppercase">¡VICTORIA!</h2>
+            <p id="modal-desc" class="text-slate-500 text-sm mb-8 italic">Tu as été plus rapide que la machine !</p>
+            <div id="podium-results" class="space-y-4 mb-8"></div>
+            <button onclick="location.reload()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs">Retour au menu</button>
+        </div>
+    </div>
+
+    <script>
+        // VOCABULAIRE MIS À JOUR
+        const vocabulary = [
+            { es: "el cambio climatico", fr: "changement climatique" },
+            { es: "los árboles", fr: "les arbres" },
+            { es: "el 71% de agua", fr: "71% d'eau" },
+            { es: "los animales", fr: "les animaux" },
+            { es: "el agua", fr: "l'eau" },
+            { es: "la naturaleza", fr: "la nature" },
+            { es: "azul", fr: "bleu" },
+            { es: "la Tierra / el planeta", fr: "la terre, la planête" },
+            { es: "verde", fr: "vert" },
+            { es: "los seres humanos", fr: "les êtres vivants" },
+            { es: "el continente de plástico", fr: "le continent plastique" },
+            { es: "la polución / la contaminación", fr: "la polution" },
+            { es: "el peligro", fr: "le danger" },
+            { es: "el medio ambiente", fr: "l'environnement" },
+            { es: "los desechos / la basura / los residuos", fr: "les déchets" },
+            { es: "la fauna y la flora", fr: "la faune et la flore" },
+            { es: "la sequia", fr: "la sécheresse" },
+            { es: "las inundaciones", fr: "les inondations" },
+            { es: "el calentamiento global", fr: "le rechauffement global" },
+            { es: "fenómenos", fr: "phénomènes" },
+            { es: "el viento o la nieve", fr: "le vent ou la neige" },
+            { es: "degradación", fr: "degradation" },
+            { es: "la acción", fr: "l'action" },
+            { es: "el aumento", fr: "l'augmentation" },
+            { es: "catástrofes naturales", fr: "les catastrophes naturelles" },
+            { es: "alcanzar 50 grados", fr: "atteindre 50 degrés" },
+            { es: "sustituir", fr: "remplacer" },
+            { es: "problema medioambiental", fr: "problèmes environnementaux" },
+            { es: "la selva", fr: "la foret" },
+            { es: "el calor", fr: "la chaleur" },
+            { es: "contaminar", fr: "polluer" },
+            { es: "la pachamama", fr: "la Terre mère chez les indigènes" },
+            { es: "mejorar", fr: "améliorer" },
+            { es: "el espacio", fr: "l'espace" },
+            { es: "un robot", fr: "un robot" },
+            { es: "el futúro", fr: "le futur" },
+            { es: "amenazar", fr: "menacer" },
+            { es: "una amenaza", fr: "une menace" },
+            { es: "correr el riesgo", fr: "courrir/prendre le risque" },
+            { es: "luchar contra / combatir", fr: "se battre contre" },
+            { es: "solucionar / remediar", fr: "remedier solutionner" }
+        ];
+
+        let selectedMode = 'solo';
+        let currentDifficulty = 'debutant';
+        let lives = 3;
+        let score = 0;
+        let streak = 0;
+        let gameQueue = [];
+        let playerProgress = 0;
+        let botProgress = 0;
+        let isCooldown = false;
+        let botInterval = null;
+
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+        window.showDifficulty = (mode) => {
+            selectedMode = mode;
+            document.getElementById('diff-title').innerText = mode === 'bot' ? "Nivel de Duel" : "Nivel de Entrenamiento";
+            document.getElementById('difficulty-screen').classList.remove('hidden');
+        };
+
+        window.hideDifficulty = () => document.getElementById('difficulty-screen').classList.add('hidden');
+
+        window.confirmStart = (difficulty) => {
+            currentDifficulty = difficulty;
+            startGame();
+        };
+
+        function startGame() {
+            score = 0; lives = 3; streak = 0; playerProgress = 0; botProgress = 0;
+            gameQueue = [...vocabulary].sort(() => Math.random() - 0.5);
+
+            document.querySelectorAll('.fixed').forEach(el => el.classList.add('hidden'));
+            document.getElementById('game-header').classList.remove('hidden');
+            document.getElementById('game-main').classList.remove('hidden');
+            document.getElementById('score').innerText = "0";
+            
+            if (selectedMode === 'bot') {
+                document.getElementById('duel-bar').classList.remove('hidden');
+                document.getElementById('solo-progress-ui').classList.add('hidden');
+                document.getElementById('current-mode-label').innerText = `🤖 DUEL ${currentDifficulty.toUpperCase()}`;
+                startBotAI();
+            } else {
+                document.getElementById('duel-bar').classList.add('hidden');
+                document.getElementById('solo-progress-ui').classList.remove('hidden');
+                document.getElementById('current-mode-label').innerText = `👤 SOLO ${currentDifficulty.toUpperCase()}`;
+            }
+
+            if (currentDifficulty === 'hardcore') {
+                document.getElementById('lives-display').classList.remove('hidden');
+                updateLivesUI();
+            } else {
+                document.getElementById('lives-display').classList.add('hidden');
+            }
+
+            document.getElementById('total-words').innerText = gameQueue.length;
+            updateProgressUI();
+            displayQuestion();
+        }
+
+        function startBotAI() {
+            if (botInterval) clearInterval(botInterval);
+            
+            let botSpeed = 10000;
+            if (currentDifficulty === 'intermediaire') botSpeed = 7000;
+            if (currentDifficulty === 'expert') botSpeed = 5000;
+            if (currentDifficulty === 'hardcore') botSpeed = 3500;
+
+            botInterval = setInterval(() => {
+                botProgress++;
+                updateProgressUI();
+                if (botProgress >= gameQueue.length) {
+                    clearInterval(botInterval);
+                    showEnd(false);
+                }
+            }, botSpeed);
+        }
+
+        function displayQuestion() {
+            if (playerProgress >= gameQueue.length) { 
+                clearInterval(botInterval);
+                showEnd(true); 
+                return; 
+            }
+            
+            const wordObj = gameQueue[playerProgress];
+            document.getElementById('fr-word').innerText = wordObj.fr;
+            const container = document.getElementById('letter-inputs');
+            container.innerHTML = "";
+            isCooldown = false;
+
+            const target = wordObj.es.toLowerCase();
+            const revealChance = currentDifficulty === 'debutant' ? 0.35 : (currentDifficulty === 'intermediaire' ? 0.15 : 0);
+            
+            for (let char of target) {
+                if (char === " " || /[0-9%]/.test(char) || /[^a-záéíóúñ]/.test(char)) {
+                    const d = document.createElement('div');
+                    if (char === " ") {
+                        d.className = "space-box";
+                    } else {
+                        d.className = "flex items-center justify-center font-bold text-slate-800 w-4 sm:w-8 px-1 text-lg sm:text-2xl";
+                        d.innerText = char;
+                    }
+                    container.appendChild(d);
+                } else {
+                    const input = document.createElement('input');
+                    input.type = "text"; input.maxLength = 1;
+                    input.className = "letter-box border-2 border-slate-200 focus:border-indigo-400 focus:outline-none shadow-sm";
+                    input.dataset.correct = char; 
+                    
+                    if (revealChance > 0 && Math.random() < revealChance) {
+                        input.value = char;
+                        input.classList.add('input-hint');
+                        input.readOnly = true;
+                    }
+
+                    input.oninput = (e) => { if (e.target.value) focusNext(e.target); };
+                    input.onkeydown = (e) => { if (e.key === 'Backspace' && !e.target.value) focusPrev(e.target); };
+                    container.appendChild(input);
+                }
+            }
+            setTimeout(() => {
+                const firstEmpty = [...container.querySelectorAll('input')].find(i => !i.value);
+                if (firstEmpty) firstEmpty.focus();
+                else container.querySelector('input')?.focus();
+            }, 100);
+        }
+
+        window.checkAnswer = () => {
+            if(isCooldown) return;
+            isCooldown = true;
+            
+            const btn = document.getElementById('btn-check');
+            const timer = document.getElementById('btn-timer');
+            btn.classList.add('btn-disabled');
+            timer.classList.remove('hidden');
+            setTimeout(() => {
+                isCooldown = false;
+                btn.classList.remove('btn-disabled');
+                timer.classList.add('hidden');
+            }, 800);
+
+            const inputs = document.querySelectorAll('#letter-inputs input');
+            let isCorrect = true;
+
+            inputs.forEach(input => {
+                const userVal = normalize(input.value);
+                const targetVal = normalize(input.dataset.correct);
+                if (userVal !== targetVal) {
+                    isCorrect = false;
+                    input.classList.add('input-error');
+                    setTimeout(() => input.classList.remove('input-error'), 500);
+                } else if (!input.readOnly) {
+                    input.classList.add('input-correct');
+                }
+            });
+
+            if (isCorrect) {
+                handleSuccess();
+            } else {
+                handleFailure();
+            }
+        };
+
+        function handleSuccess() {
+            score += 100 + (streak * 25);
+            streak++;
+            playerProgress++;
+            updateProgressUI();
+            updateStreakUI();
+            document.getElementById('score').innerText = score;
+            setTimeout(displayQuestion, 600);
+        }
+
+        function handleFailure() {
+            streak = 0;
+            updateStreakUI();
+            document.getElementById('question-card').classList.add('shake');
+            setTimeout(() => document.getElementById('question-card').classList.remove('shake'), 400);
+
+            if (currentDifficulty === 'hardcore') {
+                lives--;
+                updateLivesUI();
+                if (lives <= 0) {
+                    clearInterval(botInterval);
+                    showEnd(false);
+                }
+            }
+        }
+
+        function updateProgressUI() {
+            const total = gameQueue.length;
+            const pPerc = (playerProgress / total) * 100;
+            const bPerc = (botProgress / total) * 100;
+
+            if (selectedMode === 'bot') {
+                document.getElementById('player-progress').style.width = `${pPerc}%`;
+                document.getElementById('bot-progress').style.width = `${bPerc}%`;
+            } else {
+                document.getElementById('words-mastered').innerText = playerProgress;
+                document.getElementById('progress-bar-fill').style.width = `${pPerc}%`;
+            }
+        }
+
+        function updateStreakUI() {
+            document.getElementById('streak-val').innerText = `🔥 Série: ${streak}`;
+        }
+
+        function updateLivesUI() {
+            for(let i=1; i<=3; i++) {
+                document.getElementById(`heart-${i}`).style.opacity = i <= lives ? "1" : "0.2";
+            }
+        }
+
+        function showEnd(isVictory) {
+            document.getElementById('end-modal').classList.remove('hidden');
+            const res = document.getElementById('podium-results');
+            const title = document.getElementById('modal-title');
+            const icon = document.getElementById('modal-icon');
+            const desc = document.getElementById('modal-desc');
+
+            if (isVictory) {
+                title.innerText = "¡VICTORIA!";
+                icon.innerText = "🏆";
+                desc.innerText = selectedMode === 'bot' ? "Tu as écrasé l'intelligence artificielle !" : "Tu as terminé la liste !";
+            } else {
+                title.innerText = lives <= 0 ? "¡OOH NO!" : "¡DERROTA!";
+                icon.innerText = "🤖";
+                desc.innerText = lives <= 0 ? "Tu n'as plus de vies." : "Le robot a fini avant toi...";
+            }
+
+            res.innerHTML = `
+                <div class="bg-indigo-50 p-6 rounded-3xl">
+                    <span class="text-4xl font-black text-indigo-600">${score}</span>
+                    <p class="text-[10px] font-black uppercase text-indigo-300">Puntos Totales</p>
+                </div>
+                <div class="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
+                    ${playerProgress} / ${gameQueue.length} mots validés
+                </div>
+            `;
+        }
+
+        function focusNext(el) {
+            let n = el.nextElementSibling;
+            while(n && (n.tagName !== 'INPUT' || n.readOnly)) n = n.nextElementSibling;
+            if(n) n.focus();
+        }
+        function focusPrev(el) {
+            let p = el.previousElementSibling;
+            while(p && (p.tagName !== 'INPUT' || p.readOnly)) p = p.previousElementSibling;
+            if(p) p.focus();
+        }
+
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === 'Enter') checkAnswer(); 
+        });
+    </script>
+</body>
+</html>
