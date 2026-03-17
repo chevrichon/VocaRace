@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocaRace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .input-correct { border-color: #22c55e !important; background-color: #f0fdf4 !important; color: #166534 !important; }
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; color: #991b1b !important; }
+        .input-hint { border-color: #f59e0b !important; background-color: #fffbeb !important; color: #92400e !important; font-weight: bold; }
+        .input-revealed { border-color: #a855f7 !important; background-color: #faf5ff !important; color: #6b21a8 !important; font-weight: bold; }
+        .letter-box { width: 1.4rem; height: 2rem; font-size: 0.8rem; transition: all 0.2s ease; border-width: 2px; text-align: center; font-weight: 900; text-transform: uppercase; border-radius: 0.5rem; }
+        @media (min-width: 640px) { .letter-box { width: 2.2rem; height: 3.2rem; font-size: 1.25rem; } }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .mode-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .mode-card:hover { transform: translateY(-5px); }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        .btn-disabled { opacity: 0.5; cursor: not-allowed; transform: scale(0.98); }
+        .space-box { width: 1rem; }
+        @media (min-width: 640px) { .space-box { width: 2rem; } }
+
+        /* List picker */
+        .list-card { transition: all 0.25s; cursor: pointer; border: 2px solid transparent; }
+        .list-card:hover { transform: translateY(-3px); border-color: #6366f1; }
+        .list-card.selected { border-color: #6366f1; background: #eef2ff; }
+        .list-card.loading { opacity: 0.6; pointer-events: none; }
+
+        /* Error dot indicator */
+        .err-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .err-dot.filled { background: #ef4444; }
+        .err-dot.empty { background: #fecaca; border: 2px solid #ef4444; }
+
+        /* Miss word badge in report */
+        .miss-badge { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 0.75rem; padding: 0.35rem 0.75rem; font-size: 0.72rem; font-weight: 700; }
+        .miss-badge .fr { color: #64748b; font-weight: 500; }
+
+        /* Spinner */
+        .spinner { width: 24px; height: 24px; border: 3px solid #e0e7ff; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Pulse reveal warning */
+        @keyframes pulse-red { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)} 50%{box-shadow:0 0 0 8px rgba(239,68,68,0)} }
+        .pulse-warn { animation: pulse-red 0.6s ease; }
+
+        /* Tabs in end modal */
+        .tab-btn { transition: all 0.2s; }
+        .tab-btn.active { background: #4f46e5; color: white; }
+        .tab-btn:not(.active) { background: #f1f5f9; color: #64748b; }
+        .tab-btn:not(.active):hover { background: #e2e8f0; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col font-sans text-slate-800 overflow-x-hidden">
+
+    <!-- ==================== MENU PRINCIPAL ==================== -->
+    <div id="mode-selection-screen" class="fixed inset-0 bg-slate-900 z-[60] flex items-center justify-center p-6">
+        <div class="max-w-4xl w-full text-center">
+            <h2 class="text-5xl font-black text-white mb-4 italic tracking-tighter uppercase">VocaRace</h2>
+            <p class="text-slate-400 mb-12 text-lg uppercase tracking-widest text-xs">Maîtrisez l'orthographe espagnole</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div onclick="showDifficulty('solo')" class="mode-card bg-white rounded-[2.5rem] p-10 text-left shadow-2xl group border-4 border-transparent hover:border-indigo-500">
+                    <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">👤</div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-2">Entraînement Solo</h3>
+                    <p class="text-slate-500 text-sm mb-6">Pratiquez à votre rythme sans pression.</p>
+                    <div class="inline-flex items-center gap-2 text-indigo-600 font-black text-xs uppercase tracking-widest">Choisir le niveau <span>→</span></div>
+                </div>
+                <div onclick="showDifficulty('bot')" class="mode-card bg-slate-800 rounded-[2.5rem] p-10 text-left shadow-2xl group border-4 border-transparent hover:border-amber-500">
+                    <div class="bg-slate-700 text-amber-500 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">🤖</div>
+                    <h3 class="text-2xl font-black text-white mb-2">Duel contre Bot</h3>
+                    <p class="text-slate-400 text-sm mb-6">Soyez plus rapide que l'IA pour gagner !</p>
+                    <div class="inline-flex items-center gap-2 text-amber-500 font-black text-xs uppercase tracking-widest">Défier le Bot <span>→</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CHOIX DIFFICULTÉ + LISTE ==================== -->
+    <div id="difficulty-screen" class="fixed inset-0 bg-slate-900 z-[61] flex items-center justify-center p-6 hidden overflow-y-auto">
+        <div class="max-w-2xl w-full text-center py-8">
+            <h2 id="diff-title" class="text-3xl font-black text-white mb-8 italic uppercase tracking-widest">Nivel de Dificultad</h2>
+
+            <!-- Sélecteur de liste -->
+            <div class="mb-10">
+                <p class="text-slate-400 text-xs uppercase tracking-widest font-black mb-4">📚 Choisir une liste de mots</p>
+                <div id="list-picker" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left mb-3">
+                    <!-- Builtin list -->
+                    <div class="list-card selected bg-white rounded-2xl p-4 shadow" data-source="builtin" onclick="selectList(this, 'builtin', null)">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">📖</span>
+                            <div>
+                                <p class="font-black text-slate-800 text-sm">Liste par défaut</p>
+                                <p class="text-slate-400 text-xs">41 mots • Environnement</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Placeholder pour futures listes GitHub -->
+                    <div id="github-lists-container" class="contents"></div>
+                    <!-- Loader -->
+                    <div id="lists-loader" class="list-card bg-slate-800 rounded-2xl p-4 flex items-center gap-3 hidden">
+                        <div class="spinner"></div>
+                        <p class="text-slate-400 text-xs">Chargement des listes...</p>
+                    </div>
+                    <!-- Erreur GitHub -->
+                    <div id="lists-error" class="col-span-2 bg-rose-900/30 border border-rose-700/40 rounded-2xl p-3 text-xs text-rose-300 hidden">
+                        ⚠️ Impossible de charger les listes GitHub. La liste par défaut sera utilisée.
+                    </div>
+                </div>
+                <button onclick="fetchGithubLists()" id="btn-refresh-lists" class="text-indigo-400 font-black text-xs uppercase tracking-widest hover:text-indigo-200 transition-colors">
+                    ↻ Actualiser les listes GitHub
+                </button>
+            </div>
+
+            <!-- Niveaux -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                <button onclick="confirmStart('debutant')" class="p-6 bg-emerald-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Débutant <span class="block text-[10px] opacity-70 mt-1">Aide ++ • Réponse après 2 erreurs</span>
+                </button>
+                <button onclick="confirmStart('intermediaire')" class="p-6 bg-indigo-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Intermédiaire <span class="block text-[10px] opacity-70 mt-1">Aide + • Réponse après 2 erreurs</span>
+                </button>
+                <button onclick="confirmStart('expert')" class="p-6 bg-purple-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Expert <span class="block text-[10px] opacity-70 mt-1">Sans aide • Réponse après 2 erreurs</span>
+                </button>
+                <button onclick="confirmStart('hardcore')" class="p-6 bg-rose-600 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
+                    Hardcore <span class="block text-[10px] opacity-70 mt-1">3 Vies • Sans aide • Pas de réponse</span>
+                </button>
+            </div>
+            <button onclick="hideDifficulty()" class="text-slate-400 font-black uppercase text-xs hover:text-white transition-colors">← Retour</button>
+        </div>
+    </div>
+
+    <!-- ==================== HEADER JEU ==================== -->
+    <header id="game-header" class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-100 p-4 sticky top-0 z-40 flex justify-between items-center hidden">
+        <div id="lives-display" class="flex gap-1.5 bg-rose-50 px-4 py-2 rounded-2xl border border-rose-100 hidden">
+            <span id="heart-1" class="text-xl">❤️</span>
+            <span id="heart-2" class="text-xl">❤️</span>
+            <span id="heart-3" class="text-xl">❤️</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="bg-slate-900 px-6 py-2 rounded-2xl text-center shadow-lg">
+                <span id="score" class="text-xl font-black text-white">0</span>
+                <p class="text-[8px] uppercase font-black text-slate-400 tracking-tighter">Puntos</p>
+            </div>
+        </div>
+        <div id="streak-container" class="bg-amber-50 px-4 py-2 rounded-2xl border border-amber-100">
+            <span id="streak-val" class="text-xs font-black text-amber-600 uppercase italic">🔥 Série: 0</span>
+        </div>
+    </header>
+
+    <!-- ==================== ZONE DE JEU ==================== -->
+    <main id="game-main" class="p-4 sm:p-6 max-w-3xl mx-auto w-full flex-grow flex flex-col gap-6 hidden">
+
+        <!-- BARRE DUEL -->
+        <div id="duel-bar" class="hidden glass-card rounded-3xl p-4 flex flex-col gap-3">
+            <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                <span class="text-indigo-600">Toi (Joueur)</span>
+                <span class="text-rose-500">Robot IA</span>
+            </div>
+            <div class="relative w-full h-4 bg-slate-100 rounded-full overflow-hidden">
+                <div id="player-progress" class="absolute h-full bg-indigo-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="relative w-full h-4 bg-slate-100 rounded-full overflow-hidden">
+                <div id="bot-progress" class="absolute h-full bg-rose-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="question-card" class="glass-card rounded-[2.5rem] p-6 sm:p-10 text-center border border-white">
+            <div class="mb-4 flex items-center justify-center gap-3">
+                <span id="current-mode-label" class="px-4 py-1 bg-indigo-100 rounded-full text-[10px] font-black text-indigo-600 uppercase tracking-widest italic">MODO</span>
+                <!-- Indicateur d'erreurs -->
+                <div id="error-indicator" class="flex gap-1.5 items-center hidden">
+                    <span id="err-dot-1" class="err-dot empty"></span>
+                    <span id="err-dot-2" class="err-dot empty"></span>
+                </div>
+            </div>
+            <h2 id="fr-word" class="text-xl sm:text-3xl font-black text-slate-800 mb-10 italic uppercase tracking-tight">"Cargando..."</h2>
+            <div id="letter-inputs" class="flex flex-wrap justify-center gap-1.5 mb-10"></div>
+
+            <div id="feedback-area" class="mb-4 text-[10px] font-black uppercase tracking-widest hidden">
+                <span id="feedback-text" class="text-rose-500">Râté ! Réessaie...</span>
+            </div>
+
+            <!-- Zone de révélation de réponse -->
+            <div id="reveal-zone" class="hidden mb-6 p-4 bg-purple-50 border-2 border-purple-200 rounded-2xl">
+                <p class="text-xs font-black text-purple-600 uppercase tracking-widest mb-2">✨ La réponse était :</p>
+                <p id="reveal-answer" class="text-2xl font-black text-purple-800 italic uppercase tracking-tight"></p>
+                <button onclick="nextAfterReveal()" class="mt-3 px-6 py-2 bg-purple-600 text-white font-black rounded-2xl text-xs uppercase tracking-widest hover:bg-purple-700 transition-all">
+                    Mot suivant →
+                </button>
+            </div>
+
+            <button id="btn-check" onclick="checkAnswer()" class="w-full bg-indigo-600 text-white font-black py-5 rounded-3xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs shadow-xl active:scale-95 flex items-center justify-center gap-2 mb-6">
+                <span id="btn-text">Valider la réponse</span>
+                <span id="btn-timer" class="hidden text-indigo-300">(0.8s)</span>
+            </button>
+
+            <!-- PROGRESSION SOLO -->
+            <div id="solo-progress-ui" class="border-t border-slate-100 pt-6 flex flex-col items-center gap-1">
+                <div class="flex items-baseline gap-1">
+                    <span id="words-mastered" class="text-lg font-black text-slate-800">0</span>
+                    <span class="text-xs font-black text-slate-300 italic">/</span>
+                    <span id="total-words" class="text-xs font-black text-slate-400 italic">0</span>
+                </div>
+                <div class="w-24 h-1 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                    <div id="progress-bar-fill" class="h-full bg-indigo-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="list-name-display" class="text-[10px] text-slate-400 italic mt-1"></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== MODAL FIN ==================== -->
+    <div id="end-modal" class="fixed inset-0 bg-slate-900/90 z-[100] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-[3rem] p-8 max-w-lg w-full text-center shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div id="modal-icon" class="text-6xl mb-4">🏆</div>
+            <h2 id="modal-title" class="text-3xl font-black text-slate-800 mb-2 italic uppercase">¡VICTORIA!</h2>
+            <p id="modal-desc" class="text-slate-500 text-sm mb-6 italic">Tu as terminé la liste !</p>
+
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 p-1 bg-slate-100 rounded-2xl">
+                <button onclick="showTab('results')" id="tab-results" class="tab-btn active flex-1 py-2 rounded-xl font-black text-xs uppercase tracking-widest">Résultats</button>
+                <button onclick="showTab('misses')" id="tab-misses" class="tab-btn flex-1 py-2 rounded-xl font-black text-xs uppercase tracking-widest">
+                    Mots ratés
+                    <span id="miss-count-badge" class="ml-1 bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
+                </button>
+            </div>
+
+            <!-- Tab: Résultats -->
+            <div id="tab-results-content">
+                <div id="podium-results" class="space-y-4 mb-6"></div>
+            </div>
+
+            <!-- Tab: Mots ratés -->
+            <div id="tab-misses-content" class="hidden">
+                <div id="missed-words-list" class="space-y-2 text-left mb-4"></div>
+                <p id="no-misses-msg" class="text-slate-400 italic text-sm hidden">🎉 Aucun mot raté ! Parfait !</p>
+            </div>
+
+            <button onclick="location.reload()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs mt-4">Retour au menu</button>
+        </div>
+    </div>
+
+    <script>
+    // ==================== VOCABULAIRE PAR DÉFAUT ====================
+    const defaultVocabulary = [
+        { es: "el cambio climatico", fr: "changement climatique" },
+        { es: "los árboles", fr: "les arbres" },
+        { es: "el 71% de agua", fr: "71% d'eau" },
+        { es: "los animales", fr: "les animaux" },
+        { es: "el agua", fr: "l'eau" },
+        { es: "la naturaleza", fr: "la nature" },
+        { es: "azul", fr: "bleu" },
+        { es: "la Tierra / el planeta", fr: "la terre, la planête" },
+        { es: "verde", fr: "vert" },
+        { es: "los seres humanos", fr: "les êtres vivants" },
+        { es: "el continente de plástico", fr: "le continent plastique" },
+        { es: "la polución / la contaminación", fr: "la polution" },
+        { es: "el peligro", fr: "le danger" },
+        { es: "el medio ambiente", fr: "l'environnement" },
+        { es: "los desechos / la basura / los residuos", fr: "les déchets" },
+        { es: "la fauna y la flora", fr: "la faune et la flore" },
+        { es: "la sequia", fr: "la sécheresse" },
+        { es: "las inundaciones", fr: "les inondations" },
+        { es: "el calentamiento global", fr: "le rechauffement global" },
+        { es: "fenómenos", fr: "phénomènes" },
+        { es: "el viento o la nieve", fr: "le vent ou la neige" },
+        { es: "degradación", fr: "degradation" },
+        { es: "la acción", fr: "l'action" },
+        { es: "el aumento", fr: "l'augmentation" },
+        { es: "catástrofes naturales", fr: "les catastrophes naturelles" },
+        { es: "alcanzar 50 grados", fr: "atteindre 50 degrés" },
+        { es: "sustituir", fr: "remplacer" },
+        { es: "problema medioambiental", fr: "problèmes environnementaux" },
+        { es: "la selva", fr: "la foret" },
+        { es: "el calor", fr: "la chaleur" },
+        { es: "contaminar", fr: "polluer" },
+        { es: "la pachamama", fr: "la Terre mère chez les indigènes" },
+        { es: "mejorar", fr: "améliorer" },
+        { es: "el espacio", fr: "l'espace" },
+        { es: "un robot", fr: "un robot" },
+        { es: "el futúro", fr: "le futur" },
+        { es: "amenazar", fr: "menacer" },
+        { es: "una amenaza", fr: "une menace" },
+        { es: "correr el riesgo", fr: "courrir/prendre le risque" },
+        { es: "luchar contra / combatir", fr: "se battre contre" },
+        { es: "solucionar / remediar", fr: "remedier solutionner" }
+    ];
+
+    // ==================== STATE ====================
+    const GITHUB_USER = 'chevrichon';
+    const GITHUB_REPO = 'VocaRace';
+    const GITHUB_BRANCH = 'main';
+    const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/`;
+    const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
+
+    let selectedMode = 'solo';
+    let currentDifficulty = 'debutant';
+    let lives = 3;
+    let score = 0;
+    let streak = 0;
+    let gameQueue = [];
+    let playerProgress = 0;
+    let botProgress = 0;
+    let isCooldown = false;
+    let botInterval = null;
+    let errorCount = 0;          // erreurs sur le mot courant
+    let isRevealing = false;     // en mode "réponse révélée"
+    let missedWords = [];        // mots ratés (révélés ou non validés)
+    let activeVocabulary = [...defaultVocabulary];
+    let activeListName = 'Liste par défaut';
+    let activeListSource = 'builtin';
+
+    // ==================== UTILS ====================
+    const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+    // ==================== PARSE .espagnol FILE ====================
+    function parseEspagnolFile(content) {
+        const lines = content.split('\n').filter(l => l.trim());
+        const words = [];
+        for (const line of lines) {
+            // Format: "mot_fr" "mot_es"   ou   "mot_fr" "mot_es"
+            const match = line.match(/^"([^"]+)"\s+"([^"]+)"/);
+            if (match) {
+                words.push({ fr: match[1].trim(), es: match[2].trim() });
+            }
+        }
+        return words;
+    }
+
+    // ==================== GITHUB LISTS ====================
+    window.fetchGithubLists = async function() {
+        const loader = document.getElementById('lists-loader');
+        const errDiv = document.getElementById('lists-error');
+        const container = document.getElementById('github-lists-container');
+        const btn = document.getElementById('btn-refresh-lists');
+
+        loader.classList.remove('hidden');
+        errDiv.classList.add('hidden');
+        container.innerHTML = '';
+        btn.textContent = '↻ Chargement...';
+        btn.style.opacity = '0.5';
+        btn.style.pointerEvents = 'none';
+
+        try {
+            const res = await fetch(API_BASE, {
+                headers: { 'Accept': 'application/vnd.github.v3+json' }
+            });
+            if (!res.ok) throw new Error('GitHub API error ' + res.status);
+            const files = await res.json();
+            const espFiles = files.filter(f => f.name.endsWith('.espagnol'));
+
+            if (espFiles.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-xs text-slate-500 italic py-2">Aucune liste .espagnol trouvée dans le repo pour l'instant.</div>`;
+            } else {
+                espFiles.forEach((file, i) => {
+                    const listName = file.name.replace('.espagnol', '');
+                    const card = document.createElement('div');
+                    card.className = 'list-card bg-white rounded-2xl p-4 shadow';
+                    card.dataset.source = 'github';
+                    card.dataset.url = file.download_url || `${RAW_BASE}${file.name}`;
+                    card.dataset.name = listName;
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🇪🇸</span>
+                            <div>
+                                <p class="font-black text-slate-800 text-sm">${listName}</p>
+                                <p class="text-slate-400 text-xs" id="card-count-${i}">Chargement...</p>
+                            </div>
+                        </div>
+                    `;
+                    card.onclick = () => selectList(card, 'github', file.download_url || `${RAW_BASE}${file.name}`, listName);
+                    container.appendChild(card);
+
+                    // Fetch pour compter les mots
+                    fetch(file.download_url || `${RAW_BASE}${file.name}`)
+                        .then(r => r.text())
+                        .then(content => {
+                            const words = parseEspagnolFile(content);
+                            const el = document.getElementById(`card-count-${i}`);
+                            if (el) el.textContent = `${words.length} mots`;
+                        })
+                        .catch(() => {
+                            const el = document.getElementById(`card-count-${i}`);
+                            if (el) el.textContent = '? mots';
+                        });
+                });
+            }
+        } catch (e) {
+            errDiv.classList.remove('hidden');
+            console.warn('GitHub fetch failed:', e);
+        } finally {
+            loader.classList.add('hidden');
+            btn.textContent = '↻ Actualiser les listes GitHub';
+            btn.style.opacity = '';
+            btn.style.pointerEvents = '';
+        }
+    };
+
+    window.selectList = async function(el, source, url, name) {
+        // Désélectionner tout
+        document.querySelectorAll('.list-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+
+        if (source === 'builtin') {
+            activeVocabulary = [...defaultVocabulary];
+            activeListName = 'Liste par défaut';
+            activeListSource = 'builtin';
+        } else {
+            el.classList.add('loading');
+            el.innerHTML += `<div class="mt-2 flex items-center gap-2"><div class="spinner" style="width:16px;height:16px;border-width:2px"></div><span class="text-xs text-slate-400">Chargement...</span></div>`;
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Fetch failed');
+                const content = await res.text();
+                const words = parseEspagnolFile(content);
+                if (words.length === 0) throw new Error('Aucun mot parsé');
+                activeVocabulary = words;
+                activeListName = name;
+                activeListSource = 'github';
+            } catch(e) {
+                alert('Impossible de charger cette liste. La liste par défaut sera utilisée.');
+                document.querySelectorAll('.list-card').forEach(c => c.classList.remove('selected'));
+                document.querySelector('[data-source="builtin"]').classList.add('selected');
+                activeVocabulary = [...defaultVocabulary];
+                activeListName = 'Liste par défaut';
+                activeListSource = 'builtin';
+            } finally {
+                el.classList.remove('loading');
+                // Refresh card display
+                const listName = el.dataset.name;
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🇪🇸</span>
+                        <div>
+                            <p class="font-black text-slate-800 text-sm">${listName}</p>
+                            <p class="text-slate-400 text-xs">${activeVocabulary.length} mots</p>
+                        </div>
+                    </div>
+                `;
+                el.onclick = () => selectList(el, 'github', url, listName);
+            }
+        }
+    };
+
+    // ==================== NAVIGATION ====================
+    window.showDifficulty = (mode) => {
+        selectedMode = mode;
+        document.getElementById('diff-title').innerText = mode === 'bot' ? "Nivel de Duel" : "Nivel de Entrenamiento";
+        document.getElementById('difficulty-screen').classList.remove('hidden');
+        fetchGithubLists(); // auto-fetch à l'ouverture
+    };
+
+    window.hideDifficulty = () => document.getElementById('difficulty-screen').classList.add('hidden');
+
+    window.confirmStart = (difficulty) => {
+        currentDifficulty = difficulty;
+        startGame();
+    };
+
+    // ==================== GAME INIT ====================
+    function startGame() {
+        score = 0; lives = 3; streak = 0; playerProgress = 0; botProgress = 0;
+        errorCount = 0; isRevealing = false; missedWords = [];
+        gameQueue = [...activeVocabulary].sort(() => Math.random() - 0.5);
+
+        document.querySelectorAll('.fixed').forEach(el => el.classList.add('hidden'));
+        document.getElementById('game-header').classList.remove('hidden');
+        document.getElementById('game-main').classList.remove('hidden');
+        document.getElementById('score').innerText = "0";
+
+        if (selectedMode === 'bot') {
+            document.getElementById('duel-bar').classList.remove('hidden');
+            document.getElementById('solo-progress-ui').classList.add('hidden');
+            document.getElementById('current-mode-label').innerText = `🤖 DUEL ${currentDifficulty.toUpperCase()}`;
+            startBotAI();
+        } else {
+            document.getElementById('duel-bar').classList.add('hidden');
+            document.getElementById('solo-progress-ui').classList.remove('hidden');
+            document.getElementById('current-mode-label').innerText = `👤 SOLO ${currentDifficulty.toUpperCase()}`;
+        }
+
+        if (currentDifficulty === 'hardcore') {
+            document.getElementById('lives-display').classList.remove('hidden');
+            updateLivesUI();
+        } else {
+            document.getElementById('lives-display').classList.add('hidden');
+        }
+
+        // Indicateur d'erreurs (sauf hardcore)
+        if (currentDifficulty !== 'hardcore') {
+            document.getElementById('error-indicator').classList.remove('hidden');
+        } else {
+            document.getElementById('error-indicator').classList.add('hidden');
+        }
+
+        document.getElementById('total-words').innerText = gameQueue.length;
+        document.getElementById('list-name-display').innerText = activeListName;
+        updateProgressUI();
+        displayQuestion();
+    }
+
+    // ==================== BOT AI ====================
+    function startBotAI() {
+        if (botInterval) clearInterval(botInterval);
+        let botSpeed = 10000;
+        if (currentDifficulty === 'intermediaire') botSpeed = 7000;
+        if (currentDifficulty === 'expert') botSpeed = 5000;
+        if (currentDifficulty === 'hardcore') botSpeed = 3500;
+
+        botInterval = setInterval(() => {
+            botProgress++;
+            updateProgressUI();
+            if (botProgress >= gameQueue.length) {
+                clearInterval(botInterval);
+                showEnd(false);
+            }
+        }, botSpeed);
+    }
+
+    // ==================== DISPLAY QUESTION ====================
+    function displayQuestion() {
+        if (playerProgress >= gameQueue.length) {
+            clearInterval(botInterval);
+            showEnd(true);
+            return;
+        }
+
+        errorCount = 0;
+        isRevealing = false;
+        updateErrorDots();
+
+        const wordObj = gameQueue[playerProgress];
+        document.getElementById('fr-word').innerText = `"${wordObj.fr}"`;
+        document.getElementById('reveal-zone').classList.add('hidden');
+        document.getElementById('btn-check').classList.remove('hidden');
+        document.getElementById('feedback-area').classList.add('hidden');
+
+        const container = document.getElementById('letter-inputs');
+        container.innerHTML = "";
+
+        const target = wordObj.es.toLowerCase();
+        const revealChance = currentDifficulty === 'debutant' ? 0.35 : (currentDifficulty === 'intermediaire' ? 0.15 : 0);
+
+        for (let char of target) {
+            if (char === " " || /[0-9%\/]/.test(char)) {
+                const d = document.createElement('div');
+                if (char === " ") {
+                    d.className = "space-box";
+                } else {
+                    d.className = "flex items-center justify-center font-bold text-slate-800 px-0.5 text-lg sm:text-2xl";
+                    d.innerText = char;
+                }
+                container.appendChild(d);
+            } else if (/[^a-záéíóúñüà]/.test(char)) {
+                const d = document.createElement('div');
+                d.className = "flex items-center justify-center font-bold text-slate-800 px-0.5 text-lg sm:text-2xl";
+                d.innerText = char;
+                container.appendChild(d);
+            } else {
+                const input = document.createElement('input');
+                input.type = "text"; input.maxLength = 1;
+                input.className = "letter-box border-2 border-slate-200 focus:border-indigo-400 focus:outline-none shadow-sm";
+                input.dataset.correct = char;
+
+                if (revealChance > 0 && Math.random() < revealChance) {
+                    input.value = char;
+                    input.classList.add('input-hint');
+                    input.readOnly = true;
+                }
+
+                input.oninput = (e) => { if (e.target.value) focusNext(e.target); };
+                input.onkeydown = (e) => { if (e.key === 'Backspace' && !e.target.value) focusPrev(e.target); };
+                container.appendChild(input);
+            }
+        }
+
+        setTimeout(() => {
+            const firstEmpty = [...container.querySelectorAll('input')].find(i => !i.value);
+            if (firstEmpty) firstEmpty.focus();
+            else container.querySelector('input')?.focus();
+        }, 100);
+    }
+
+    // ==================== ERROR DOTS ====================
+    function updateErrorDots() {
+        for (let i = 1; i <= 2; i++) {
+            const dot = document.getElementById(`err-dot-${i}`);
+            if (!dot) continue;
+            dot.classList.toggle('filled', i <= errorCount);
+            dot.classList.toggle('empty', i > errorCount);
+        }
+    }
+
+    // ==================== CHECK ANSWER ====================
+    window.checkAnswer = () => {
+        if (isCooldown || isRevealing) return;
+        isCooldown = true;
+
+        const btn = document.getElementById('btn-check');
+        const timer = document.getElementById('btn-timer');
+        btn.classList.add('btn-disabled');
+        timer.classList.remove('hidden');
+        setTimeout(() => {
+            isCooldown = false;
+            btn.classList.remove('btn-disabled');
+            timer.classList.add('hidden');
+        }, 800);
+
+        const inputs = document.querySelectorAll('#letter-inputs input');
+        let isCorrect = true;
+
+        inputs.forEach(input => {
+            const userVal = normalize(input.value);
+            const targetVal = normalize(input.dataset.correct);
+            if (userVal !== targetVal) {
+                isCorrect = false;
+                input.classList.add('input-error');
+                setTimeout(() => input.classList.remove('input-error'), 500);
+            } else if (!input.readOnly) {
+                input.classList.add('input-correct');
+            }
+        });
+
+        if (isCorrect) {
+            handleSuccess();
+        } else {
+            handleFailure();
+        }
+    };
+
+    // ==================== SUCCESS ====================
+    function handleSuccess() {
+        score += 100 + (streak * 25);
+        streak++;
+        updateStreakUI();
+        document.getElementById('score').innerText = score;
+
+        playerProgress++;
+        updateProgressUI();
+        setTimeout(displayQuestion, 600);
+    }
+
+    // ==================== FAILURE ====================
+    function handleFailure() {
+        streak = 0;
+        updateStreakUI();
+        document.getElementById('question-card').classList.add('shake');
+        setTimeout(() => document.getElementById('question-card').classList.remove('shake'), 400);
+
+        if (currentDifficulty === 'hardcore') {
+            lives--;
+            updateLivesUI();
+            showFeedback('❌ Raté ! Réessaie...');
+            if (lives <= 0) {
+                // Ajouter le mot courant aux ratés
+                missedWords.push({ ...gameQueue[playerProgress], reason: 'vies_epuisees' });
+                clearInterval(botInterval);
+                showEnd(false);
+            }
+            return;
+        }
+
+        // Modes non-hardcore : compter les erreurs
+        errorCount++;
+        updateErrorDots();
+
+        if (errorCount >= 2) {
+            // Révéler la réponse
+            revealAnswer();
+        } else {
+            showFeedback(`❌ Erreur ${errorCount}/2 — Réessaie !`);
+        }
+    }
+
+    // ==================== REVEAL ANSWER ====================
+    function revealAnswer() {
+        isRevealing = true;
+        const wordObj = gameQueue[playerProgress];
+
+        // Remplir toutes les cases avec la bonne réponse (violet)
+        const inputs = document.querySelectorAll('#letter-inputs input');
+        inputs.forEach(input => {
+            if (!input.readOnly) {
+                input.value = input.dataset.correct;
+                input.classList.remove('input-error', 'input-correct', 'input-hint');
+                input.classList.add('input-revealed');
+                input.readOnly = true;
+            }
+        });
+
+        // Afficher la zone de révélation
+        document.getElementById('reveal-answer').innerText = wordObj.es;
+        document.getElementById('reveal-zone').classList.remove('hidden');
+        document.getElementById('btn-check').classList.add('hidden');
+        document.getElementById('feedback-area').classList.add('hidden');
+
+        // Ajouter aux mots ratés
+        if (!missedWords.find(w => w.es === wordObj.es)) {
+            missedWords.push({ ...wordObj, reason: 'revele' });
+        }
+
+        // Pulse warning
+        document.getElementById('question-card').classList.add('pulse-warn');
+        setTimeout(() => document.getElementById('question-card').classList.remove('pulse-warn'), 600);
+    }
+
+    window.nextAfterReveal = () => {
+        isRevealing = false;
+        playerProgress++;
+        updateProgressUI();
+        displayQuestion();
+    };
+
+    // ==================== FEEDBACK ====================
+    function showFeedback(msg) {
+        const area = document.getElementById('feedback-area');
+        const txt = document.getElementById('feedback-text');
+        txt.innerText = msg;
+        area.classList.remove('hidden');
+        setTimeout(() => area.classList.add('hidden'), 2000);
+    }
+
+    // ==================== UI UPDATES ====================
+    function updateProgressUI() {
+        const total = gameQueue.length;
+        const pPerc = (playerProgress / total) * 100;
+        const bPerc = (botProgress / total) * 100;
+
+        if (selectedMode === 'bot') {
+            document.getElementById('player-progress').style.width = `${pPerc}%`;
+            document.getElementById('bot-progress').style.width = `${bPerc}%`;
+        }
+        document.getElementById('words-mastered').innerText = playerProgress;
+        document.getElementById('progress-bar-fill').style.width = `${pPerc}%`;
+    }
+
+    function updateStreakUI() {
+        document.getElementById('streak-val').innerText = `🔥 Série: ${streak}`;
+    }
+
+    function updateLivesUI() {
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById(`heart-${i}`).style.opacity = i <= lives ? "1" : "0.2";
+        }
+    }
+
+    // ==================== END MODAL ====================
+    function showEnd(isVictory) {
+        // Comptabiliser tous les mots non validés si défaite
+        if (!isVictory && currentDifficulty !== 'hardcore') {
+            for (let i = playerProgress; i < gameQueue.length; i++) {
+                const w = gameQueue[i];
+                if (!missedWords.find(m => m.es === w.es)) {
+                    missedWords.push({ ...w, reason: 'non_atteint' });
+                }
+            }
+        }
+
+        document.getElementById('end-modal').classList.remove('hidden');
+
+        const title = document.getElementById('modal-title');
+        const icon = document.getElementById('modal-icon');
+        const desc = document.getElementById('modal-desc');
+
+        if (isVictory) {
+            title.innerText = "¡VICTORIA!";
+            icon.innerText = missedWords.length === 0 ? "🏆" : "🎉";
+            desc.innerText = selectedMode === 'bot' ? "Tu as écrasé l'IA !" : "Tu as terminé la liste !";
+        } else {
+            title.innerText = lives <= 0 ? "¡SIN VIDAS!" : "¡DERROTA!";
+            icon.innerText = "🤖";
+            desc.innerText = lives <= 0 ? "Tu n'as plus de vies." : "Le robot a fini avant toi...";
+        }
+
+        // Tab résultats
+        const correct = playerProgress - missedWords.filter(w => w.reason === 'revele').length;
+        document.getElementById('podium-results').innerHTML = `
+            <div class="bg-indigo-50 p-6 rounded-3xl">
+                <span class="text-4xl font-black text-indigo-600">${score}</span>
+                <p class="text-[10px] font-black uppercase text-indigo-300 mt-1">Puntos Totales</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mt-4">
+                <div class="bg-emerald-50 rounded-2xl p-4">
+                    <span class="text-2xl font-black text-emerald-600">${playerProgress}</span>
+                    <p class="text-[10px] font-black uppercase text-emerald-400 mt-1">Validés</p>
+                </div>
+                <div class="bg-rose-50 rounded-2xl p-4">
+                    <span class="text-2xl font-black text-rose-600">${missedWords.filter(w=>w.reason==='revele').length}</span>
+                    <p class="text-[10px] font-black uppercase text-rose-400 mt-1">Révélés</p>
+                </div>
+                <div class="bg-amber-50 rounded-2xl p-4">
+                    <span class="text-2xl font-black text-amber-600">${gameQueue.length}</span>
+                    <p class="text-[10px] font-black uppercase text-amber-400 mt-1">Total</p>
+                </div>
+            </div>
+            <div class="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
+                Liste : ${activeListName}
+            </div>
+        `;
+
+        // Tab mots ratés
+        const missedOnlyReveled = missedWords.filter(w => w.reason === 'revele');
+        const missCount = missedOnlyReveled.length;
+        const badge = document.getElementById('miss-count-badge');
+        if (missCount > 0) {
+            badge.classList.remove('hidden');
+            badge.innerText = missCount;
+        } else {
+            badge.classList.add('hidden');
+        }
+
+        const missedList = document.getElementById('missed-words-list');
+        const noMissMsg = document.getElementById('no-misses-msg');
+
+        if (missedOnlyReveled.length === 0) {
+            missedList.innerHTML = '';
+            noMissMsg.classList.remove('hidden');
+        } else {
+            noMissMsg.classList.add('hidden');
+            missedList.innerHTML = missedOnlyReveled.map(w => `
+                <div class="miss-badge flex items-center justify-between">
+                    <span class="fr">${w.fr}</span>
+                    <span class="mx-2 text-rose-300">→</span>
+                    <span class="font-black text-rose-700 italic">${w.es}</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    window.showTab = (tab) => {
+        document.getElementById('tab-results').classList.toggle('active', tab === 'results');
+        document.getElementById('tab-misses').classList.toggle('active', tab === 'misses');
+        document.getElementById('tab-results-content').classList.toggle('hidden', tab !== 'results');
+        document.getElementById('tab-misses-content').classList.toggle('hidden', tab !== 'misses');
+    };
+
+    // ==================== FOCUS HELPERS ====================
+    function focusNext(el) {
+        let n = el.nextElementSibling;
+        while (n && (n.tagName !== 'INPUT' || n.readOnly)) n = n.nextElementSibling;
+        if (n) n.focus();
+    }
+    function focusPrev(el) {
+        let p = el.previousElementSibling;
+        while (p && (p.tagName !== 'INPUT' || p.readOnly)) p = p.previousElementSibling;
+        if (p) p.focus();
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !isRevealing) checkAnswer();
+    });
+    </script>
+</body>
+</html>
