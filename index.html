@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VocaRace</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;min-height:100vh;display:flex;flex-direction:column;color:#1e293b;overflow-x:hidden}
@@ -308,7 +308,7 @@ input{font-family:inherit}
 <div id="lobby-screen" class="screen hidden">
   <div class="lobby-inner">
     <h2 class="lobby-title">⚔️ Duel En Ligne</h2>
-    <p class="lobby-sub">Temps réel · Firestore</p>
+    <p class="lobby-sub">Temps réel · Realtime Database</p>
 
     <div id="lobby-step1">
       <p class="section-label" style="margin-bottom:.75rem">📚 Liste de mots</p>
@@ -495,12 +495,13 @@ input{font-family:inherit}
 // ════════════════════════════════════════════════════
 // FIREBASE — Remplacez VOTRE_XXX par vos vraies valeurs
 // Créez un projet sur https://console.firebase.google.com
-// puis activez Firestore en mode "test" pour commencer
+// puis activez Realtime Database (mode test)
 // ════════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
   apiKey:            "VOTRE_API_KEY",
   authDomain:        "VOTRE_PROJECT_ID.firebaseapp.com",
   projectId:         "VOTRE_PROJECT_ID",
+  databaseURL:       "https://VOTRE_PROJECT_ID-default-rtdb.europe-west1.firebasedatabase.app",
   storageBucket:     "VOTRE_PROJECT_ID.appspot.com",
   messagingSenderId: "VOTRE_SENDER_ID",
   appId:             "VOTRE_APP_ID"
@@ -508,9 +509,7 @@ const FIREBASE_CONFIG = {
 let db = null;
 try {
   firebase.initializeApp(FIREBASE_CONFIG);
-  db = firebase.firestore();
-  // Optionnel : activer la persistence hors-ligne
-  // db.enablePersistence().catch(()=>{});
+  db = firebase.database();
 } catch(e) {
   console.warn('Firebase non configuré — duel en ligne désactivé');
 }
@@ -689,10 +688,11 @@ async function pickGithubList(card,url,name,pickerId,builtinId){
 }
 
 // ════════════════════════════════════════════════════
-// DUEL EN LIGNE — FIRESTORE
+// DUEL EN LIGNE — REALTIME DATABASE
 // ════════════════════════════════════════════════════
 function genCode(){return Math.random().toString(36).substr(2,6).toUpperCase();}
 function lobbyErr(msg){const el=document.getElementById('lobby-error');el.textContent=msg;el.classList.remove('hidden');}
+function roomRef(path){ return db.ref('rooms/'+roomId+(path?'/'+path:'')); }
 
 window.createRoom=async function(){
   if(!db){lobbyErr('⚠️ Firebase non configuré. Ajoutez vos clés dans le code source.');return;}
@@ -701,16 +701,19 @@ window.createRoom=async function(){
   roomId=genCode();
   const vocab=[...activeVocabulary].sort(()=>Math.random()-.5);
   try{
-    await db.collection('rooms').doc(roomId).set({
-      code:roomId,status:'waiting',
+    await db.ref('rooms/'+roomId).set({
+      status:'waiting',
       listName:activeListName,
       vocab:JSON.stringify(vocab),
-      players:{p1:{name,progress:0,score:0,online:true}},
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      players:{
+        p1:{name,progress:0,score:0,online:true}
+      }
     });
+    // Marquer hors-ligne automatiquement si la page se ferme
+    db.ref('rooms/'+roomId+'/players/p1/online').onDisconnect().set(false);
     showLobbyWaiting(roomId);
     subscribeRoom(vocab);
-  }catch(e){lobbyErr('Erreur Firestore : '+e.message);}
+  }catch(e){lobbyErr('Erreur : '+e.message);}
 };
 
 window.joinRoom=async function(){
@@ -720,13 +723,14 @@ window.joinRoom=async function(){
   if(code.length!==6){lobbyErr('Code invalide — 6 caractères requis.');return;}
   myPlayerName=name; myPlayerId='p2'; isHost=false; roomId=code; onlineGameStarted=false;
   try{
-    const snap=await db.collection('rooms').doc(code).get();
-    if(!snap.exists){lobbyErr('Salon introuvable. Vérifiez le code.');return;}
-    const data=snap.data();
+    const snap=await db.ref('rooms/'+code).get();
+    if(!snap.exists()){lobbyErr('Salon introuvable. Vérifiez le code.');return;}
+    const data=snap.val();
     if(data.status==='playing'){lobbyErr('Ce salon est déjà en cours.');return;}
     if(data.players&&data.players.p2){lobbyErr('Ce salon est plein.');return;}
     const vocab=JSON.parse(data.vocab);
-    await db.collection('rooms').doc(code).update({'players.p2':{name,progress:0,score:0,online:true}});
+    await db.ref('rooms/'+code+'/players/p2').set({name,progress:0,score:0,online:true});
+    db.ref('rooms/'+code+'/players/p2/online').onDisconnect().set(false);
     showLobbyWaiting(code);
     subscribeRoom(vocab);
   }catch(e){lobbyErr('Erreur : '+e.message);}
@@ -739,13 +743,15 @@ function showLobbyWaiting(code){
 }
 
 function subscribeRoom(vocab){
-  if(roomUnsub)roomUnsub();
-  roomUnsub=db.collection('rooms').doc(roomId).onSnapshot(snap=>{
-    if(!snap.exists)return;
-    const data=snap.data();
+  // Détacher l'ancien listener si existant
+  if(roomUnsub){db.ref('rooms/'+roomId).off('value',roomUnsub);roomUnsub=null;}
+
+  const handler=snap=>{
+    if(!snap.exists())return;
+    const data=snap.val();
     const players=Object.entries(data.players||{});
 
-    // Update lobby UI
+    // Mise à jour liste joueurs dans lobby
     const pl=document.getElementById('lobby-players-list');
     if(pl&&!document.getElementById('lobby-step2').classList.contains('hidden')){
       pl.innerHTML=players.map(([id,p])=>`
@@ -755,38 +761,42 @@ function subscribeRoom(vocab){
           <span class="lobby-player-status">${p.online?'Connecté':'Hors ligne'}</span>
         </div>`).join('');
     }
-    const twoPlayers=players.length>=2&&players.every(([,p])=>p.online);
+    const twoReady=players.length>=2&&players.every(([,p])=>p.online);
     const btn=document.getElementById('btn-start-online-duel');
     if(btn){
-      btn.disabled=!twoPlayers||!isHost;
-      btn.textContent=twoPlayers?(isHost?'Lancer la partie →':'En attente du créateur...'):'En attente d\'un adversaire...';
+      btn.disabled=!twoReady||!isHost;
+      btn.textContent=twoReady?(isHost?'Lancer la partie →':'En attente du créateur...'):'En attente d\'un adversaire...';
     }
 
-    // Démarrage lancé par le host
+    // Lancement de partie
     if(data.status==='playing'&&!onlineGameStarted){
       onlineGameStarted=true;
       launchOnlineGame(vocab,data.players);
     }
 
-    // Suivi adversaire en jeu
+    // Suivi progression adverse en jeu
     if(data.status==='playing'&&onlineGameStarted){
       const oppId=myPlayerId==='p1'?'p2':'p1';
       const opp=data.players[oppId];
       if(opp){
         opponentProgress=opp.progress||0;
         updateProgressUI();
-        if(opponentProgress>=gameQueue.length&&!document.getElementById('end-modal').classList.contains('hidden')===false){
-          if(roomUnsub){roomUnsub();roomUnsub=null;}
+        // L'adversaire a fini
+        if(opponentProgress>=gameQueue.length&&document.getElementById('end-modal').classList.contains('hidden')){
+          db.ref('rooms/'+roomId).off('value',roomUnsub);roomUnsub=null;
           showEnd(false);
         }
       }
     }
-  });
+  };
+
+  db.ref('rooms/'+roomId).on('value',handler);
+  roomUnsub=handler;
 }
 
 window.hostStartGame=async function(){
   if(!db||!roomId||!isHost)return;
-  await db.collection('rooms').doc(roomId).update({status:'playing'});
+  await db.ref('rooms/'+roomId+'/status').set('playing');
 };
 
 function launchOnlineGame(vocab,players){
@@ -810,16 +820,16 @@ function launchOnlineGame(vocab,players){
   updateProgressUI(); displayQuestion();
 }
 
-async function pushProgress(){
+function pushProgress(){
   if(!db||!roomId||!myPlayerId)return;
-  try{await db.collection('rooms').doc(roomId).update({[`players.${myPlayerId}.progress`]:playerProgress,[`players.${myPlayerId}.score`]:score});}catch(e){}
+  db.ref('rooms/'+roomId+'/players/'+myPlayerId).update({progress:playerProgress,score:score});
 }
 
-window.leaveRoom=async function(){
+window.leaveRoom=function(){
   if(db&&roomId&&myPlayerId){
-    try{await db.collection('rooms').doc(roomId).update({[`players.${myPlayerId}.online`]:false});}catch(e){}
+    db.ref('rooms/'+roomId+'/players/'+myPlayerId+'/online').set(false);
   }
-  if(roomUnsub){roomUnsub();roomUnsub=null;}
+  if(roomUnsub&&roomId){db.ref('rooms/'+roomId).off('value',roomUnsub);roomUnsub=null;}
   roomId=null; onlineGameStarted=false;
   hideAll();
   document.getElementById('lobby-screen').classList.remove('hidden');
