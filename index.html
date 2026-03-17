@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VocaRace - Duel contre Bot</title>
+    <title>VocaRace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .input-correct { border-color: #22c55e !important; background-color: #f0fdf4 !important; color: #166534 !important; }
@@ -52,16 +52,16 @@
             <h2 id="diff-title" class="text-3xl font-black text-white mb-8 italic uppercase tracking-widest">Nivel de Dificultad</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                 <button onclick="confirmStart('debutant')" class="p-6 bg-emerald-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
-                    Débutant <span class="block text-[10px] opacity-70">Aide ++ • Bot lent</span>
+                    Débutant <span class="block text-[10px] opacity-70">Aide ++</span>
                 </button>
                 <button onclick="confirmStart('intermediaire')" class="p-6 bg-indigo-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
-                    Intermédiaire <span class="block text-[10px] opacity-70">Aide + • Bot normal</span>
+                    Intermédiaire <span class="block text-[10px] opacity-70">Aide +</span>
                 </button>
                 <button onclick="confirmStart('expert')" class="p-6 bg-purple-500 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
-                    Expert <span class="block text-[10px] opacity-70">Sans aide • Bot rapide</span>
+                    Expert <span class="block text-[10px] opacity-70">Sans aide •</span>
                 </button>
                 <button onclick="confirmStart('hardcore')" class="p-6 bg-rose-600 text-white rounded-3xl font-black hover:scale-105 transition-all uppercase tracking-widest text-sm italic text-left">
-                    Hardcore <span class="block text-[10px] opacity-70">3 Vies • Bot Elite</span>
+                    Hardcore <span class="block text-[10px] opacity-70">3 Vies • sans aide</span>
                 </button>
             </div>
             <button onclick="hideDifficulty()" class="text-slate-400 font-black uppercase text-xs hover:text-white transition-colors">← Retour</button>
