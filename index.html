@@ -1139,10 +1139,10 @@ function startGame(){
 function startBotAI(){
   if(botInterval)clearTimeout(botInterval);
   // Temps de base par caractère selon difficulté (ms)
-  const msPerChar={debutant:900,intermediaire:600,expert:350,hardcore:180};
+  const msPerChar={debutant:900,intermediaire:600,expert:300,hardcore:180};
   const base=msPerChar[currentDifficulty]||600;
   // Délai fixe de "réflexion" par mot (ms)
-  const thinkTime={debutant:4000,intermediaire:2500,expert:1400,hardcore:700};
+  const thinkTime={debutant:4000,intermediaire:2500,expert:1200,hardcore:700};
   const think=thinkTime[currentDifficulty]||2500;
 
   function scheduleNext(){
