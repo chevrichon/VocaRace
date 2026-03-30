@@ -5,7 +5,7 @@ This is the hand made version
 To add a word list to the game just do it in the [Pull requests](https://github.com/chevrichon/VocaRace/pulls), for the format just look a the test.espagnol and lists.json files
 ## Implemented features
 - [X] base game (solo)
-- [] fetch lists from github
-- [] versus mode
-- [] learning mode
-- [] Kahoot like mode for clases 
+- [ ] fetch lists from github
+- [ ] versus mode
+- [ ] learning mode
+- [ ] Kahoot like mode for clases 
