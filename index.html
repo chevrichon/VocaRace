@@ -196,6 +196,27 @@
             border-width: 4px;
             border-color: #6366ff
         }
+        .lists{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 50px 50px;
+            gap: 25px;
+            width: 100%;
+            font-size: 12px;
+        }
+        .comptr {
+            position: fixed;
+            z-index: 100;
+            justify-content: center;
+            justify-self: center;
+            margin-top: 10%;
+            font-weight: 900;
+            font-style: italic;
+            gap: 80px;
+            text-align: center;
+            background-color: white;
+            border-radius: 25px;
+        }
     </style>
 </head>
 
@@ -219,7 +240,10 @@
                 <p>Hardcore</p>
                 <p class="stsl">....</p>
             </div>
-        </div>
+            <div  id ="lists" class="lists">
+
+            </div>
+          </div>
         <button onclick="acceuil()" style="color: #808080; font-weight: 900; font-size: 12px; border: none; background-color: #0f172a; width: 35px ; align-self: center; border-radius: 25px; margin-top: 40px; cursor: pointer; ">Retour</button>
     </div>
     <div class="acceuil" id="acceuil" style="display: flex">
@@ -248,6 +272,14 @@
             <button class="retour" id="retour" onclick="acceuil()">Retour</button>
         </div>
     </div>
+    <div class="comptr" id="comptr" style="display: none;">
+        <h1 class="iconfin">...</h1>
+        <h2 class="msgfin">Je ne suis pas censé être affiché</h2>
+        <h3>Résultats :</h3>
+        <div class="pts">
+            <p> PUNTOS TOTALES</p>
+        </div>
+    </div>
 </body>
 <script>
     const difficultée = ["Débutant","Intermédiare","Expert","Hardcore"]
@@ -266,7 +298,7 @@
     let lettre
     vocabulaire.sort(() => Math.random() - 0.5)
     function finsolo() {
-        document.getElementById("message").textContent = "liste terminée"
+        document.getElementById("comptr").style.display = "flex"
     }
     function chsolo() {
         document.getElementById("jeu").style.display = "none"
@@ -279,6 +311,7 @@
     }
     function acceuil() {
         document.getElementById("jeu").style.display = "none"
+        document.getElementsById("comptr").style.display = "none"
         document.getElementById("acceuil").style.display = "flex"
         document.getElementById("body").style.backgroundColor = "#0f172a"
         document.getElementById("chsolot").style.display = "none"
@@ -313,27 +346,25 @@
                 if (casel.value.toLowerCase() !== casel.dataset.correct.toLowerCase() && casel.dataset.correct !== " ") {
                     ok = false
                     casel.style.borderColor = "red"
+                    sleep(600).then(() => casel.style.borderColor = "black")
                 }
                 else {
                     casel.style.borderColor = "green"
+                    sleep(600).then(() => casel.style.borderColor = "black")
                 }
             })
-            if (ok) {
+            sleep(600).then(() => {
+              if (ok) {
                 motsuivant()
                 affichermot()
                 score = score + 1
-                document.getElementById("lettre").style.border = "outset"
-                document.getElementById("lettre").style.borderColor = "green"
                 document.getElementById("score").textContent = "Score : " + score
-                sleep(600).then(() => document.getElementById("lettre").style.border = "none")
             }
 
             else {
-                document.getElementById("lettre").style.border = "outset"
-                document.getElementById("lettre").style.borderColor = "red"
                 console.log(mot.es)
-                sleep(600).then(() => document.getElementById("lettre").style.border = "none")
             }
+            });
         }
     }
     function affichermot() {
