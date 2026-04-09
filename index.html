@@ -205,6 +205,8 @@
             font-size: 12px;
         }
         .comptr {
+            display: flex;
+            flex-direction: column;
             position: fixed;
             z-index: 100;
             justify-content: center;
@@ -212,10 +214,10 @@
             margin-top: 10%;
             font-weight: 900;
             font-style: italic;
-            gap: 80px;
             text-align: center;
             background-color: white;
             border-radius: 25px;
+            width: 25%;
         }
     </style>
 </head>
@@ -273,11 +275,11 @@
         </div>
     </div>
     <div class="comptr" id="comptr" style="display: none;">
-        <h1 class="iconfin">...</h1>
-        <h2 class="msgfin">Je ne suis pas censé être affiché</h2>
-        <h3>Résultats :</h3>
+        <p class="iconfin">...</p>
+        <p class="msgfin">Je ne suis pas censé être affiché</p>
+        <p>Résultats :</p>
         <div class="pts">
-            <p> PUNTOS TOTALES</p>
+            <p id="a"> PUNTOS TOTALES </p>
         </div>
     </div>
 </body>
@@ -299,6 +301,7 @@
     vocabulaire.sort(() => Math.random() - 0.5)
     function finsolo() {
         document.getElementById("comptr").style.display = "flex"
+        document.getElementById("a").textContent = "PUNTOS TOTALES : " + score
     }
     function chsolo() {
         document.getElementById("jeu").style.display = "none"
@@ -318,7 +321,7 @@
     }
     function lancersolo(u) {
         index = 0
-        score = 1
+        score = 0
         level = u
         document.getElementById("level").textContent = ("difficultée : " + difficultée[level - 1])
         document.getElementById("acceuil").style.display = "none"
