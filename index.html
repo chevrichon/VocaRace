@@ -240,7 +240,7 @@
             </div>
             <div role="button" class="level" onclick="lancersolo(4)" style="background-color: #e11d48; color: white;">
                 <p>Hardcore</p>
-                <p class="stsl">....</p>
+                <p class="stsl" style="font-style: normal;">💀💀💀💀</p>
             </div>
             <div  id ="lists" class="lists">
 
@@ -275,11 +275,11 @@
         </div>
     </div>
     <div class="comptr" id="comptr" style="display: none;">
-        <p class="iconfin">...</p>
-        <p class="msgfin">Je ne suis pas censé être affiché</p>
+        <p class="iconfin" style="font-size: 50px;font-style: normal;">🏆</p>
+        <p class="msgfin"id="msgfin">...</p>
         <p>Résultats :</p>
         <div class="pts">
-            <p id="a"> PUNTOS TOTALES </p>
+            <p id="a"> PUNTOS TOTALES : </p>
         </div>
     </div>
 </body>
@@ -290,6 +290,7 @@
         { fr: "la maison", es: "la casa" },
         { fr: "le chat", es: "el gato" },
     ]
+    const messagefin = ["tu feras mieux la prochaine fois", "on se rapproche de la perfection", "belle performance", "perfecto"]
     let index
     let score
     let mot
@@ -298,23 +299,31 @@
     let listelistes
     let level
     let lettre
+    let essaittl
+    let essai
+    let ratio
     vocabulaire.sort(() => Math.random() - 0.5)
     function finsolo() {
+        document.getElementById("body").style.backgroundColor = "#666666"
+        document.getElementById("jeu").style.filter = 'brightness(0.4)'
         document.getElementById("comptr").style.display = "flex"
         document.getElementById("a").textContent = "PUNTOS TOTALES : " + score
+        ratio = (100 / vocabulaire.length) * score 
+        document.getElementById("msgfin").textContent = messagefin[score]
     }
     function chsolo() {
         document.getElementById("jeu").style.display = "none"
         document.getElementById("acceuil").style.display = "none"
         document.getElementById("body").style.backgroundColor = "#0f172a"
         document.getElementById("chsolot").style.display = "flex"
+        document.getElementById("comptr").style.display = "none"
     }
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     function acceuil() {
         document.getElementById("jeu").style.display = "none"
-        document.getElementsById("comptr").style.display = "none"
+        document.getElementById("comptr").style.display = "none"
         document.getElementById("acceuil").style.display = "flex"
         document.getElementById("body").style.backgroundColor = "#0f172a"
         document.getElementById("chsolot").style.display = "none"
@@ -348,12 +357,12 @@
             cases.forEach(casel=>{
                 if (casel.value.toLowerCase() !== casel.dataset.correct.toLowerCase() && casel.dataset.correct !== " ") {
                     ok = false
-                    casel.style.borderColor = "red"
-                    sleep(600).then(() => casel.style.borderColor = "black")
+                    casel.style.backgroundColor = "red"
+                    sleep(600).then(() => casel.style.backgroundColor= "white")
                 }
                 else {
-                    casel.style.borderColor = "green"
-                    sleep(600).then(() => casel.style.borderColor = "black")
+                    casel.style.backgroundColor = "green"
+                    sleep(600).then(() => casel.backgroundColor = "white")
                 }
             })
             sleep(600).then(() => {
@@ -366,6 +375,7 @@
 
             else {
                 console.log(mot.es)
+                essaittl = essaittl +1
             }
             });
         }
