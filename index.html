@@ -245,7 +245,10 @@
             <div  id ="lists" class="lists">
 
             </div>
-          </div>
+            <div class="listgrid" id="listgrid">
+
+            </div>
+        </div>
         <button onclick="acceuil()" style="color: #808080; font-weight: 900; font-size: 12px; border: none; background-color: #0f172a; width: 35px ; align-self: center; border-radius: 25px; margin-top: 40px; cursor: pointer; ">Retour</button>
     </div>
     <div class="acceuil" id="acceuil" style="display: flex">
@@ -281,6 +284,7 @@
         <div class="pts">
             <p id="a"> PUNTOS TOTALES : </p>
         </div>
+        <button class="retour" id="retour" onclick="acceuil()">Retour</button>
     </div>
 </body>
 <script>
@@ -302,6 +306,7 @@
     let essaittl
     let essai
     let ratio
+    let aaa
     vocabulaire.sort(() => Math.random() - 0.5)
     function finsolo() {
         document.getElementById("body").style.backgroundColor = "#666666"
@@ -367,9 +372,9 @@
             })
             sleep(600).then(() => {
               if (ok) {
+                score = score + 1
                 motsuivant()
                 affichermot()
-                score = score + 1
                 document.getElementById("score").textContent = "Score : " + score
             }
 
@@ -449,11 +454,17 @@
         }
     })
     async function chargerliste() {
-        const reponsef = await fetch("https://raw.githubusercontent.com/chevrichon/VocaRace/refs/heads/main/lists.json")
-        listelistes = await reponsef.json()
+        const listejs = await fetch("https://raw.githubusercontent.com/chevrichon/VocaRace/refs/heads/main/lists.json")
+        listelistes = await listejs.json()
         console.log(listelistes)
+        for (i of listejs.length) {
+            const repliste = await fetch("https://raw.githubusercontent.com/chevrichon/VocaRace/refs/heads/main/" + listelistes[i])
+            console.log(await repliste.text())
+        }
+
 
 
     }
     acceuil()
+    chargerliste()
 </script>
