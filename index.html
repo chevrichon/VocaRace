@@ -802,7 +802,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
       const card=document.createElement('div');card.className='list-card';
       const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='📜';
       const info=document.createElement('div');
-      const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.replace(/\.histoire$/i,'');
+      const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.split('/').pop().replace(/\.histoire$/i,'');
       const count=document.createElement('p');count.className='list-card-count';count.textContent='...';
       info.append(title,count);card.append(icon,info);cont.appendChild(card);
       fetch(rawFile(filename)).then(r=>r.ok?r.text():Promise.reject())
@@ -815,7 +815,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
             if(!response.ok)throw new Error('HTTP '+response.status);
             const entries=parseHistoryFile(await response.text());
             if(!entries.length)throw new Error('Aucun événement valide');
-            activeVocabulary=entries;activeListName=filename;activeDatasetType='history';
+            activeVocabulary=entries;activeListName=filename.split('/').pop().replace(/\.histoire$/i,'');activeDatasetType='history';
           }catch(e){alert('Impossible de charger la chronologie '+filename+'.');card.classList.remove('selected');}
           finally{card.classList.remove('loading');}
         })();
@@ -881,7 +881,7 @@ async function loadListsInto(containerId,pickerId,builtinId){
     const files=await res.json();
     if(!Array.isArray(files)) return;
     files.filter(f=>f.endsWith('.espagnol')).forEach((fname,i)=>{
-      const name=fname.replace('.espagnol','');
+      const name=fname.split('/').pop().replace('.espagnol','');
       const url=rawFile(fname);
       const cid='lc-'+i+'-'+name.replace(/\W/g,'');
       const card=document.createElement('div');
@@ -920,7 +920,7 @@ window.fetchGithubLists=async function(){
     const files=await res.json();
     if(!Array.isArray(files)||!files.length){cont.innerHTML='<p style="font-size:.75rem;color:#94a3b8;grid-column:1/-1;padding:.5rem 0">lists.json vide.</p>';return;}
     files.filter(f=>f.endsWith('.espagnol')).forEach((fname,i)=>{
-      const name=fname.replace('.espagnol','');
+      const name=fname.split('/').pop().replace('.espagnol','');
       const url=rawFile(fname);
       const cid='cnt-'+i+'-'+name.replace(/\W/g,'');
       const card=document.createElement('div');
