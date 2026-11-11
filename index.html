@@ -7,6 +7,28 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
+/* ── THÈME CLAIR ── */
+#theme-toggle{position:fixed;top:.75rem;right:.75rem;z-index:200;background:#334155;color:#fff;border:1px solid #64748b;border-radius:999px;padding:.55rem .8rem;font-size:.72rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+body.theme-light .screen{background:#f1f5f9;color:#1e293b}
+body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title{color:#0f172a}
+body.theme-light .menu-sub,body.theme-light .section-label{color:#64748b}
+body.theme-light .mode-card--bot,body.theme-light .mode-card--learn,body.theme-light .mode-card--dates,body.theme-light .category-card--history{background:#e2e8f0}
+body.theme-light .mode-card-title--bot,body.theme-light .mode-card-title--learn,body.theme-light .mode-card-title--dates,body.theme-light .category-title-light{color:#1e293b}
+body.theme-light .mode-card-desc--bot,body.theme-light .mode-card-desc--learn,body.theme-light .mode-card-desc--dates,body.theme-light .category-desc-light{color:#475569}
+body.theme-light .mode-cta--dates{color:#4338ca}
+body.theme-light .list-card,body.theme-light .history-import-card,body.theme-light .lobby-tabs,body.theme-light .room-item,body.theme-light .lobby-name-input,body.theme-light .lobby-code-input{background:#fff;color:#1e293b;border-color:#cbd5e1}
+body.theme-light .list-card-name,body.theme-light .history-import-title,body.theme-light .room-item-host{color:#1e293b}
+body.theme-light .history-import-card input{color:#1e293b}
+body.theme-light .history-import-card.selected{background:#eef2ff}
+body.theme-light .history-import-card.selected .history-import-title{color:#312e81}
+body.theme-light .lobby-name-input::placeholder,body.theme-light .lobby-code-input::placeholder{color:#64748b}
+body.theme-light .lobby-tab:not(.active):hover{background:#e2e8f0;color:#334155}
+body.theme-light .rooms-empty,body.theme-light .rooms-loading{color:#64748b}
+body.theme-light .btn-back{color:#475569}
+body.theme-light .btn-back:hover{color:#0f172a}
+body.theme-light #dates-answer-input{background:#fff!important;color:#1e293b!important}
+body.theme-light #theme-toggle{background:#e2e8f0;color:#0f172a;border-color:#cbd5e1}
+
 /* ── RESET & BASE ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -311,6 +333,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 </style>
 </head>
 <body>
+<button id="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Basculer entre thème clair et sombre">☀️ Mode clair</button>
 
 <!-- CHOIX DE LA MATIÈRE -->
 <div id="category-selection-screen" class="screen">
@@ -575,7 +598,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
       <h2 id="fr-word" class="fr-word">"Cargando..."</h2>
       <div id="dates-answer-wrap" class="hidden" style="max-width:26rem;margin:0 auto 1.5rem">
         <label for="dates-answer-input" style="display:block;text-align:left;color:#64748b;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Ta réponse (jour/mois/année)</label>
-        <input id="dates-answer-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Ex. 14/07/1789 ou 2 juin 2777" style="width:100%;padding:1rem;border:2px solid #c7d2fe;border-radius:1rem;background:#fff;color:#1e293b;font-size:1.2rem;font-weight:800;text-align:center">
+        <input id="dates-answer-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="" style="width:100%;padding:1rem;border:2px solid #c7d2fe;border-radius:1rem;background:#fff;color:#1e293b;font-size:1.2rem;font-weight:800;text-align:center">
       </div>
       <div id="letter-inputs" class="letter-inputs"></div>
       <div id="feedback-area" class="feedback-area hidden"><span id="feedback-text"></span></div>
