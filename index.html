@@ -352,6 +352,502 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
   #game-main{padding-bottom:max(.75rem,env(safe-area-inset-bottom))}
   .screen{padding-left:max(1rem,env(safe-area-inset-left));padding-right:max(1rem,env(safe-area-inset-right))}
 }
+
+/* ── THÈMES COMPLETS : styles appliqués à toutes les vues ── */
+/* Le thème sombre est celui utilisé par défaut. */
+body:not(.theme-light){
+  background:#0b1220;
+  color:#e2e8f0;
+}
+body:not(.theme-light) .screen{
+  background:#0f172a;
+  color:#e2e8f0;
+}
+body:not(.theme-light) #end-modal{
+  background:rgba(2,6,23,.92);
+}
+
+/* Menus et sélection des matières */
+body:not(.theme-light) .menu-title,
+body:not(.theme-light) .diff-title,
+body:not(.theme-light) .lobby-title,
+body:not(.theme-light) .learn-title{
+  color:#f8fafc;
+}
+body:not(.theme-light) .menu-sub,
+body:not(.theme-light) .section-label,
+body:not(.theme-light) .learn-size-label{
+  color:#94a3b8;
+}
+body:not(.theme-light) .mode-card--solo{
+  background:#1e293b;
+}
+body:not(.theme-light) .mode-card-title--solo,
+body:not(.theme-light) .mode-card-title--bot,
+body:not(.theme-light) .mode-card-title--duel,
+body:not(.theme-light) .mode-card-title--learn,
+body:not(.theme-light) .mode-card-title--dates,
+body:not(.theme-light) .category-title-light{
+  color:#f8fafc;
+}
+body:not(.theme-light) .mode-card-desc--solo,
+body:not(.theme-light) .mode-card-desc--bot,
+body:not(.theme-light) .mode-card-desc--duel,
+body:not(.theme-light) .mode-card-desc--learn,
+body:not(.theme-light) .mode-card-desc--dates,
+body:not(.theme-light) .category-desc-light{
+  color:#cbd5e1;
+}
+body:not(.theme-light) .mode-cta--solo,
+body:not(.theme-light) .mode-cta--dates{
+  color:#a5b4fc;
+}
+body:not(.theme-light) .category-card--history{
+  background:#1e1b4b;
+}
+body:not(.theme-light) .list-card{
+  background:#1e293b;
+  border-color:#334155;
+}
+body:not(.theme-light) .list-card.selected{
+  background:#312e81;
+  border-color:#818cf8;
+}
+body:not(.theme-light) .list-card-name{
+  color:#f1f5f9;
+}
+body:not(.theme-light) .list-card-count{
+  color:#94a3b8;
+}
+body:not(.theme-light) .history-import-card{
+  background:#1e293b;
+  border-color:#475569;
+}
+body:not(.theme-light) .history-import-card.selected{
+  background:#312e81;
+  border-color:#818cf8;
+}
+body:not(.theme-light) .history-import-card.selected .history-import-title,
+body:not(.theme-light) .history-import-title{
+  color:#e2e8f0;
+}
+body:not(.theme-light) .history-import-card input{
+  color:#e2e8f0;
+}
+body:not(.theme-light) .history-import-card.selected .history-import-status,
+body:not(.theme-light) .history-import-status{
+  color:#cbd5e1;
+}
+body:not(.theme-light) .btn-back{
+  color:#94a3b8;
+}
+body:not(.theme-light) .btn-back:hover{
+  color:#f8fafc;
+}
+
+/* Lobby et apprentissage */
+body:not(.theme-light) .lobby-tab:not(.active){
+  color:#cbd5e1;
+}
+body:not(.theme-light) .lobby-tab:not(.active):hover{
+  background:#334155;
+  color:#f8fafc;
+}
+body:not(.theme-light) .learn-phase-card{
+  background:#1e1b4b;
+  border-color:#4338ca;
+}
+body:not(.theme-light) .learn-phase-title{
+  color:#c4b5fd;
+}
+body:not(.theme-light) .learn-phase-desc{
+  color:#ddd6fe;
+}
+body:not(.theme-light) .learn-size-btn{
+  background:#1e293b;
+  border-color:#475569;
+  color:#cbd5e1;
+}
+body:not(.theme-light) .learn-size-btn:hover,
+body:not(.theme-light) .learn-size-btn.sel{
+  background:#312e81;
+  border-color:#818cf8;
+  color:#ddd6fe;
+}
+
+/* Zone de jeu */
+body:not(.theme-light) #game-header{
+  background:rgba(15,23,42,.96);
+  border-bottom-color:#334155;
+  color:#e2e8f0;
+}
+body:not(.theme-light) .score-label{
+  color:#cbd5e1;
+}
+body:not(.theme-light) .streak-box{
+  background:#422006;
+  border-color:#854d0e;
+}
+body:not(.theme-light) .streak-val{
+  color:#fbbf24;
+}
+body:not(.theme-light) #game-main{
+  color:#e2e8f0;
+}
+body:not(.theme-light) .duel-bar{
+  background:rgba(30,41,59,.96);
+  box-shadow:0 4px 16px rgba(0,0,0,.2);
+}
+body:not(.theme-light) .duel-track{
+  background:#334155;
+}
+body:not(.theme-light) #question-card{
+  background:rgba(30,41,59,.98);
+  border-color:#475569;
+  color:#f8fafc;
+  box-shadow:0 4px 24px rgba(0,0,0,.25);
+}
+body:not(.theme-light) .fr-word,
+body:not(.theme-light) .static-char{
+  color:#f1f5f9;
+}
+body:not(.theme-light) .mode-label{
+  background:#312e81;
+  color:#c7d2fe;
+}
+body:not(.theme-light) #question-card label{
+  color:#cbd5e1!important;
+}
+body:not(.theme-light) #dates-answer-input{
+  background:#0f172a!important;
+  color:#f8fafc!important;
+  border-color:#64748b!important;
+}
+body:not(.theme-light) .letter-box{
+  background:#0f172a;
+  color:#f8fafc;
+  border-color:#475569;
+}
+body:not(.theme-light) .letter-box.input-correct{
+  background:#14532d!important;
+  color:#dcfce7!important;
+}
+body:not(.theme-light) .letter-box.input-hint{
+  background:#422006!important;
+  color:#fef3c7!important;
+}
+body:not(.theme-light) .letter-box.input-revealed{
+  background:#3b0764!important;
+  color:#f3e8ff!important;
+}
+body:not(.theme-light) .reveal-zone{
+  background:#2e1065;
+  border-color:#6b21a8;
+}
+body:not(.theme-light) .reveal-label{
+  color:#d8b4fe;
+}
+body:not(.theme-light) .reveal-answer{
+  color:#f3e8ff;
+}
+body:not(.theme-light) .solo-progress{
+  border-top-color:#334155;
+}
+body:not(.theme-light) .prog-cur{
+  color:#f1f5f9;
+}
+body:not(.theme-light) .prog-sep,
+body:not(.theme-light) .prog-total,
+body:not(.theme-light) .list-name-display{
+  color:#94a3b8;
+}
+body:not(.theme-light) .progress-bar{
+  background:#334155;
+}
+body:not(.theme-light) .flashcard{
+  background:#1e293b;
+  border:1px solid #475569;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+body:not(.theme-light) .flashcard-fr,
+body:not(.theme-light) .flashcard-hint,
+body:not(.theme-light) .fc-counter{
+  color:#94a3b8;
+}
+body:not(.theme-light) .flashcard-es{
+  color:#f8fafc;
+}
+
+/* Écran de fin et résultats */
+body:not(.theme-light) .modal-inner{
+  background:#1e293b;
+  color:#e2e8f0;
+  border:1px solid #475569;
+}
+body:not(.theme-light) .modal-title{
+  color:#f8fafc;
+}
+body:not(.theme-light) .modal-desc{
+  color:#cbd5e1;
+}
+body:not(.theme-light) .tabs{
+  background:#0f172a;
+}
+body:not(.theme-light) .tab-btn:not(.active){
+  color:#cbd5e1;
+}
+body:not(.theme-light) .tab-btn:not(.active):hover{
+  background:#334155;
+}
+body:not(.theme-light) .results-score{
+  background:#312e81;
+}
+body:not(.theme-light) .results-score-val{
+  color:#c7d2fe;
+}
+body:not(.theme-light) .results-score-label{
+  color:#a5b4fc;
+}
+body:not(.theme-light) .results-cell--green{
+  background:#14532d;
+}
+body:not(.theme-light) .results-cell--red{
+  background:#7f1d1d;
+}
+body:not(.theme-light) .results-cell--amber{
+  background:#78350f;
+}
+body:not(.theme-light) .results-cell--green .results-cell-label,
+body:not(.theme-light) .results-cell--red .results-cell-label,
+body:not(.theme-light) .results-cell--amber .results-cell-label{
+  color:#f8fafc;
+}
+body:not(.theme-light) .miss-item{
+  background:#450a0a;
+  border-color:#7f1d1d;
+}
+body:not(.theme-light) .miss-fr{
+  color:#cbd5e1;
+}
+body:not(.theme-light) .miss-es{
+  color:#fecaca;
+}
+body:not(.theme-light) .no-miss,
+body:not(.theme-light) .results-list-name{
+  color:#94a3b8;
+}
+
+/* Thème clair : les surfaces et textes restent cohérents, y compris en partie. */
+body.theme-light{
+  background:#f8fafc;
+  color:#1e293b;
+}
+body.theme-light .screen{
+  background:#f1f5f9;
+  color:#1e293b;
+}
+body.theme-light #end-modal{
+  background:rgba(15,23,42,.42);
+}
+body.theme-light .menu-title,
+body.theme-light .diff-title,
+body.theme-light .lobby-title,
+body.theme-light .learn-title{
+  color:#0f172a;
+}
+body.theme-light .menu-sub,
+body.theme-light .section-label,
+body.theme-light .learn-size-label{
+  color:#64748b;
+}
+body.theme-light .mode-card--solo{
+  background:#fff;
+}
+body.theme-light .mode-card--bot,
+body.theme-light .mode-card--learn,
+body.theme-light .mode-card--dates,
+body.theme-light .category-card--history{
+  background:#e2e8f0;
+}
+body.theme-light .mode-card--duel{
+  background:#d1fae5;
+}
+body.theme-light .mode-card-title--solo,
+body.theme-light .mode-card-title--bot,
+body.theme-light .mode-card-title--learn,
+body.theme-light .mode-card-title--dates,
+body.theme-light .category-title-light{
+  color:#1e293b;
+}
+body.theme-light .mode-card-title--duel{
+  color:#065f46;
+}
+body.theme-light .mode-card-desc--solo,
+body.theme-light .mode-card-desc--bot,
+body.theme-light .mode-card-desc--learn,
+body.theme-light .mode-card-desc--dates,
+body.theme-light .category-desc-light{
+  color:#475569;
+}
+body.theme-light .mode-card-desc--duel{
+  color:#047857;
+}
+body.theme-light .mode-cta--solo,
+body.theme-light .mode-cta--dates{
+  color:#4338ca;
+}
+body.theme-light .mode-cta--duel{
+  color:#059669;
+}
+body.theme-light .list-card{
+  background:#fff;
+  border-color:#cbd5e1;
+}
+body.theme-light .list-card.selected{
+  background:#eef2ff;
+  border-color:#6366f1;
+}
+body.theme-light .list-card-name,
+body.theme-light .history-import-title,
+body.theme-light .room-item-host{
+  color:#1e293b;
+}
+body.theme-light .history-import-card,
+body.theme-light .lobby-tabs,
+body.theme-light .room-item,
+body.theme-light .lobby-name-input,
+body.theme-light .lobby-code-input{
+  background:#fff;
+  color:#1e293b;
+  border-color:#cbd5e1;
+}
+body.theme-light .history-import-card.selected{
+  background:#eef2ff;
+}
+body.theme-light .history-import-card input{
+  color:#1e293b;
+}
+body.theme-light .history-import-status,
+body.theme-light .rooms-empty,
+body.theme-light .rooms-loading{
+  color:#64748b;
+}
+body.theme-light .learn-phase-card{
+  background:#f5f3ff;
+  border-color:#ddd6fe;
+}
+body.theme-light .learn-phase-title{
+  color:#6d28d9;
+}
+body.theme-light .learn-phase-desc{
+  color:#5b21b6;
+}
+body.theme-light .learn-size-btn{
+  background:#fff;
+  border-color:#cbd5e1;
+  color:#475569;
+}
+body.theme-light .learn-size-btn:hover,
+body.theme-light .learn-size-btn.sel{
+  background:#eef2ff;
+  border-color:#6366f1;
+  color:#4338ca;
+}
+body.theme-light #game-header{
+  background:rgba(255,255,255,.96);
+  border-bottom-color:#e2e8f0;
+  color:#1e293b;
+}
+body.theme-light .duel-bar{
+  background:rgba(255,255,255,.96);
+}
+body.theme-light .duel-track{
+  background:#e2e8f0;
+}
+body.theme-light #question-card{
+  background:rgba(255,255,255,.98);
+  border-color:#e2e8f0;
+  color:#1e293b;
+  box-shadow:0 4px 24px rgba(0,0,0,.06);
+}
+body.theme-light .fr-word,
+body.theme-light .static-char{
+  color:#1e293b;
+}
+body.theme-light .mode-label{
+  background:#e0e7ff;
+  color:#4f46e5;
+}
+body.theme-light #question-card label{
+  color:#64748b!important;
+}
+body.theme-light #dates-answer-input{
+  background:#fff!important;
+  color:#1e293b!important;
+  border-color:#c7d2fe!important;
+}
+body.theme-light .letter-box{
+  background:#fff;
+  color:#1e293b;
+  border-color:#e2e8f0;
+}
+body.theme-light .reveal-zone{
+  background:#faf5ff;
+  border-color:#d8b4fe;
+}
+body.theme-light .reveal-label{
+  color:#9333ea;
+}
+body.theme-light .reveal-answer{
+  color:#6b21a8;
+}
+body.theme-light .solo-progress{
+  border-top-color:#e2e8f0;
+}
+body.theme-light .prog-cur{
+  color:#1e293b;
+}
+body.theme-light .progress-bar{
+  background:#e2e8f0;
+}
+body.theme-light .flashcard{
+  background:#fff;
+  border-color:#e2e8f0;
+}
+body.theme-light .flashcard-es{
+  color:#1e293b;
+}
+body.theme-light .modal-inner{
+  background:#fff;
+  color:#1e293b;
+  border-color:#e2e8f0;
+}
+body.theme-light .modal-title{
+  color:#1e293b;
+}
+body.theme-light .modal-desc{
+  color:#64748b;
+}
+body.theme-light .tabs{
+  background:#f1f5f9;
+}
+body.theme-light .results-score{
+  background:#eef2ff;
+}
+body.theme-light .results-score-val{
+  color:#4f46e5;
+}
+body.theme-light .miss-item{
+  background:#fef2f2;
+  border-color:#fecaca;
+}
+body.theme-light .miss-fr{
+  color:#64748b;
+}
+body.theme-light .miss-es{
+  color:#991b1b;
+}
+
 </style>
 </head>
 <body>
