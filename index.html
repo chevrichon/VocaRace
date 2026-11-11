@@ -695,7 +695,7 @@ const firebaseConfig = {
 };
 let db = null;
 try {
-  firebase.initializeApp(FIREBASE_CONFIG);
+  firebase.initializeApp(firebaseConfig);
   db = firebase.database();
 } catch(e) {
   console.warn('Firebase non configuré — duel en ligne désactivé');
