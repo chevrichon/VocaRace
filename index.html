@@ -193,6 +193,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .score-label{font-size:.45rem;font-weight:900;color:#475569;text-transform:uppercase}
 .streak-box{background:#fffbeb;padding:.4rem .75rem;border-radius:.875rem;border:1px solid #fef3c7}
 .streak-val{font-size:.7rem;font-weight:900;color:#d97706;text-transform:uppercase;font-style:italic;white-space:nowrap}
+.btn-quit-game{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:.75rem;padding:.55rem .7rem;font-size:.68rem;font-weight:900;white-space:nowrap}
 
 /* ── GAME MAIN ── */
 #game-main{padding:.75rem;max-width:48rem;margin:0 auto;width:100%;flex-grow:1;display:flex;flex-direction:column;gap:1rem}
@@ -526,6 +527,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
   <div class="streak-box">
     <span id="streak-val" class="streak-val">🔥 Série: 0</span>
   </div>
+  <button onclick="quitGame()" class="btn-quit-game" aria-label="Quitter la partie">✕ Quitter</button>
 </header>
 
 <!-- ZONE DE JEU -->
@@ -582,7 +584,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
         <p id="reveal-answer" class="reveal-answer"></p>
         <button onclick="nextAfterReveal()" class="btn-next">Mot suivant →</button>
       </div>
-      <button id="btn-check" onclick="checkAnswer()" class="btn-check">
+      <button id="btn-check" onclick="handleCheck()" class="btn-check">
         <span>Valider la réponse</span>
         <span id="btn-timer" class="btn-timer hidden">(0.8s)</span>
       </button>
@@ -689,8 +691,8 @@ const defaultVocabulary=[
 // CONFIG GITHUB
 // ════════════════════════════════════════════════════
 const GH_RAW='https://raw.githubusercontent.com/chevrichon/VocaRace/main/';
-const LISTS_JSON=GH_RAW+'lists.json';
-const HISTORY_LISTS_JSON=GH_RAW+'histoire_lists.json';
+const LISTS_JSON=GH_RAW+'espagnol/lists.json';
+const HISTORY_LISTS_JSON=GH_RAW+'histoire/histoire_lists.json';
 
 // ════════════════════════════════════════════════════
 // STATE
@@ -712,6 +714,7 @@ let isHost=false, opponentProgress=0, onlineGameStarted=false;
 let learnGroupSize=8, learnGroups=[], learnGroupIndex=0;
 let learnPhase='memorize', learnFlashIndex=0;
 
+const rawFile=name=>GH_RAW+name.split('/').map(encodeURIComponent).join('/');
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const normalizeDate=s=>{
   const raw=String(s).trim().toLocaleLowerCase('fr')
@@ -748,7 +751,8 @@ function hideAll(){
   document.getElementById('game-header').classList.add('hidden');
   document.getElementById('game-main').classList.add('hidden');
 }
-window.backToMenu=()=>{hideAll();document.getElementById('mode-selection-screen').classList.remove('hidden');};
+window.backToMenu=()=>{hideAll();document.getElementById('category-selection-screen').classList.remove('hidden');};
+window.quitGame=()=>{if(botInterval){clearTimeout(botInterval);botInterval=null;}if(roomUnsub&&roomId){try{db.ref('rooms/'+roomId).off('value',roomUnsub);}catch(e){}roomUnsub=null;}document.getElementById('end-modal').classList.add('hidden');backToCategories();};
 window.backToCategories=()=>{hideAll();document.getElementById('category-selection-screen').classList.remove('hidden');};
 window.chooseSubject=type=>{
   activeDatasetType=type==='history'?'history':'vocab';
@@ -758,8 +762,8 @@ window.chooseSubject=type=>{
   document.getElementById('mode-selection-screen').classList.remove('hidden');
 };
 window.showDifficulty=mode=>{
-  selectedMode=mode;
   const history=activeDatasetType==='history';
+  selectedMode=history&&mode==='solo'?'dates':mode;
   document.getElementById('diff-title').textContent=history
     ?(mode==='bot'?'Duel Histoire':'Entraînement Histoire')
     :(mode==='bot'?'Nivel de Duel':'Nivel de Entrenamiento');
@@ -801,7 +805,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
       const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.replace(/\.histoire$/i,'');
       const count=document.createElement('p');count.className='list-card-count';count.textContent='...';
       info.append(title,count);card.append(icon,info);cont.appendChild(card);
-      fetch(GH_RAW+encodeURIComponent(filename)).then(r=>r.ok?r.text():Promise.reject())
+      fetch(rawFile(filename)).then(r=>r.ok?r.text():Promise.reject())
         .then(t=>count.textContent=parseHistoryFile(t).length+' événements').catch(()=>count.textContent='Indisponible');
       card.addEventListener('click',()=>{
         deselectIn(pickerId);card.classList.add('selected','loading');
@@ -878,7 +882,7 @@ async function loadListsInto(containerId,pickerId,builtinId){
     if(!Array.isArray(files)) return;
     files.filter(f=>f.endsWith('.espagnol')).forEach((fname,i)=>{
       const name=fname.replace('.espagnol','');
-      const url=GH_RAW+encodeURIComponent(fname);
+      const url=rawFile(fname);
       const cid='lc-'+i+'-'+name.replace(/\W/g,'');
       const card=document.createElement('div');
       card.className='list-card';
@@ -1347,6 +1351,8 @@ function startBotAI(){
   scheduleNext();
 }
 
+window.handleCheck=()=>{if(activeDatasetType==='history'||selectedMode==='dates')checkDateAnswer();else checkAnswer();};
+
 // ════════════════════════════════════════════════════
 // DISPLAY QUESTION
 // ════════════════════════════════════════════════════
@@ -1359,14 +1365,14 @@ function displayQuestion(){
   }
   errorCount=0;isRevealing=false;updateErrorDots();
   const w=gameQueue[playerProgress];
-  document.getElementById('fr-word').textContent=selectedMode==='dates'?w.fr:'"'+w.fr+'"';
+  document.getElementById('fr-word').textContent=(activeDatasetType==='history'||selectedMode==='dates')?w.fr:'"'+w.fr+'"';
   document.getElementById('reveal-zone').classList.add('hidden');
   document.getElementById('btn-check').classList.remove('hidden');
   document.getElementById('feedback-area').classList.add('hidden');
   const dateWrap=document.getElementById('dates-answer-wrap');
   const dateInput=document.getElementById('dates-answer-input');
   const cont=document.getElementById('letter-inputs');cont.innerHTML='';
-  if(selectedMode==='dates'){
+  if(activeDatasetType==='history'||selectedMode==='dates'){
     dateWrap.classList.remove('hidden');
     dateInput.value='';
     dateInput.disabled=false;
@@ -1619,7 +1625,7 @@ function showEnd(isVictory){
   }
   document.getElementById('modal-icon').textContent=icon;
   document.getElementById('modal-title').textContent=title;
-  if(selectedMode==='dates'){
+  if(activeDatasetType==='history'||selectedMode==='dates'){
     icon=isVictory?'🏆':'📅';
     title=isVictory?'CHRONOLOGIE TERMINÉE':'RÉVISION TERMINÉE';
     desc='Série finale : '+streak+'. Une erreur remet la série à zéro.';
