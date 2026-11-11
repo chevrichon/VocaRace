@@ -210,6 +210,11 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 @media(min-width:480px){.letter-box{width:2rem;height:2.75rem;font-size:1rem}}
 @media(min-width:640px){.letter-box{width:2.2rem;height:3.2rem;font-size:1.25rem}}
 .letter-box.input-correct{border-color:#22c55e!important;background:#f0fdf4!important;color:#166534!important}
+#dates-answer-input.date-answer-correct{border-color:#22c55e;background:#f0fdf4;color:#166534;box-shadow:0 0 0 4px rgba(34,197,94,.14)}
+#dates-answer-input.date-answer-wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.feedback-area.success-feedback{color:#16a34a}
+#question-card.date-correct{border:2px solid #22c55e;animation:date-success .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes date-success{0%{transform:scale(1);box-shadow:0 4px 24px rgba(0,0,0,.06)}35%{transform:scale(1.012);box-shadow:0 0 0 8px rgba(34,197,94,.13),0 8px 30px rgba(34,197,94,.18)}100%{transform:scale(1);box-shadow:0 4px 24px rgba(34,197,94,.1)}}
 .letter-box.input-error{border-color:#ef4444!important;background:#fef2f2!important;color:#991b1b!important}
 .letter-box.input-hint{border-color:#f59e0b!important;background:#fffbeb!important;color:#92400e!important;font-weight:bold}
 .letter-box.input-revealed{border-color:#a855f7!important;background:#faf5ff!important;color:#6b21a8!important;font-weight:bold}
@@ -371,9 +376,17 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
       <p class="learn-phase-title" style="color:#c7d2fe">Série de bonnes réponses</p>
       <p class="learn-phase-desc" style="color:#e0e7ff">Une bonne réponse augmente ta série. Une erreur la remet à zéro et affiche la date attendue.</p>
     </div>
-    <button onclick="startDefaultDates()" class="btn-start-learn" style="background:#4f46e5">Jouer avec la chronologie intégrée →</button>
     <div class="learn-phase-card" style="text-align:left">
-      <p class="learn-phase-title">Importer une chronologie</p>
+      <p class="learn-phase-title">Chronologies disponibles sur GitHub</p>
+      <p class="learn-phase-desc">Sélectionne une liste hébergée directement dans le dépôt VocaRace.</p>
+      <div id="history-list-picker" class="list-picker" style="margin-top:.75rem;margin-bottom:.75rem">
+        <div class="rooms-loading"><div class="spinner"></div> Chargement des chronologies...</div>
+      </div>
+      <p id="history-lists-error" class="learn-phase-desc hidden" style="color:#fda4af"></p>
+      <button id="dates-start-button" onclick="startSelectedDates()" class="btn-start-learn" style="margin-top:.25rem;background:#4f46e5" disabled>Choisir une chronologie →</button>
+    </div>
+    <div class="learn-phase-card" style="text-align:left">
+      <p class="learn-phase-title">Importer une chronologie personnelle</p>
       <p class="learn-phase-desc">Choisis un fichier .histoire au format <code>date::événement</code>, une ligne par événement.</p>
       <input id="dates-file-input" type="file" accept=".histoire,.txt,text/plain" style="width:100%;margin-top:.75rem;color:#e0e7ff">
       <button onclick="startDatesFromFile()" class="btn-start-learn" style="margin-top:.75rem;background:#4338ca">Jouer avec ce fichier →</button>
@@ -722,10 +735,16 @@ window.showDifficulty=mode=>{
   fetchGithubLists();
 };
 window.hideDifficulty=()=>document.getElementById('difficulty-screen').classList.add('hidden');
+let selectedHistoryFile=null;
+const HISTORY_LISTS_JSON=GH_RAW+'histoire_lists.json';
 window.showDatesScreen=()=>{
   hideAll();
   document.getElementById('dates-screen').classList.remove('hidden');
   document.getElementById('dates-file-status').textContent='';
+  document.getElementById('history-lists-error').classList.add('hidden');
+  document.getElementById('dates-start-button').disabled=true;
+  selectedHistoryFile=null;
+  loadHistoryLists();
 };
 function parseHistoryFile(text){
   return text.split(/\r?\n/).map(line=>{
@@ -735,16 +754,66 @@ function parseHistoryFile(text){
     return date&&event?{es:date,fr:event}:null;
   }).filter(Boolean);
 }
-window.startDefaultDates=async()=>{
-  const status=document.getElementById('dates-file-status');
+async function loadHistoryLists(){
+  const cont=document.getElementById('history-list-picker');
+  const err=document.getElementById('history-lists-error');
+  cont.innerHTML='<div class="rooms-loading"><div class="spinner"></div> Chargement des chronologies...</div>';
   try{
-    const res=await fetch('histoire.histoire');
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const entries=parseHistoryFile(await res.text());
-    if(!entries.length)throw new Error('Aucun événement trouvé');
-    startDatesGame(entries,'Chronologie historique');
+    const response=await fetch(HISTORY_LISTS_JSON+'?t='+Date.now());
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const files=await response.json();
+    if(!Array.isArray(files))throw new Error('Manifeste invalide');
+    const historyFiles=files.filter(name=>typeof name==='string'&&name.toLowerCase().endsWith('.histoire'));
+    cont.innerHTML='';
+    if(!historyFiles.length){
+      cont.innerHTML='<p style="grid-column:1/-1;color:#94a3b8;font-size:.75rem">Aucune chronologie listée dans histoire_lists.json.</p>';
+      return;
+    }
+    historyFiles.forEach((filename,index)=>{
+      const card=document.createElement('div');
+      card.className='list-card';
+      const icon=document.createElement('span');
+      icon.className='list-card-icon';icon.textContent='📜';
+      const info=document.createElement('div');
+      const title=document.createElement('p');
+      title.className='list-card-name';title.textContent=filename.replace(/\.histoire$/i,'');
+      const count=document.createElement('p');
+      count.className='list-card-count';count.textContent='Chronologie historique';
+      info.append(title,count);card.append(icon,info);
+      card.addEventListener('click',()=>{
+        cont.querySelectorAll('.list-card').forEach(c=>c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedHistoryFile=filename;
+        document.getElementById('dates-start-button').disabled=false;
+        document.getElementById('dates-start-button').textContent='Jouer : '+filename.replace(/\.histoire$/i,'')+' →';
+        document.getElementById('dates-file-status').textContent='';
+      });
+      cont.appendChild(card);
+      fetch(GH_RAW+encodeURIComponent(filename)).then(r=>r.ok?r.text():Promise.reject())
+        .then(t=>{count.textContent=parseHistoryFile(t).length+' événements';})
+        .catch(()=>{count.textContent='Non disponible';});
+      if(index===0)card.click();
+    });
   }catch(e){
-    status.textContent='Impossible de charger histoire.histoire. Essaie d’importer ton fichier .histoire.';
+    cont.innerHTML='';
+    err.textContent='Impossible de charger histoire_lists.json depuis GitHub. Tu peux toujours importer ton propre fichier .histoire.';
+    err.classList.remove('hidden');
+  }
+}
+window.startSelectedDates=async()=>{
+  const status=document.getElementById('dates-file-status');
+  if(!selectedHistoryFile){status.textContent='Sélectionne une chronologie GitHub.';return;}
+  const button=document.getElementById('dates-start-button');
+  button.disabled=true;button.textContent='Chargement...';
+  try{
+    const response=await fetch(GH_RAW+encodeURIComponent(selectedHistoryFile));
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const entries=parseHistoryFile(await response.text());
+    if(!entries.length)throw new Error('Aucun événement valide');
+    startDatesGame(entries,selectedHistoryFile);
+  }catch(e){
+    status.textContent='Impossible de charger cette chronologie. Vérifie le fichier dans le dépôt GitHub.';
+    button.disabled=false;button.textContent='Réessayer →';
   }
 };
 window.startDatesFromFile=async()=>{
@@ -1288,6 +1357,9 @@ function displayQuestion(){
     dateWrap.classList.remove('hidden');
     dateInput.value='';
     dateInput.disabled=false;
+    dateInput.classList.remove('date-answer-correct','date-answer-wrong');
+    document.getElementById('question-card').classList.remove('date-correct');
+    document.getElementById('feedback-area').classList.remove('success-feedback');
     cont.classList.add('hidden');
     document.getElementById('error-indicator').classList.add('hidden');
     document.getElementById('btn-check').querySelector('span').textContent='Valider la date';
@@ -1396,17 +1468,28 @@ function checkDateAnswer(){
   const item=gameQueue[playerProgress];
   if(typed===normalizeDate(item.es)){
     input.disabled=true;
+    input.classList.remove('date-answer-wrong');
+    input.classList.add('date-answer-correct');
+    const card=document.getElementById('question-card');
+    card.classList.remove('date-correct');
+    void card.offsetWidth;
+    card.classList.add('date-correct');
+    const feedback=document.getElementById('feedback-area');
+    feedback.classList.remove('hidden');
+    feedback.classList.add('success-feedback');
+    document.getElementById('feedback-text').textContent='✓ Correct ! Série : '+(streak+1);
     score+=100+streak*25;
     streak++;
     document.getElementById('score').textContent=score;
     updateStreakUI();
     playerProgress++;
     updateProgressUI();
-    setTimeout(displayQuestion,450);
+    setTimeout(displayQuestion,650);
   }else{
     streak=0;updateStreakUI();
-    isRevealing=true;
     input.disabled=true;
+    input.classList.add('date-answer-wrong');
+    isRevealing=true;
     document.getElementById('reveal-answer').textContent=item.es;
     document.getElementById('reveal-zone').classList.remove('hidden');
     document.getElementById('btn-check').classList.add('hidden');
