@@ -1,0 +1,48 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      ".read": "auth != null",
+      "$roomId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.exists() && data.child('ownerUid').val() === auth.uid))",
+        ".validate": "newData.hasChildren(['ownerUid', 'status', 'isPublic', 'listName', 'datasetType', 'vocab', 'createdAt', 'players'])",
+        "ownerUid": {
+          ".validate": "newData.isString() && ((!data.exists() && newData.val() === auth.uid) || newData.val() === data.val())"
+        },
+        "status": {
+          ".validate": "newData.val() === 'waiting' || newData.val() === 'playing'"
+        },
+        "isPublic": {
+          ".validate": "newData.isBoolean()"
+        },
+        "listName": {
+          ".validate": "newData.isString()"
+        },
+        "datasetType": {
+          ".validate": "newData.val() === 'vocab' || newData.val() === 'history'"
+        },
+        "vocab": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "players": {
+          ".validate": "newData.hasChild('p1') && newData.child('p1').child('uid').val() === newData.parent().child('ownerUid').val()",
+          "p1": {
+            "uid": {
+              ".validate": "newData.isString() && ((!data.exists() && newData.val() === auth.uid) || newData.val() === data.val())"
+            }
+          },
+          "p2": {
+            ".write": "auth != null && ((!data.exists() && root.child('rooms').child($roomId).child('status').val() === 'waiting' && newData.child('uid').val() === auth.uid) || (data.exists() && data.child('uid').val() === auth.uid))",
+            "uid": {
+              ".validate": "newData.isString() && ((!data.exists() && newData.val() === auth.uid) || newData.val() === data.val())"
+            }
+          }
+        }
+      }
+    }
+  }
+}
