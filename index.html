@@ -542,7 +542,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
       <h2 id="fr-word" class="fr-word">"Cargando..."</h2>
       <div id="dates-answer-wrap" class="hidden" style="max-width:26rem;margin:0 auto 1.5rem">
         <label for="dates-answer-input" style="display:block;text-align:left;color:#64748b;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Ta réponse (jour/mois/année)</label>
-        <input id="dates-answer-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Ex. 14/07/1789" style="width:100%;padding:1rem;border:2px solid #c7d2fe;border-radius:1rem;background:#fff;color:#1e293b;font-size:1.2rem;font-weight:800;text-align:center">
+        <input id="dates-answer-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Ex. 14/07/1789 ou 2 juin 2777" style="width:100%;padding:1rem;border:2px solid #c7d2fe;border-radius:1rem;background:#fff;color:#1e293b;font-size:1.2rem;font-weight:800;text-align:center">
       </div>
       <div id="letter-inputs" class="letter-inputs"></div>
       <div id="feedback-area" class="feedback-area hidden"><span id="feedback-text"></span></div>
@@ -680,12 +680,25 @@ let learnPhase='memorize', learnFlashIndex=0;
 
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const normalizeDate=s=>{
-  const value=String(s).trim().replace(/\s/g,'').replace(/[.\-–—−]/g,'/').replace(/／/g,'/');
+  const raw=String(s).trim().toLocaleLowerCase('fr')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[,]/g,' ').replace(/\s+/g,' ').trim();
+
+  // Accepte aussi les dates écrites en toutes lettres : « 2 juin 2777 ».
+  const months={
+    janvier:1,fevrier:2,mars:3,avril:4,mai:5,juin:6,
+    juillet:7,aout:8,septembre:9,octobre:10,novembre:11,decembre:12
+  };
+  const named=raw.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/);
+  if(named && months[named[2]])
+    return [Number(named[1]),months[named[2]],Number(named[3])].join('/');
+
+  const value=raw.replace(/\s/g,'').replace(/[.\-–—−]/g,'/').replace(/／/g,'/');
   const parts=value.split('/');
   if(parts.length===3 && parts.every(p=>/^\d+$/.test(p)))
     return parts.map(p=>String(Number(p))).join('/');
   if(parts.length===1 && /^\d{4}$/.test(parts[0])) return String(Number(parts[0]));
-  return value.toLocaleLowerCase('fr');
+  return value;
 };
 
 function parseEspagnolFile(text){
