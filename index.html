@@ -7,7 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
-/* ── THÈME CLAIR ── */
+/* ── THÈMES CLAIR / SOMBRE ── */
 #theme-toggle{position:fixed;top:.75rem;right:.75rem;z-index:200;background:#334155;color:#fff;border:1px solid #64748b;border-radius:999px;padding:.55rem .8rem;font-size:.72rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 body.theme-light .screen{background:#f1f5f9;color:#1e293b}
 body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title{color:#0f172a}
@@ -28,6 +28,28 @@ body.theme-light .btn-back{color:#475569}
 body.theme-light .btn-back:hover{color:#0f172a}
 body.theme-light #dates-answer-input{background:#fff!important;color:#1e293b!important}
 body.theme-light #theme-toggle{background:#e2e8f0;color:#0f172a;border-color:#cbd5e1}
+
+/* Le jeu est sombre par défaut ; ces règles couvrent aussi les écrans de partie. */
+body:not(.theme-light) #game-header{background:rgba(15,23,42,.96);border-bottom-color:#334155;color:#e2e8f0}
+body:not(.theme-light) #game-header .text-slate-500,body:not(.theme-light) #game-header .text-slate-400{color:#94a3b8!important}
+body:not(.theme-light) #game-main{color:#e2e8f0}
+body:not(.theme-light) #question-card{background:rgba(30,41,59,.98);border-color:#475569;color:#f8fafc;box-shadow:0 4px 24px rgba(0,0,0,.25)}
+body:not(.theme-light) #question-card #question-text,body:not(.theme-light) #question-card .question-text{color:#f8fafc}
+body:not(.theme-light) #question-card label{color:#cbd5e1!important}
+body:not(.theme-light) #dates-answer-input{background:#0f172a!important;color:#f8fafc!important;border-color:#64748b!important}
+body:not(.theme-light) .solo-progress{border-top-color:#334155}
+body:not(.theme-light) .progress-bar{background:#334155}
+body:not(.theme-light) #game-main .text-slate-500,body:not(.theme-light) #game-main .text-slate-400{color:#94a3b8!important}
+body:not(.theme-light) #game-main .bg-white{background:#1e293b!important}
+body:not(.theme-light) #game-main .text-slate-800,body:not(.theme-light) #game-main .text-slate-700{color:#e2e8f0!important}
+body:not(.theme-light) #theme-toggle{background:#334155;color:#fff;border-color:#64748b}
+body.theme-light #game-header{background:rgba(255,255,255,.96);border-bottom-color:#f1f5f9;color:#1e293b}
+body.theme-light #question-card{background:rgba(255,255,255,.98);border-color:#e2e8f0;color:#1e293b;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+body.theme-light #question-card #question-text,body.theme-light #question-card .question-text{color:#1e293b}
+body.theme-light #question-card label{color:#64748b!important}
+body.theme-light #dates-answer-input{background:#fff!important;color:#1e293b!important;border-color:#c7d2fe!important}
+body.theme-light .solo-progress{border-top-color:#f1f5f9}
+body.theme-light .progress-bar{background:#f1f5f9}
 
 /* ── RESET & BASE ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1695,19 +1717,19 @@ window.showTab=tab=>{
   });
 };
 
-// Thème clair/sombre
+// Thème clair/sombre : le libellé indique le thème vers lequel basculer.
 window.toggleTheme=()=>{
   const light=document.body.classList.toggle('theme-light');
   try{localStorage.setItem('vocarace-theme',light?'light':'dark');}catch(e){}
   const b=document.getElementById('theme-toggle');
-  if(b){b.textContent=light?'🌙 Mode sombre':'☀️ Mode clair';b.setAttribute('aria-label',light?'Activer le thème sombre':'Activer le thème clair');}
+  if(b){b.textContent=light?'🌙 Passer en sombre':'☀️ Passer en clair';b.setAttribute('aria-label',light?'Activer le thème sombre':'Activer le thème clair');}
 };
 (()=>{
   let theme='dark';
   try{theme=localStorage.getItem('vocarace-theme')||'dark';}catch(e){}
-  if(theme==='light')document.body.classList.add('theme-light');
+  document.body.classList.toggle('theme-light',theme==='light');
   const b=document.getElementById('theme-toggle');
-  if(b)b.textContent=theme==='light'?'🌙 Mode sombre':'☀️ Mode clair';
+  if(b)b.textContent=theme==='light'?'🌙 Passer en sombre':'☀️ Passer en clair';
 })();
 
 // Navigation gérée par l'input caché — ces fonctions ne sont plus nécessaires
