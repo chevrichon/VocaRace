@@ -714,7 +714,21 @@ let isHost=false, opponentProgress=0, onlineGameStarted=false;
 let learnGroupSize=8, learnGroups=[], learnGroupIndex=0;
 let learnPhase='memorize', learnFlashIndex=0;
 
-const rawFile=name=>GH_RAW+name.split('/').map(encodeURIComponent).join('/');
+const rawFile=name=>{
+  const path=String(name).replace(/^\/+/, '');
+  return GH_RAW+path.split('/').map(part=>encodeURIComponent(part)).join('/');
+};
+async function fetchJsonFrom(paths){
+  let lastError;
+  for(const path of paths){
+    try{
+      const response=await fetch(path+'?t='+Date.now(),{cache:'no-store'});
+      if(!response.ok)throw new Error('HTTP '+response.status+' — '+path);
+      return await response.json();
+    }catch(error){lastError=error;}
+  }
+  throw lastError||new Error('Impossible de charger le manifeste');
+}
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const normalizeDate=s=>{
   const raw=String(s).trim().toLocaleLowerCase('fr')
@@ -791,9 +805,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
   if(builtin)builtin.classList.add('hidden');
   cont.innerHTML='<div class="rooms-loading"><div class="spinner"></div> Chargement des chronologies...</div>';
   try{
-    const response=await fetch(HISTORY_LISTS_JSON+'?t='+Date.now());
-    if(!response.ok)throw new Error('HTTP '+response.status);
-    const files=await response.json();
+    const files=await fetchJsonFrom([HISTORY_LISTS_JSON,GH_RAW+'histoire_lists.json']);
     if(!Array.isArray(files))throw new Error('Manifeste invalide');
     const names=files.filter(name=>typeof name==='string'&&name.toLowerCase().endsWith('.histoire'));
     cont.innerHTML='';
