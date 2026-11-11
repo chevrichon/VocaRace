@@ -752,7 +752,7 @@ function hideAll(){
   document.getElementById('game-main').classList.add('hidden');
 }
 window.backToMenu=()=>{hideAll();document.getElementById('category-selection-screen').classList.remove('hidden');};
-window.quitGame=()=>{if(botInterval){clearTimeout(botInterval);botInterval=null;}if(roomUnsub&&roomId){try{db.ref('rooms/'+roomId).off('value',roomUnsub);}catch(e){}roomUnsub=null;}document.getElementById('end-modal').classList.add('hidden');backToCategories();};
+window.quitGame=()=>{if(botInterval){clearTimeout(botInterval);botInterval=null;}if(roomId&&myPlayerId){try{leaveRoom();}catch(e){}}else if(roomUnsub&&roomId){try{db.ref('rooms/'+roomId).off('value',roomUnsub);}catch(e){}roomUnsub=null;}document.getElementById('end-modal').classList.add('hidden');backToCategories();};
 window.backToCategories=()=>{hideAll();document.getElementById('category-selection-screen').classList.remove('hidden');};
 window.chooseSubject=type=>{
   activeDatasetType=type==='history'?'history':'vocab';
@@ -1036,6 +1036,7 @@ window.createRoom=async function(isPublic){
       status:'waiting',
       isPublic:!!isPublic,
       listName:activeListName,
+      datasetType:activeDatasetType,
       vocab:JSON.stringify(vocab),
       createdAt:Date.now(),
       players:{p1:{name,progress:0,score:0,online:true}}
@@ -1071,6 +1072,7 @@ async function joinRoomByCode(code,name){
     const snap=await db.ref('rooms/'+code).get();
     if(!snap.exists()){lobbyErr('Salon introuvable. Vérifiez le code.');return;}
     const data=snap.val();
+    activeDatasetType=data.datasetType==='history'?'history':'vocab';
     if(data.status==='playing'){lobbyErr('Ce salon est déjà en cours.');return;}
     if(data.players&&data.players.p2){lobbyErr('Ce salon est plein.');return;}
     const vocab=JSON.parse(data.vocab); // même ordre que le host
@@ -1502,6 +1504,7 @@ function checkDateAnswer(){
     document.getElementById('score').textContent=score;
     updateStreakUI();
     playerProgress++;
+    if(selectedMode==='online')pushProgress();
     updateProgressUI();
     setTimeout(displayQuestion,650);
   }else{
