@@ -811,7 +811,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
         deselectIn(pickerId);card.classList.add('selected','loading');
         datasetLoadPromise=(async()=>{
           try{
-            const response=await fetch(GH_RAW+encodeURIComponent(filename));
+            const response=await fetch(rawFile(filename));
             if(!response.ok)throw new Error('HTTP '+response.status);
             const entries=parseHistoryFile(await response.text());
             if(!entries.length)throw new Error('Aucun événement valide');
@@ -921,7 +921,7 @@ window.fetchGithubLists=async function(){
     if(!Array.isArray(files)||!files.length){cont.innerHTML='<p style="font-size:.75rem;color:#94a3b8;grid-column:1/-1;padding:.5rem 0">lists.json vide.</p>';return;}
     files.filter(f=>f.endsWith('.espagnol')).forEach((fname,i)=>{
       const name=fname.replace('.espagnol','');
-      const url=GH_RAW+encodeURIComponent(fname);
+      const url=rawFile(fname);
       const cid='cnt-'+i+'-'+name.replace(/\W/g,'');
       const card=document.createElement('div');
       card.className='list-card';
