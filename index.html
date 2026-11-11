@@ -1695,6 +1695,21 @@ window.showTab=tab=>{
   });
 };
 
+// Thème clair/sombre
+window.toggleTheme=()=>{
+  const light=document.body.classList.toggle('theme-light');
+  try{localStorage.setItem('vocarace-theme',light?'light':'dark');}catch(e){}
+  const b=document.getElementById('theme-toggle');
+  if(b){b.textContent=light?'🌙 Mode sombre':'☀️ Mode clair';b.setAttribute('aria-label',light?'Activer le thème sombre':'Activer le thème clair');}
+};
+(()=>{
+  let theme='dark';
+  try{theme=localStorage.getItem('vocarace-theme')||'dark';}catch(e){}
+  if(theme==='light')document.body.classList.add('theme-light');
+  const b=document.getElementById('theme-toggle');
+  if(b)b.textContent=theme==='light'?'🌙 Mode sombre':'☀️ Mode clair';
+})();
+
 // Navigation gérée par l'input caché — ces fonctions ne sont plus nécessaires
 function focusNext(){}
 function focusPrev(){}
