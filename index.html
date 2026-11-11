@@ -55,6 +55,19 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .mode-card-desc--duel{color:#6ee7b7}.mode-card-desc--learn{color:#c4b5fd}
 .mode-cta{display:inline-flex;align-items:center;gap:.4rem;font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
 .mode-cta--solo{color:#6366f1}.mode-cta--bot{color:#f59e0b}.mode-cta--duel{color:#10b981}.mode-cta--learn{color:#a78bfa}
+.category-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:48rem;margin:0 auto}
+.category-card{min-height:190px;display:flex;flex-direction:column;justify-content:space-between}
+.category-card--history{background:#312e81}.category-card--history:hover{border-color:#a78bfa}
+.category-title-light{color:#fff}.category-desc-light{color:#c4b5fd}
+.history-import-card{background:#1e293b;border:2px solid #334155;border-radius:1rem;padding:.875rem;text-align:left;margin-top:.75rem}
+.history-import-card.selected{border-color:#6366f1;background:#eef2ff}
+.history-import-card.selected .history-import-title{color:#312e81}
+.history-import-title{color:#e2e8f0;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.45rem}
+.history-import-card input{width:100%;color:#cbd5e1;font-size:.72rem;margin:.4rem 0}
+.history-import-card button{background:#4338ca;color:#fff;font-weight:900;padding:.6rem .8rem;border-radius:.7rem;font-size:.65rem;text-transform:uppercase;letter-spacing:.06em}
+.history-import-status{font-size:.68rem;color:#94a3b8;margin-top:.45rem;line-height:1.4}
+.history-import-card.selected .history-import-status{color:#475569}
+@media(max-width:420px){.category-grid{grid-template-columns:1fr}.category-card{min-height:150px}}
 
 /* ── DIFF SCREEN ── */
 .diff-inner{max-width:42rem;width:100%;text-align:center;padding:.75rem 0 2rem}
@@ -298,11 +311,31 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 </head>
 <body>
 
-<!-- MENU -->
-<div id="mode-selection-screen" class="screen">
+<!-- CHOIX DE LA MATIÈRE -->
+<div id="category-selection-screen" class="screen">
   <div class="menu-inner">
     <h2 class="menu-title">VocaRace</h2>
-    <p class="menu-sub">Maîtrisez l'orthographe espagnole</p>
+    <p class="menu-sub">Choisis ta matière</p>
+    <div class="category-grid">
+      <div onclick="chooseSubject('vocab')" class="mode-card mode-card--solo category-card">
+        <div><div class="mode-icon mode-icon--solo">🇪🇸</div><h3 class="mode-card-title mode-card-title--solo">Espagnol</h3>
+        <p class="mode-card-desc mode-card-desc--solo">Révise le vocabulaire et les traductions.</p></div>
+        <div class="mode-cta mode-cta--solo">Continuer →</div>
+      </div>
+      <div onclick="chooseSubject('history')" class="mode-card mode-card--dates category-card category-card--history">
+        <div><div class="mode-icon mode-icon--dates">📜</div><h3 class="mode-card-title category-title-light">Histoire</h3>
+        <p class="mode-card-desc category-desc-light">Révise les événements et leurs dates.</p></div>
+        <div class="mode-cta mode-cta--dates">Continuer →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MENU DES MODES -->
+<div id="mode-selection-screen" class="screen hidden">
+  <div class="menu-inner">
+    <h2 class="menu-title">VocaRace</h2>
+    <p id="mode-menu-subtitle" class="menu-sub">Maîtrisez l'orthographe espagnole</p>
     <div class="mode-grid">
       <div onclick="showDifficulty('solo')" class="mode-card mode-card--solo">
         <div class="mode-icon mode-icon--solo">👤</div>
@@ -328,13 +361,9 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
         <p class="mode-card-desc mode-card-desc--learn">Apprenez par petits groupes, puis testez-vous !</p>
         <div class="mode-cta mode-cta--learn">Commencer →</div>
       </div>
-      <div onclick="showDatesScreen()" class="mode-card mode-card--dates">
-        <div class="mode-icon mode-icon--dates">📅</div>
-        <h3 class="mode-card-title mode-card-title--dates">Dates historiques</h3>
-        <p class="mode-card-desc mode-card-desc--dates">Retrouve la date des événements et enchaîne les bonnes réponses.</p>
-        <div class="mode-cta mode-cta--dates">Réviser les dates →</div>
-      </div>
+
     </div>
+    <button onclick="backToCategories()" class="btn-back" style="margin-top:1.5rem">← Changer de matière</button>
   </div>
 </div>
 
@@ -343,7 +372,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
   <div class="diff-inner">
     <h2 id="diff-title" class="diff-title">Nivel de Dificultad</h2>
     <div class="mb-section">
-      <p class="section-label">📚 Choisir une liste de mots</p>
+      <p id="dataset-picker-label" class="section-label">📚 Choisir une liste de mots</p>
       <div class="list-picker" id="list-picker">
         <div class="list-card selected" id="builtin-card" onclick="selectBuiltin('list-picker','builtin-card')">
           <span class="list-card-icon">📖</span>
@@ -356,6 +385,12 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
         <div id="lists-error" class="lists-error hidden"></div>
       </div>
       <button onclick="fetchGithubLists()" id="btn-refresh" class="btn-refresh">↻ Actualiser les listes GitHub</button>
+      <div id="difficulty-history-import" class="history-import-card hidden">
+        <p class="history-import-title">Importer un fichier personnel</p>
+        <input id="difficulty-history-file" type="file" accept=".histoire,.txt,text/plain">
+        <button onclick="importHistoryFile('difficulty-history-file','difficulty-history-status','list-picker','difficulty-history-import')">Utiliser ce fichier .histoire</button>
+        <p id="difficulty-history-status" class="history-import-status"></p>
+      </div>
     </div>
     <div class="diff-grid mb-section">
       <button onclick="confirmStart('debutant')"      class="diff-btn diff-btn--deb">Débutant<sub>Aide ++ · Réponse après 2 erreurs</sub></button>
@@ -364,35 +399,6 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
       <button onclick="confirmStart('hardcore')"      class="diff-btn diff-btn--hc">Hardcore<sub>3 Vies · Sans aide · Pas de réponse</sub></button>
     </div>
     <button onclick="hideDifficulty()" class="btn-back">← Retour</button>
-  </div>
-</div>
-
-<!-- MODE DATES HISTORIQUES -->
-<div id="dates-screen" class="screen hidden">
-  <div class="diff-inner">
-    <h2 class="diff-title">📅 Dates historiques</h2>
-    <p class="section-label">Retrouve la date correspondant à chaque événement.</p>
-    <div class="learn-phase-card" style="background:#1e1b4b;border-color:#4338ca;text-align:left">
-      <p class="learn-phase-title" style="color:#c7d2fe">Série de bonnes réponses</p>
-      <p class="learn-phase-desc" style="color:#e0e7ff">Une bonne réponse augmente ta série. Une erreur la remet à zéro et affiche la date attendue.</p>
-    </div>
-    <div class="learn-phase-card" style="text-align:left">
-      <p class="learn-phase-title">Chronologies disponibles sur GitHub</p>
-      <p class="learn-phase-desc">Sélectionne une liste hébergée directement dans le dépôt VocaRace.</p>
-      <div id="history-list-picker" class="list-picker" style="margin-top:.75rem;margin-bottom:.75rem">
-        <div class="rooms-loading"><div class="spinner"></div> Chargement des chronologies...</div>
-      </div>
-      <p id="history-lists-error" class="learn-phase-desc hidden" style="color:#fda4af"></p>
-      <button id="dates-start-button" onclick="startSelectedDates()" class="btn-start-learn" style="margin-top:.25rem;background:#4f46e5" disabled>Choisir une chronologie →</button>
-    </div>
-    <div class="learn-phase-card" style="text-align:left">
-      <p class="learn-phase-title">Importer une chronologie personnelle</p>
-      <p class="learn-phase-desc">Choisis un fichier .histoire au format <code>date::événement</code>, une ligne par événement.</p>
-      <input id="dates-file-input" type="file" accept=".histoire,.txt,text/plain" style="width:100%;margin-top:.75rem;color:#e0e7ff">
-      <button onclick="startDatesFromFile()" class="btn-start-learn" style="margin-top:.75rem;background:#4338ca">Jouer avec ce fichier →</button>
-      <p id="dates-file-status" class="learn-phase-desc" style="margin-top:.5rem"></p>
-    </div>
-    <button onclick="backToMenu()" class="btn-back">← Retour</button>
   </div>
 </div>
 
@@ -411,6 +417,12 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots</p></div>
         </div>
         <div id="lobby-github-lists" class="contents"></div>
+      </div>
+      <div id="lobby-history-import" class="history-import-card hidden">
+        <p class="history-import-title">Importer un fichier personnel</p>
+        <input id="lobby-history-file" type="file" accept=".histoire,.txt,text/plain">
+        <button onclick="importHistoryFile('lobby-history-file','lobby-history-status','lobby-list-picker','lobby-history-import')">Utiliser ce fichier .histoire</button>
+        <p id="lobby-history-status" class="history-import-status"></p>
       </div>
 
       <input id="player-name-input" class="lobby-name-input" type="text" placeholder="Ton pseudo..." maxlength="20">
@@ -471,6 +483,12 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots</p></div>
         </div>
         <div id="learn-github-lists" class="contents"></div>
+      </div>
+      <div id="learn-history-import" class="history-import-card hidden">
+        <p class="history-import-title">Importer un fichier personnel</p>
+        <input id="learn-history-file" type="file" accept=".histoire,.txt,text/plain">
+        <button onclick="importHistoryFile('learn-history-file','learn-history-status','learn-list-picker','learn-history-import')">Utiliser ce fichier .histoire</button>
+        <p id="learn-history-status" class="history-import-status"></p>
       </div>
     </div>
     <div class="mb-section">
