@@ -1223,11 +1223,14 @@ async function ensureFirebaseAuth(){
 function firebaseLobbyError(error){
   const code=error&&error.code?String(error.code):'';
   const message=error&&error.message?String(error.message):String(error);
+  if(code==='auth/admin-restricted-operation'){
+    return 'La création de comptes est bloquée dans Firebase. Va dans Authentication → Settings → User actions et active « Enable create (sign-up) ». Vérifie aussi que le fournisseur Anonymous est activé dans Sign-in method.';
+  }
   if(code==='auth/operation-not-allowed'){
-    return 'Active la connexion anonyme dans Firebase Console → Authentication → Sign-in method → Anonyme.';
+    return 'La connexion anonyme est désactivée. Active Anonymous dans Firebase Console → Authentication → Sign-in method.';
   }
   if(code==='PERMISSION_DENIED'||message.includes('PERMISSION_DENIED')){
-    return 'Firebase refuse l’accès. Active la connexion anonyme et remplace les règles Realtime Database par celles du fichier database.rules.json.';
+    return 'Firebase refuse l’accès à la base. Vérifie les règles Realtime Database avec le fichier database.rules.json.';
   }
   return 'Erreur Firebase : '+message;
 }
