@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VocaRace</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 /* ── THÈMES CLAIR / SOMBRE ── */
@@ -1198,11 +1199,37 @@ const firebaseConfig = {
   measurementId: "G-ZHXN92BGZ0"
 };
 let db = null;
+let auth = null;
+let authReady = null;
 try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
+  auth = firebase.auth();
+  // Chaque joueur reçoit une identité anonyme persistante pour sécuriser les salons.
+  authReady = auth.signInAnonymously().then(credential => credential.user);
+  // L'erreur sera affichée proprement lorsqu'un joueur ouvrira le lobby.
+  authReady.catch(() => {});
 } catch(e) {
-  console.warn('Firebase non configuré — duel en ligne désactivé');
+  console.warn('Firebase non configuré — duel en ligne désactivé', e);
+}
+
+async function ensureFirebaseAuth(){
+  if(!auth) throw new Error('Firebase Authentication n’est pas initialisé.');
+  if(auth.currentUser) return auth.currentUser;
+  if(!authReady) throw new Error('Connexion anonyme Firebase indisponible.');
+  return await authReady;
+}
+
+function firebaseLobbyError(error){
+  const code=error&&error.code?String(error.code):'';
+  const message=error&&error.message?String(error.message):String(error);
+  if(code==='auth/operation-not-allowed'){
+    return 'Active la connexion anonyme dans Firebase Console → Authentication → Sign-in method → Anonyme.';
+  }
+  if(code==='PERMISSION_DENIED'||message.includes('PERMISSION_DENIED')){
+    return 'Firebase refuse l’accès. Active la connexion anonyme et remplace les règles Realtime Database par celles du fichier database.rules.json.';
+  }
+  return 'Erreur Firebase : '+message;
 }
 
 // ════════════════════════════════════════════════════
@@ -1400,7 +1427,7 @@ window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId)=>{
 };
 window.confirmStart=async diff=>{currentDifficulty=diff;await datasetLoadPromise;startGame();};
 
-window.showLobby=()=>{
+window.showLobby=async()=>{
   hideAll();
   document.getElementById('lobby-screen').classList.remove('hidden');
   document.getElementById('lobby-step1').classList.remove('hidden');
@@ -1412,7 +1439,12 @@ window.showLobby=()=>{
   document.getElementById('lobby-public-panel').classList.remove('hidden');
   document.getElementById('lobby-private-panel').classList.add('hidden');
   loadListsInto('lobby-github-lists','lobby-list-picker','lobby-builtin-card');
-  startWatchingPublicRooms();
+  try{
+    await ensureFirebaseAuth();
+    startWatchingPublicRooms();
+  }catch(e){
+    lobbyErr(firebaseLobbyError(e));
+  }
 };
 window.showLearnIntro=()=>{
   hideAll();
@@ -1567,7 +1599,9 @@ function startWatchingPublicRooms(){
       </div>`;
     }).join('');
   };
-  db.ref('rooms').on('value',handler);
+  db.ref('rooms').on('value',handler,error=>{
+    lobbyErr(firebaseLobbyError(error));
+  });
   publicRoomsUnsub=handler;
 }
 function stopWatchingPublicRooms(){
@@ -1576,29 +1610,34 @@ function stopWatchingPublicRooms(){
 
 // ── Créer un salon (public ou privé) ──
 window.createRoom=async function(isPublic){
-  if(!db){lobbyErr('⚠️ Firebase non configuré. Ajoutez vos clés dans le code source.');return;}
+  if(!db){lobbyErr('⚠️ Firebase non configuré.');return;}
   const name=(document.getElementById('player-name-input').value.trim()||'Joueur1').substring(0,20);
-  myPlayerName=name; myPlayerId='p1'; isHost=true; onlineGameStarted=false;
-  roomId=genCode();
-  // Ordre aléatoire généré une seule fois par le host → synchronisé pour les deux
-  const vocab=[...activeVocabulary].sort(()=>Math.random()-.5);
   try{
-    await db.ref('rooms/'+roomId).set({
+    const user=await ensureFirebaseAuth();
+    const newRoomId=genCode();
+    // Ordre aléatoire généré une seule fois par le host → synchronisé pour les deux
+    const vocab=[...activeVocabulary].sort(()=>Math.random()-.5);
+    await db.ref('rooms/'+newRoomId).set({
+      ownerUid:user.uid,
       status:'waiting',
       isPublic:!!isPublic,
       listName:activeListName,
       datasetType:activeDatasetType,
       vocab:JSON.stringify(vocab),
       createdAt:Date.now(),
-      players:{p1:{name,progress:0,score:0,online:true}}
+      players:{p1:{uid:user.uid,name,progress:0,score:0,online:true}}
     });
-    db.ref('rooms/'+roomId+'/players/p1/online').onDisconnect().set(false);
+    roomId=newRoomId;
+    myPlayerName=name; myPlayerId='p1'; isHost=true; onlineGameStarted=false;
+    await db.ref('rooms/'+roomId+'/players/p1/online').onDisconnect().set(false);
     // Nettoyer le salon si le host part avant que quelqu'un rejoigne
-    db.ref('rooms/'+roomId).onDisconnect().remove();
+    await db.ref('rooms/'+roomId).onDisconnect().remove();
     showLobbyWaiting(roomId,isPublic);
     subscribeRoom(vocab);
     stopWatchingPublicRooms();
-  }catch(e){lobbyErr('Erreur : '+e.message);}
+  }catch(e){
+    lobbyErr(firebaseLobbyError(e));
+  }
 };
 
 // ── Rejoindre un salon public (depuis la liste) ──
@@ -1618,8 +1657,8 @@ window.joinByCode=async function(){
 };
 
 async function joinRoomByCode(code,name){
-  myPlayerName=name; myPlayerId='p2'; isHost=false; roomId=code; onlineGameStarted=false;
   try{
+    const user=await ensureFirebaseAuth();
     const snap=await db.ref('rooms/'+code).get();
     if(!snap.exists()){lobbyErr('Salon introuvable. Vérifiez le code.');return;}
     const data=snap.val();
@@ -1627,12 +1666,15 @@ async function joinRoomByCode(code,name){
     if(data.status==='playing'){lobbyErr('Ce salon est déjà en cours.');return;}
     if(data.players&&data.players.p2){lobbyErr('Ce salon est plein.');return;}
     const vocab=JSON.parse(data.vocab); // même ordre que le host
-    await db.ref('rooms/'+code+'/players/p2').set({name,progress:0,score:0,online:true});
-    db.ref('rooms/'+code+'/players/p2/online').onDisconnect().set(false);
+    await db.ref('rooms/'+code+'/players/p2').set({uid:user.uid,name,progress:0,score:0,online:true});
+    roomId=code; myPlayerName=name; myPlayerId='p2'; isHost=false; onlineGameStarted=false;
+    await db.ref('rooms/'+code+'/players/p2/online').onDisconnect().set(false);
     stopWatchingPublicRooms();
     showLobbyWaiting(code,data.isPublic);
     subscribeRoom(vocab);
-  }catch(e){lobbyErr('Erreur : '+e.message);}
+  }catch(e){
+    lobbyErr(firebaseLobbyError(e));
+  }
 }
 
 function showLobbyWaiting(code,isPublic){
