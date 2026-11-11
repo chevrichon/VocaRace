@@ -1,2 +1,12 @@
-["ET-arrepentidos_p1.espagnol", "ET-arrepentidos_p2.espagnol", "ET-pretérito_indefinido(regulares).espagnol", 
-  "ET-pretérito_indefinido(irregulares).espagnol", "ET-pretérito_imperfecto.espagnol"]
+[
+  "espagnol/ET-arrepentidos_p1.espagnol",
+  "espagnol/ET-arrepentidos_p2.espagnol",
+  "espagnol/ET-pretérito_imperfecto.espagnol",
+  "espagnol/ET-pretérito_indefinido(irregulares).espagnol",
+  "espagnol/ET-pretérito_indefinido(regulares).espagnol",
+  "espagnol/conditionnel.espagnol",
+  "espagnol/el planeta y el futuro.espagnol",
+  "espagnol/el planeta y el futuro2.espagnol",
+  "espagnol/irréguliers.espagnol",
+  "espagnol/supertest.espagnol"
+]
