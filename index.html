@@ -859,8 +859,18 @@ window.showLearnIntro=()=>{
 // LISTES GITHUB
 // ════════════════════════════════════════════════════
 async function loadListsInto(containerId,pickerId,builtinId){
+  if(activeDatasetType==='history'){
+    await loadHistoryListsInto(containerId,pickerId,builtinId);
+    const importId=containerId==='lobby-github-lists'?'lobby-history-import':
+      containerId==='learn-github-lists'?'learn-history-import':null;
+    if(importId)document.getElementById(importId).classList.remove('hidden');
+    return;
+  }
   const cont=document.getElementById(containerId);
   cont.innerHTML='';
+  const importId=containerId==='lobby-github-lists'?'lobby-history-import':
+    containerId==='learn-github-lists'?'learn-history-import':null;
+  if(importId)document.getElementById(importId).classList.add('hidden');
   try{
     let res; try{res=await fetch(LISTS_JSON+'?t='+Date.now());}catch(e){return;}
     if(!res.ok) return;
@@ -885,6 +895,13 @@ window.fetchGithubLists=async function(){
   const errDiv=document.getElementById('lists-error');
   const cont=document.getElementById('github-lists-container');
   const btn=document.getElementById('btn-refresh');
+  if(activeDatasetType==='history'){
+    loader.classList.remove('hidden');errDiv.classList.add('hidden');cont.innerHTML='';
+    btn.textContent='↻ Chargement...';btn.style.opacity='.5';btn.style.pointerEvents='none';
+    try{await loadHistoryListsInto('github-lists-container','list-picker',null);}
+    finally{loader.classList.add('hidden');btn.textContent='↻ Actualiser les chronologies GitHub';btn.style.opacity='';btn.style.pointerEvents='';}
+    return;
+  }
   loader.classList.remove('hidden');errDiv.classList.add('hidden');cont.innerHTML='';
   btn.textContent='↻ Chargement...';btn.style.opacity='.5';btn.style.pointerEvents='none';
   try{
