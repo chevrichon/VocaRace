@@ -888,9 +888,7 @@ async function loadListsInto(containerId,pickerId,builtinId){
     containerId==='learn-github-lists'?'learn-history-import':null;
   if(importId)document.getElementById(importId).classList.add('hidden');
   try{
-    let res; try{res=await fetch(LISTS_JSON+'?t='+Date.now());}catch(e){return;}
-    if(!res.ok) return;
-    const files=await res.json();
+    let files; try{files=await fetchJsonFrom([LISTS_JSON,GH_RAW+'lists.json']);}catch(e){return;}
     if(!Array.isArray(files)) return;
     files.filter(f=>f.endsWith('.espagnol')).forEach((fname,i)=>{
       const name=fname.split('/').pop().replace('.espagnol','');
@@ -921,15 +919,7 @@ window.fetchGithubLists=async function(){
   loader.classList.remove('hidden');errDiv.classList.add('hidden');cont.innerHTML='';
   btn.textContent='↻ Chargement...';btn.style.opacity='.5';btn.style.pointerEvents='none';
   try{
-    let res;
-    try{res=await fetch(LISTS_JSON+'?t='+Date.now());}
-    catch(e){errDiv.innerHTML='<strong>⚠️ Réseau inaccessible</strong><br>La liste par défaut est disponible.';errDiv.classList.remove('hidden');return;}
-    if(res.status===404){
-      errDiv.innerHTML=`<strong>📋 Configuration requise</strong><br>Créez <code style="background:rgba(0,0,0,.2);padding:.1rem .3rem;border-radius:.25rem">lists.json</code> à la racine du repo :<br><code style="background:rgba(0,0,0,.2);padding:.2rem .5rem;border-radius:.25rem;display:inline-block;margin:.4rem 0">["ma_liste.espagnol"]</code>`;
-      errDiv.classList.remove('hidden');return;
-    }
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const files=await res.json();
+    const files=await fetchJsonFrom([LISTS_JSON,GH_RAW+'lists.json']);
     if(!Array.isArray(files)||!files.length){cont.innerHTML='<p style="font-size:.75rem;color:#94a3b8;grid-column:1/-1;padding:.5rem 0">lists.json vide.</p>';return;}
     files.filter(f=>f.endsWith('.espagnol')).forEach((fname,i)=>{
       const name=fname.split('/').pop().replace('.espagnol','');
