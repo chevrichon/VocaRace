@@ -19,7 +19,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 /* ── SCREENS ── */
 .screen{position:fixed;inset:0;background:#0f172a;z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @media(min-width:640px){.screen{align-items:center;padding:1.5rem}}
-#difficulty-screen,#lobby-screen,#learn-intro-screen{z-index:61}
+#difficulty-screen,#lobby-screen,#learn-intro-screen,#dates-screen{z-index:61}
 #end-modal{z-index:100;background:rgba(15,23,42,.92)}
 
 /* ── MENU ── */
@@ -36,6 +36,10 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .mode-card--bot{background:#1e293b}.mode-card--bot:hover{border-color:#f59e0b}
 .mode-card--duel{background:#0f2b1e}.mode-card--duel:hover{border-color:#10b981}
 .mode-card--learn{background:#1e1b4b}.mode-card--learn:hover{border-color:#a78bfa}
+.mode-card--dates{background:#312e81}.mode-card--dates:hover{border-color:#a5b4fc}
+.mode-icon--dates{background:#4338ca;color:#e0e7ff}
+.mode-card-title--dates{color:#fff}.mode-card-desc--dates{color:#c7d2fe}
+.mode-cta--dates{color:#c7d2fe}
 .mode-icon{width:2.75rem;height:2.75rem;border-radius:.875rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:.875rem;flex-shrink:0}
 @media(min-width:640px){.mode-icon{width:3.5rem;height:3.5rem;font-size:1.75rem;border-radius:1rem;margin-bottom:1.25rem}}
 .mode-icon--solo{background:#e0e7ff;color:#6366f1}
@@ -319,6 +323,12 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
         <p class="mode-card-desc mode-card-desc--learn">Apprenez par petits groupes, puis testez-vous !</p>
         <div class="mode-cta mode-cta--learn">Commencer →</div>
       </div>
+      <div onclick="showDatesScreen()" class="mode-card mode-card--dates">
+        <div class="mode-icon mode-icon--dates">📅</div>
+        <h3 class="mode-card-title mode-card-title--dates">Dates historiques</h3>
+        <p class="mode-card-desc mode-card-desc--dates">Retrouve la date des événements et enchaîne les bonnes réponses.</p>
+        <div class="mode-cta mode-cta--dates">Réviser les dates →</div>
+      </div>
     </div>
   </div>
 </div>
@@ -349,6 +359,27 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
       <button onclick="confirmStart('hardcore')"      class="diff-btn diff-btn--hc">Hardcore<sub>3 Vies · Sans aide · Pas de réponse</sub></button>
     </div>
     <button onclick="hideDifficulty()" class="btn-back">← Retour</button>
+  </div>
+</div>
+
+<!-- MODE DATES HISTORIQUES -->
+<div id="dates-screen" class="screen hidden">
+  <div class="diff-inner">
+    <h2 class="diff-title">📅 Dates historiques</h2>
+    <p class="section-label">Retrouve la date correspondant à chaque événement.</p>
+    <div class="learn-phase-card" style="background:#1e1b4b;border-color:#4338ca;text-align:left">
+      <p class="learn-phase-title" style="color:#c7d2fe">Série de bonnes réponses</p>
+      <p class="learn-phase-desc" style="color:#e0e7ff">Une bonne réponse augmente ta série. Une erreur la remet à zéro et affiche la date attendue.</p>
+    </div>
+    <button onclick="startDefaultDates()" class="btn-start-learn" style="background:#4f46e5">Jouer avec la chronologie intégrée →</button>
+    <div class="learn-phase-card" style="text-align:left">
+      <p class="learn-phase-title">Importer une chronologie</p>
+      <p class="learn-phase-desc">Choisis un fichier .histoire au format <code>date::événement</code>, une ligne par événement.</p>
+      <input id="dates-file-input" type="file" accept=".histoire,.txt,text/plain" style="width:100%;margin-top:.75rem;color:#e0e7ff">
+      <button onclick="startDatesFromFile()" class="btn-start-learn" style="margin-top:.75rem;background:#4338ca">Jouer avec ce fichier →</button>
+      <p id="dates-file-status" class="learn-phase-desc" style="margin-top:.5rem"></p>
+    </div>
+    <button onclick="backToMenu()" class="btn-back">← Retour</button>
   </div>
 </div>
 
@@ -509,6 +540,10 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
     <!-- TEST -->
     <div id="test-zone">
       <h2 id="fr-word" class="fr-word">"Cargando..."</h2>
+      <div id="dates-answer-wrap" class="hidden" style="max-width:26rem;margin:0 auto 1.5rem">
+        <label for="dates-answer-input" style="display:block;text-align:left;color:#64748b;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Ta réponse (jour/mois/année)</label>
+        <input id="dates-answer-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Ex. 14/07/1789" style="width:100%;padding:1rem;border:2px solid #c7d2fe;border-radius:1rem;background:#fff;color:#1e293b;font-size:1.2rem;font-weight:800;text-align:center">
+      </div>
       <div id="letter-inputs" class="letter-inputs"></div>
       <div id="feedback-area" class="feedback-area hidden"><span id="feedback-text"></span></div>
       <div id="reveal-zone" class="reveal-zone hidden">
@@ -644,6 +679,14 @@ let learnGroupSize=8, learnGroups=[], learnGroupIndex=0;
 let learnPhase='memorize', learnFlashIndex=0;
 
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const normalizeDate=s=>{
+  const value=String(s).trim().replace(/\s/g,'').replace(/[.\-–—−]/g,'/').replace(/／/g,'/');
+  const parts=value.split('/');
+  if(parts.length===3 && parts.every(p=>/^\d+$/.test(p)))
+    return parts.map(p=>String(Number(p))).join('/');
+  if(parts.length===1 && /^\d{4}$/.test(parts[0])) return String(Number(parts[0]));
+  return value.toLocaleLowerCase('fr');
+};
 
 function parseEspagnolFile(text){
   return text.split('\n').map(l=>l.trim().match(/^"([^"]+)"\s+"([^"]+)"/))
@@ -666,6 +709,54 @@ window.showDifficulty=mode=>{
   fetchGithubLists();
 };
 window.hideDifficulty=()=>document.getElementById('difficulty-screen').classList.add('hidden');
+window.showDatesScreen=()=>{
+  hideAll();
+  document.getElementById('dates-screen').classList.remove('hidden');
+  document.getElementById('dates-file-status').textContent='';
+};
+function parseHistoryFile(text){
+  return text.split(/\r?\n/).map(line=>{
+    const sep=line.indexOf('::');
+    if(sep<0)return null;
+    const date=line.slice(0,sep).trim(), event=line.slice(sep+2).trim();
+    return date&&event?{es:date,fr:event}:null;
+  }).filter(Boolean);
+}
+window.startDefaultDates=async()=>{
+  const status=document.getElementById('dates-file-status');
+  try{
+    const res=await fetch('histoire.histoire');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const entries=parseHistoryFile(await res.text());
+    if(!entries.length)throw new Error('Aucun événement trouvé');
+    startDatesGame(entries,'Chronologie historique');
+  }catch(e){
+    status.textContent='Impossible de charger histoire.histoire. Essaie d’importer ton fichier .histoire.';
+  }
+};
+window.startDatesFromFile=async()=>{
+  const input=document.getElementById('dates-file-input');
+  const status=document.getElementById('dates-file-status');
+  const file=input.files&&input.files[0];
+  if(!file){status.textContent='Choisis d’abord un fichier .histoire.';return;}
+  try{
+    const entries=parseHistoryFile(await file.text());
+    if(!entries.length){status.textContent='Aucune ligne valide. Format attendu : date::événement.';return;}
+    startDatesGame(entries,file.name);
+  }catch(e){status.textContent='Impossible de lire ce fichier.';}
+};
+function startDatesGame(entries,name){
+  if(!entries.length)return;
+  activeVocabulary=entries;
+  activeListName=name;
+  selectedMode='dates';
+  currentDifficulty='expert';
+  document.getElementById('dates-screen').classList.add('hidden');
+  startGame();
+}
+document.getElementById('dates-answer-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();checkAnswer();}
+});
 window.confirmStart=diff=>{currentDifficulty=diff;startGame();};
 
 window.showLobby=()=>{
@@ -1175,11 +1266,26 @@ function displayQuestion(){
   }
   errorCount=0;isRevealing=false;updateErrorDots();
   const w=gameQueue[playerProgress];
-  document.getElementById('fr-word').textContent='"'+w.fr+'"';
+  document.getElementById('fr-word').textContent=selectedMode==='dates'?w.fr:'"'+w.fr+'"';
   document.getElementById('reveal-zone').classList.add('hidden');
   document.getElementById('btn-check').classList.remove('hidden');
   document.getElementById('feedback-area').classList.add('hidden');
+  const dateWrap=document.getElementById('dates-answer-wrap');
+  const dateInput=document.getElementById('dates-answer-input');
   const cont=document.getElementById('letter-inputs');cont.innerHTML='';
+  if(selectedMode==='dates'){
+    dateWrap.classList.remove('hidden');
+    dateInput.value='';
+    dateInput.disabled=false;
+    cont.classList.add('hidden');
+    document.getElementById('error-indicator').classList.add('hidden');
+    document.getElementById('btn-check').querySelector('span').textContent='Valider la date';
+    setTimeout(()=>dateInput.focus(),80);
+    return;
+  }
+  dateWrap.classList.add('hidden');
+  cont.classList.remove('hidden');
+  document.getElementById('btn-check').querySelector('span').textContent='Valider la réponse';
   const rc=currentDifficulty==='debutant'?.35:currentDifficulty==='intermediaire'?.15:0;
   for(const ch of w.es.toLowerCase()){
     if(ch===' '){const d=document.createElement('div');d.className='space-box';cont.appendChild(d);}
@@ -1248,6 +1354,7 @@ function updateErrorDots(){
 // CHECK / SUCCESS / FAILURE
 // ════════════════════════════════════════════════════
 window.checkAnswer=()=>{
+  if(selectedMode==='dates'){checkDateAnswer();return;}
   if(isCooldown||isRevealing)return;
   isCooldown=true;
   const btn=document.getElementById('btn-check');
@@ -1269,6 +1376,38 @@ window.checkAnswer=()=>{
   });
   ok?handleSuccess():handleFailure();
 };
+
+function checkDateAnswer(){
+  if(isRevealing||isCooldown||playerProgress>=gameQueue.length)return;
+  const input=document.getElementById('dates-answer-input');
+  const typed=normalizeDate(input.value);
+  if(!typed){showFeedback('Écris une date avant de valider.');input.focus();return;}
+  const item=gameQueue[playerProgress];
+  if(typed===normalizeDate(item.es)){
+    input.disabled=true;
+    score+=100+streak*25;
+    streak++;
+    document.getElementById('score').textContent=score;
+    updateStreakUI();
+    playerProgress++;
+    updateProgressUI();
+    setTimeout(displayQuestion,450);
+  }else{
+    streak=0;updateStreakUI();
+    isRevealing=true;
+    input.disabled=true;
+    document.getElementById('reveal-answer').textContent=item.es;
+    document.getElementById('reveal-zone').classList.remove('hidden');
+    document.getElementById('btn-check').classList.add('hidden');
+    document.getElementById('feedback-area').classList.add('hidden');
+    if(!missedWords.find(m=>m.es===item.es&&m.fr===item.fr))
+      missedWords.push({...item,reason:'revele'});
+    document.getElementById('question-card').classList.add('shake');
+    setTimeout(()=>document.getElementById('question-card').classList.remove('shake'),400);
+    const nextBtn=document.querySelector('#reveal-zone .btn-next');
+    if(nextBtn)nextBtn.textContent='Événement suivant →';
+  }
+}
 
 function handleSuccess(){
   score+=100+streak*25;streak++;
@@ -1311,6 +1450,12 @@ function revealAnswer(){
   const hidden=document.getElementById('hidden-input');
   if(hidden) hidden.blur();
   document.getElementById('reveal-answer').textContent=w.es;
+  if(selectedMode==='dates'){
+    document.getElementById('dates-answer-wrap').classList.remove('hidden');
+    document.getElementById('dates-answer-input').disabled=true;
+    const nextBtn=document.querySelector('#reveal-zone .btn-next');
+    if(nextBtn)nextBtn.textContent='Événement suivant →';
+  }
   document.getElementById('reveal-zone').classList.remove('hidden');
   document.getElementById('btn-check').classList.add('hidden');
   document.getElementById('feedback-area').classList.add('hidden');
@@ -1367,6 +1512,11 @@ function showEnd(isVictory){
   }
   document.getElementById('modal-icon').textContent=icon;
   document.getElementById('modal-title').textContent=title;
+  if(selectedMode==='dates'){
+    icon=isVictory?'🏆':'📅';
+    title=isVictory?'CHRONOLOGIE TERMINÉE':'RÉVISION TERMINÉE';
+    desc='Série finale : '+streak+'. Une erreur remet la série à zéro.';
+  }
   document.getElementById('modal-desc').textContent=desc;
   document.getElementById('modal-score').textContent=score;
   document.getElementById('r-validated').textContent=playerProgress;
