@@ -690,11 +690,14 @@ const defaultVocabulary=[
 // ════════════════════════════════════════════════════
 const GH_RAW='https://raw.githubusercontent.com/chevrichon/VocaRace/main/';
 const LISTS_JSON=GH_RAW+'lists.json';
+const HISTORY_LISTS_JSON=GH_RAW+'histoire_lists.json';
 
 // ════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════
 let selectedMode='solo', currentDifficulty='debutant';
+let activeDatasetType='vocab';
+let datasetLoadPromise=Promise.resolve();
 let lives=3, score=0, streak=0;
 let gameQueue=[], playerProgress=0, botProgress=0;
 let isCooldown=false, botInterval=null;
@@ -745,117 +748,92 @@ function hideAll(){
   document.getElementById('game-header').classList.add('hidden');
   document.getElementById('game-main').classList.add('hidden');
 }
-window.backToMenu=()=>{hideAll();document.getElementById('mode-selection-screen').classList.remove('hidden');}
+window.backToMenu=()=>{hideAll();document.getElementById('mode-selection-screen').classList.remove('hidden');};
+window.backToCategories=()=>{hideAll();document.getElementById('category-selection-screen').classList.remove('hidden');};
+window.chooseSubject=type=>{
+  activeDatasetType=type==='history'?'history':'vocab';
+  hideAll();
+  document.getElementById('mode-menu-subtitle').textContent=activeDatasetType==='history'
+    ?'Révise les événements et les dates historiques':'Maîtrise le vocabulaire espagnol';
+  document.getElementById('mode-selection-screen').classList.remove('hidden');
+};
 window.showDifficulty=mode=>{
   selectedMode=mode;
-  document.getElementById('diff-title').textContent=mode==='bot'?'Nivel de Duel':'Nivel de Entrenamiento';
+  const history=activeDatasetType==='history';
+  document.getElementById('diff-title').textContent=history
+    ?(mode==='bot'?'Duel Histoire':'Entraînement Histoire')
+    :(mode==='bot'?'Nivel de Duel':'Nivel de Entrenamiento');
+  document.getElementById('dataset-picker-label').textContent=history?'📜 Choisir une chronologie':'📚 Choisir une liste de mots';
+  document.getElementById('builtin-card').classList.toggle('hidden',history);
+  document.getElementById('difficulty-history-import').classList.toggle('hidden',!history);
+  document.getElementById('btn-refresh').textContent=history?'↻ Actualiser les chronologies GitHub':'↻ Actualiser les listes GitHub';
+  document.getElementById('difficulty-history-status').textContent='';
   document.getElementById('difficulty-screen').classList.remove('hidden');
   fetchGithubLists();
 };
 window.hideDifficulty=()=>document.getElementById('difficulty-screen').classList.add('hidden');
-let selectedHistoryFile=null;
-const HISTORY_LISTS_JSON=GH_RAW+'histoire_lists.json';
-window.showDatesScreen=()=>{
-  hideAll();
-  document.getElementById('dates-screen').classList.remove('hidden');
-  document.getElementById('dates-file-status').textContent='';
-  document.getElementById('history-lists-error').classList.add('hidden');
-  document.getElementById('dates-start-button').disabled=true;
-  selectedHistoryFile=null;
-  loadHistoryLists();
-};
+
 function parseHistoryFile(text){
   return text.split(/\r?\n/).map(line=>{
     const sep=line.indexOf('::');
     if(sep<0)return null;
-    const date=line.slice(0,sep).trim(), event=line.slice(sep+2).trim();
+    const date=line.slice(0,sep).trim(),event=line.slice(sep+2).trim();
     return date&&event?{es:date,fr:event}:null;
   }).filter(Boolean);
 }
-async function loadHistoryLists(){
-  const cont=document.getElementById('history-list-picker');
-  const err=document.getElementById('history-lists-error');
+async function loadHistoryListsInto(containerId,pickerId,builtinId){
+  const cont=document.getElementById(containerId);
+  const builtin=builtinId?document.getElementById(builtinId):null;
+  if(builtin)builtin.classList.add('hidden');
   cont.innerHTML='<div class="rooms-loading"><div class="spinner"></div> Chargement des chronologies...</div>';
   try{
     const response=await fetch(HISTORY_LISTS_JSON+'?t='+Date.now());
     if(!response.ok)throw new Error('HTTP '+response.status);
     const files=await response.json();
     if(!Array.isArray(files))throw new Error('Manifeste invalide');
-    const historyFiles=files.filter(name=>typeof name==='string'&&name.toLowerCase().endsWith('.histoire'));
+    const names=files.filter(name=>typeof name==='string'&&name.toLowerCase().endsWith('.histoire'));
     cont.innerHTML='';
-    if(!historyFiles.length){
-      cont.innerHTML='<p style="grid-column:1/-1;color:#94a3b8;font-size:.75rem">Aucune chronologie listée dans histoire_lists.json.</p>';
-      return;
-    }
-    historyFiles.forEach((filename,index)=>{
-      const card=document.createElement('div');
-      card.className='list-card';
-      const icon=document.createElement('span');
-      icon.className='list-card-icon';icon.textContent='📜';
+    if(!names.length){cont.innerHTML='<p style="grid-column:1/-1;color:#94a3b8;font-size:.75rem">Aucune chronologie disponible.</p>';return;}
+    names.forEach((filename,index)=>{
+      const card=document.createElement('div');card.className='list-card';
+      const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='📜';
       const info=document.createElement('div');
-      const title=document.createElement('p');
-      title.className='list-card-name';title.textContent=filename.replace(/\.histoire$/i,'');
-      const count=document.createElement('p');
-      count.className='list-card-count';count.textContent='Chronologie historique';
-      info.append(title,count);card.append(icon,info);
-      card.addEventListener('click',()=>{
-        cont.querySelectorAll('.list-card').forEach(c=>c.classList.remove('selected'));
-        card.classList.add('selected');
-        selectedHistoryFile=filename;
-        document.getElementById('dates-start-button').disabled=false;
-        document.getElementById('dates-start-button').textContent='Jouer : '+filename.replace(/\.histoire$/i,'')+' →';
-        document.getElementById('dates-file-status').textContent='';
-      });
-      cont.appendChild(card);
+      const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.replace(/\.histoire$/i,'');
+      const count=document.createElement('p');count.className='list-card-count';count.textContent='...';
+      info.append(title,count);card.append(icon,info);cont.appendChild(card);
       fetch(GH_RAW+encodeURIComponent(filename)).then(r=>r.ok?r.text():Promise.reject())
-        .then(t=>{count.textContent=parseHistoryFile(t).length+' événements';})
-        .catch(()=>{count.textContent='Non disponible';});
+        .then(t=>count.textContent=parseHistoryFile(t).length+' événements').catch(()=>count.textContent='Indisponible');
+      card.addEventListener('click',()=>{
+        deselectIn(pickerId);card.classList.add('selected','loading');
+        datasetLoadPromise=(async()=>{
+          try{
+            const response=await fetch(GH_RAW+encodeURIComponent(filename));
+            if(!response.ok)throw new Error('HTTP '+response.status);
+            const entries=parseHistoryFile(await response.text());
+            if(!entries.length)throw new Error('Aucun événement valide');
+            activeVocabulary=entries;activeListName=filename;activeDatasetType='history';
+          }catch(e){alert('Impossible de charger la chronologie '+filename+'.');card.classList.remove('selected');}
+          finally{card.classList.remove('loading');}
+        })();
+      });
       if(index===0)card.click();
     });
-  }catch(e){
-    cont.innerHTML='';
-    err.textContent='Impossible de charger histoire_lists.json depuis GitHub. Tu peux toujours importer ton propre fichier .histoire.';
-    err.classList.remove('hidden');
-  }
+  }catch(e){cont.innerHTML='<p style="grid-column:1/-1;color:#fda4af;font-size:.72rem">Impossible de charger histoire_lists.json depuis GitHub.</p>';}
 }
-window.startSelectedDates=async()=>{
-  const status=document.getElementById('dates-file-status');
-  if(!selectedHistoryFile){status.textContent='Sélectionne une chronologie GitHub.';return;}
-  const button=document.getElementById('dates-start-button');
-  button.disabled=true;button.textContent='Chargement...';
-  try{
-    const response=await fetch(GH_RAW+encodeURIComponent(selectedHistoryFile));
-    if(!response.ok)throw new Error('HTTP '+response.status);
-    const entries=parseHistoryFile(await response.text());
-    if(!entries.length)throw new Error('Aucun événement valide');
-    startDatesGame(entries,selectedHistoryFile);
-  }catch(e){
-    status.textContent='Impossible de charger cette chronologie. Vérifie le fichier dans le dépôt GitHub.';
-    button.disabled=false;button.textContent='Réessayer →';
-  }
-};
-window.startDatesFromFile=async()=>{
-  const input=document.getElementById('dates-file-input');
-  const status=document.getElementById('dates-file-status');
+window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId)=>{
+  const input=document.getElementById(inputId),status=document.getElementById(statusId),wrapper=document.getElementById(wrapperId);
   const file=input.files&&input.files[0];
   if(!file){status.textContent='Choisis d’abord un fichier .histoire.';return;}
   try{
     const entries=parseHistoryFile(await file.text());
-    if(!entries.length){status.textContent='Aucune ligne valide. Format attendu : date::événement.';return;}
-    startDatesGame(entries,file.name);
-  }catch(e){status.textContent='Impossible de lire ce fichier.';}
+    if(!entries.length)throw new Error('Aucune ligne valide. Format attendu : date::événement.');
+    activeVocabulary=entries;activeListName=file.name;activeDatasetType='history';
+    deselectIn(pickerId);wrapper.classList.add('selected');
+    status.textContent=entries.length+' événements chargés depuis '+file.name+'.';
+    datasetLoadPromise=Promise.resolve();
+  }catch(e){status.textContent=e.message||'Impossible de lire ce fichier.';}
 };
-function startDatesGame(entries,name){
-  if(!entries.length)return;
-  activeVocabulary=entries;
-  activeListName=name;
-  selectedMode='dates';
-  currentDifficulty='expert';
-  document.getElementById('dates-screen').classList.add('hidden');
-  startGame();
-}
-// La validation avec Entrée est gérée par le raccourci clavier global de VocaRace.
-window.confirmStart=diff=>{currentDifficulty=diff;startGame();};
+window.confirmStart=async diff=>{currentDifficulty=diff;await datasetLoadPromise;startGame();};
 
 window.showLobby=()=>{
   hideAll();
