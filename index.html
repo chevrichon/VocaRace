@@ -1182,6 +1182,7 @@ body.theme-light .miss-es{
     <div id="test-zone">
       <h2 id="fr-word" class="fr-word">"Cargando..."</h2>
       <div id="dates-answer-wrap" class="hidden" style="max-width:26rem;margin:0 auto 1.5rem">
+        <p id="dates-answer-format" style="font-size:.9rem;font-weight:800;text-align:center;margin-bottom:.55rem;color:#a5b4fc">Année uniquement</p>
         <input id="dates-answer-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="" style="width:100%;padding:1rem;border:2px solid #c7d2fe;border-radius:1rem;background:#fff;color:#1e293b;font-size:1.2rem;font-weight:800;text-align:center">
       </div>
       <div id="letter-inputs" class="letter-inputs"></div>
@@ -2020,6 +2021,21 @@ function startBotAI(){
 window.handleCheck=()=>{if(activeDatasetType==='history'||selectedMode==='dates')checkDateAnswer();else checkAnswer();};
 
 // Génère un indice court sans révéler toute la date.
+function getDateAnswerFormat(value){
+  const raw=String(value||'').trim();
+  const lower=raw.toLocaleLowerCase('fr');
+  const hasMonth=/(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/i.test(lower)
+    || /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{3,4}$/.test(raw)
+    || /^\d{4}-\d{2}-\d{2}$/.test(raw);
+  const hasDay=/^\d{1,2}\s+(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/i.test(lower)
+    || /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{3,4}$/.test(raw)
+    || /^\d{4}-\d{2}-\d{2}$/.test(raw);
+  if(hasDay)return 'Jour, mois et année';
+  if(hasMonth)return 'Mois et année';
+  return 'Année uniquement';
+}
+
+// Génère un indice court sans révéler toute la date.
 function getDateHint(value){
   const raw=String(value||'').trim();
   if(currentDifficulty==='expert'||currentDifficulty==='hardcore')return '';
@@ -2076,6 +2092,7 @@ function displayQuestion(){
   if(activeDatasetType==='history'||selectedMode==='dates'){
     dateWrap.classList.remove('hidden');
     dateInput.value='';
+    document.getElementById('dates-answer-format').textContent=getDateAnswerFormat(w.es);
     dateInput.placeholder=getDateHint(w.es);
     dateInput.disabled=false;
     dateInput.classList.remove('date-answer-correct','date-answer-wrong');
