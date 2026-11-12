@@ -2017,10 +2017,10 @@ window.handleCheck=()=>{if(activeDatasetType==='history'||selectedMode==='dates'
 // Génère un indice court sans révéler toute la date.
 function getDateHint(value){
   const raw=String(value||'').trim();
+  if(currentDifficulty==='expert'||currentDifficulty==='hardcore')return '';
   if(/^\d{3,4}$/.test(raw)){
-    const digitIndex=Math.random()<0.5?raw.length-2:raw.length-1;
-    const digitName=digitIndex===raw.length-2?'dizaines':'unités';
-    return 'Indice : chiffre des '+digitName+' = '+raw[digitIndex];
+    const digitIndex=Math.floor(Math.random()*raw.length);
+    return 'le '+raw.split('').map((digit,i)=>i===digitIndex?digit:'X').join('');
   }
   const lower=raw.toLocaleLowerCase('fr');
   const months=['janvier','février','fevrier','mars','avril','mai','juin','juillet','août','aout','septembre','octobre','novembre','décembre','decembre'];
@@ -2028,15 +2028,21 @@ function getDateHint(value){
   const nums=raw.match(/\d+/g)||[];
   const choices=[];
   if(nums.length>=3){
-    choices.push(['jour',nums[0]],['mois',nums[1]],['année',nums[2]]);
+    choices.push('le '+nums[0]);
+    if(month)choices.push(month);
+    const year=nums.find(n=>n.length>=3);
+    if(year)choices.push('le '+year.split('').map((digit,i)=>i===Math.floor(Math.random()*year.length)?digit:'X').join(''));
   }else{
-    if(nums.length>=1) choices.push(['jour',nums[0]]);
-    if(month) choices.push(['mois',month]);
-    if(nums.length>=2) choices.push(['année',nums[nums.length-1]]);
+    if(nums.length>=1)choices.push('le '+nums[0]);
+    if(month)choices.push(month);
+    if(nums.length>=2){
+      const year=nums[nums.length-1];
+      choices.push('le '+year.split('').map((digit,i)=>i===Math.floor(Math.random()*year.length)?digit:'X').join(''));
+    }
   }
-  if(!choices.length)return 'Saisis la date complète';
-  const [part,hint]=choices[Math.floor(Math.random()*choices.length)];
-  return 'Indice : '+part+' = '+hint;
+  if(!choices.length)return '';
+  if(currentDifficulty==='intermediaire'&&month)return month;
+  return choices[Math.floor(Math.random()*choices.length)];
 }
 
 // ════════════════════════════════════════════════════
