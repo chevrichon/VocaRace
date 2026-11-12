@@ -9,9 +9,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 /* ── THÈMES CLAIR / SOMBRE ── */
-#theme-toggle-button{position:fixed;top:.65rem;right:.75rem;z-index:200;display:inline-block;width:7em;font-size:17px;cursor:pointer;line-height:0;user-select:none}
+#theme-toggle-button{position:fixed;top:.25rem;right:.75rem;z-index:200;display:inline-block;width:4.5em;font-size:16px;cursor:pointer;line-height:0;user-select:none}
 #theme-toggle-button #toggle{opacity:0;width:0;height:0;position:absolute}
-#theme-toggle-button svg{display:block;width:100%;height:auto;overflow:visible}
+#theme-toggle-button svg{display:block;width:100%;height:auto;overflow:hidden}
 #theme-toggle-button #container,#theme-toggle-button #patches,#theme-toggle-button #stars,#theme-toggle-button #button,#theme-toggle-button #sun,#theme-toggle-button #moon,#theme-toggle-button #cloud{transition:all .25s cubic-bezier(.4,0,.2,1)}
 #theme-toggle-button #container{fill:#83cbd8}
 #theme-toggle-button #toggle:checked+svg #container{fill:#2b4360}
@@ -25,8 +25,8 @@
 #theme-toggle-button #stars{opacity:0}
 #theme-toggle-button input:checked+svg #stars{opacity:1}
 /* Pendant une partie, placer le switch à gauche de Quitter pour éviter tout chevauchement. */
-body:has(#game-header:not(.hidden)) #theme-toggle-button{right:6.5rem;top:.55rem}
-@media(max-width:420px){#theme-toggle-button{width:5.5em;right:.5rem;top:.5rem}body:has(#game-header:not(.hidden)) #theme-toggle-button{right:5.5rem;top:.5rem}}
+body:has(#game-header:not(.hidden)) #theme-toggle-button{right:5.5rem;top:.2rem}
+@media(max-width:420px){#theme-toggle-button{width:3.8em;right:.5rem;top:.25rem}body:has(#game-header:not(.hidden)) #theme-toggle-button{right:4.8rem;top:.25rem}}
 body.theme-light .screen{background:#f1f5f9;color:#1e293b}
 body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title{color:#0f172a}
 body.theme-light .menu-sub,body.theme-light .section-label{color:#64748b}
