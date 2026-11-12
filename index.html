@@ -139,6 +139,21 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .mb-section{margin-bottom:1.75rem}
 @media(min-width:640px){.mb-section{margin-bottom:2.5rem}}
 .list-picker{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;text-align:left;margin-bottom:.75rem}
+/* Garder les écrans de sélection défilables lorsque beaucoup de listes sont affichées. */
+#difficulty-screen .diff-inner,
+#lobby-screen .lobby-inner{
+  max-height:calc(100dvh - 2rem);
+  overflow-y:auto;
+  overscroll-behavior-y:contain;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+  align-self:flex-start;
+}
+@media(min-width:640px){
+  #difficulty-screen .diff-inner,
+  #lobby-screen .lobby-inner{max-height:calc(100dvh - 3rem)}
+}
+
 .list-card{background:#fff;border-radius:.875rem;padding:.75rem;cursor:pointer;border:2px solid transparent;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:.625rem}
 @media(hover:hover){.list-card:hover{border-color:#6366f1}}
 .list-card.selected{border-color:#6366f1;background:#eef2ff}
