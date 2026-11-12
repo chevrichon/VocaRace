@@ -2238,13 +2238,13 @@ function showEnd(isVictory){
     title=isVictory?'¡VICTORIA!':(lives<=0?'¡SIN VIDAS!':'¡DERROTA!');
     desc=isVictory?(selectedMode==='bot'?"Tu as écrasé l'IA !":"Tu as terminé la liste !"):(lives<=0?"Tu n'as plus de vies.":"Le robot a fini avant toi...");
   }
-  document.getElementById('modal-icon').textContent=icon;
-  document.getElementById('modal-title').textContent=title;
   if(activeDatasetType==='history'||selectedMode==='dates'){
     icon=isVictory?'🏆':'📅';
     title=isVictory?'CHRONOLOGIE TERMINÉE':'RÉVISION TERMINÉE';
     desc='Série finale : '+streak+'. Une erreur remet la série à zéro.';
   }
+  document.getElementById('modal-icon').textContent=icon;
+  document.getElementById('modal-title').textContent=title;
   document.getElementById('modal-desc').textContent=desc;
   document.getElementById('modal-score').textContent=score;
   document.getElementById('r-validated').textContent=playerProgress;
@@ -2252,7 +2252,7 @@ function showEnd(isVictory){
   document.getElementById('r-total').textContent=gameQueue.length;
   document.getElementById('r-listname').textContent='Liste : '+activeListName;
   const badge=document.getElementById('miss-count-badge');
-  if(revealed.length>0){badge.textContent=revealed.length;badge.classList.remove('hidden');}else badge.classList.add('hidden');
+  if(misses.length>0){badge.textContent=misses.length;badge.classList.remove('hidden');}else badge.classList.add('hidden');
   const list=document.getElementById('missed-words-list'),none=document.getElementById('no-misses-msg');
   if(!misses.length){list.innerHTML='';none.classList.remove('hidden');}
   else{none.classList.add('hidden');list.innerHTML=misses.map(w=>`<div class="miss-item"><span class="miss-fr">${w.fr}</span><span class="miss-arrow">→</span><span class="miss-es">${w.es}</span></div>`).join('');}
