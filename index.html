@@ -2054,7 +2054,8 @@ function updateErrorDots(){
 // CHECK / SUCCESS / FAILURE
 // ════════════════════════════════════════════════════
 window.checkAnswer=()=>{
-  if(selectedMode==='dates'){checkDateAnswer();return;}
+  // Une chronologie utilise un champ date, même en solo, bot ou dans les mots ratés.
+  if(activeDatasetType==='history'||selectedMode==='dates'){checkDateAnswer();return;}
   if(isCooldown||isRevealing)return;
   isCooldown=true;
   const btn=document.getElementById('btn-check');
@@ -2080,6 +2081,8 @@ window.checkAnswer=()=>{
 function checkDateAnswer(){
   if(isRevealing||isCooldown||playerProgress>=gameQueue.length)return;
   const input=document.getElementById('dates-answer-input');
+  // Empêche qu'une seconde touche Entrée valide l'événement suivant avant son affichage.
+  if(!input||input.disabled)return;
   const typed=normalizeDate(input.value);
   if(!typed){showFeedback('Écris une date avant de valider.');input.focus();return;}
   const item=gameQueue[playerProgress];
@@ -2105,8 +2108,20 @@ function checkDateAnswer(){
     setTimeout(displayQuestion,650);
   }else{
     streak=0;updateStreakUI();
-    input.disabled=true;
     input.classList.add('date-answer-wrong');
+    if(currentDifficulty==='hardcore'){
+      // En hardcore, une mauvaise date coûte une vie mais ne révèle pas la réponse.
+      const card=document.getElementById('question-card');
+      card.classList.add('shake');
+      setTimeout(()=>{
+        card.classList.remove('shake');
+        input.classList.remove('date-answer-wrong');
+        if(!input.disabled&&!isRevealing)input.focus();
+      },400);
+      handleFailure();
+      return;
+    }
+    input.disabled=true;
     isRevealing=true;
     document.getElementById('reveal-answer').textContent=item.es;
     document.getElementById('reveal-zone').classList.remove('hidden');
@@ -2209,7 +2224,8 @@ function updateLivesUI(){for(let i=1;i<=3;i++)document.getElementById('heart-'+i
 // ════════════════════════════════════════════════════
 function showEnd(isVictory){
   document.getElementById('end-modal').classList.remove('hidden');
-  const revealed=missedWords.filter(m=>m.reason==='revele');
+  // Affiche tous les éléments réellement ratés, y compris ceux du mode hardcore.
+  const misses=missedWords;
   let icon,title,desc;
   if(selectedMode==='learn'){
     icon='🎓';title='¡LISTA DOMINADA!';desc='Tu as maîtrisé toute la liste !';
@@ -2218,7 +2234,7 @@ function showEnd(isVictory){
     title=isVictory?'¡VICTORIA!':'¡DERROTA!';
     desc=isVictory?'Tu as fini avant ton adversaire !':'Ton adversaire a fini en premier...';
   } else {
-    icon=isVictory?(revealed.length===0?'🏆':'🎉'):'🤖';
+    icon=isVictory?(misses.length===0?'🏆':'🎉'):'🤖';
     title=isVictory?'¡VICTORIA!':(lives<=0?'¡SIN VIDAS!':'¡DERROTA!');
     desc=isVictory?(selectedMode==='bot'?"Tu as écrasé l'IA !":"Tu as terminé la liste !"):(lives<=0?"Tu n'as plus de vies.":"Le robot a fini avant toi...");
   }
@@ -2232,16 +2248,16 @@ function showEnd(isVictory){
   document.getElementById('modal-desc').textContent=desc;
   document.getElementById('modal-score').textContent=score;
   document.getElementById('r-validated').textContent=playerProgress;
-  document.getElementById('r-revealed').textContent=revealed.length;
+  document.getElementById('r-revealed').textContent=misses.length;
   document.getElementById('r-total').textContent=gameQueue.length;
   document.getElementById('r-listname').textContent='Liste : '+activeListName;
   const badge=document.getElementById('miss-count-badge');
   if(revealed.length>0){badge.textContent=revealed.length;badge.classList.remove('hidden');}else badge.classList.add('hidden');
   const list=document.getElementById('missed-words-list'),none=document.getElementById('no-misses-msg');
-  if(!revealed.length){list.innerHTML='';none.classList.remove('hidden');}
-  else{none.classList.add('hidden');list.innerHTML=revealed.map(w=>`<div class="miss-item"><span class="miss-fr">${w.fr}</span><span class="miss-arrow">→</span><span class="miss-es">${w.es}</span></div>`).join('');}
+  if(!misses.length){list.innerHTML='';none.classList.remove('hidden');}
+  else{none.classList.add('hidden');list.innerHTML=misses.map(w=>`<div class="miss-item"><span class="miss-fr">${w.fr}</span><span class="miss-arrow">→</span><span class="miss-es">${w.es}</span></div>`).join('');}
   const retryBtn=document.getElementById('btn-retry-missed');
-  if(selectedMode!=='learn'&&missedWords.length>0)retryBtn.classList.remove('hidden');
+  if(selectedMode!=='learn'&&misses.length>0)retryBtn.classList.remove('hidden');
   else retryBtn.classList.add('hidden');
 }
 
@@ -2284,7 +2300,15 @@ window.toggleTheme=()=>{
 // Navigation gérée par l'input caché — ces fonctions ne sont plus nécessaires
 function focusNext(){}
 function focusPrev(){}
-window.addEventListener('keydown',e=>{if(e.key==='Enter'&&!isRevealing)checkAnswer();});
+window.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||isRevealing)return;
+  const gameMain=document.getElementById('game-main');
+  if(!gameMain||gameMain.classList.contains('hidden'))return;
+  // Laisse les boutons gérer leur propre Entrée et évite de déclencher le check depuis le lobby.
+  if(e.target&&e.target.closest&&e.target.closest('button'))return;
+  e.preventDefault();
+  window.handleCheck();
+});
 </script>
 </body>
 </html>
