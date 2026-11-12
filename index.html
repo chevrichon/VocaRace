@@ -79,27 +79,11 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .contents{display:contents}
 
 /* ── SCREENS ── */
-.screen{position:fixed;inset:0;background:#0f172a;z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
-@media(min-width:640px){.screen{align-items:center;padding:1.5rem}}
-/* Corrige le défilement complet des écrans de sélection de listes. */
-#difficulty-screen,#lobby-screen{
-  align-items:flex-start!important;
-  justify-content:flex-start;
-  overflow-y:scroll;
-  overscroll-behavior-y:contain;
-  height:100vh;
-  height:100dvh;
-}
-#difficulty-screen .diff-inner,#lobby-screen .lobby-inner{
-  flex:0 0 auto;
-  max-height:none;
-  overflow:visible;
-  align-self:stretch;
-  margin:0 auto;
-}
-@media(min-width:640px){
-  #difficulty-screen,#lobby-screen{align-items:flex-start!important}
-}
+.screen{position:fixed;inset:0;background:#0f172a;z-index:60;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:1rem;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;height:100vh;height:100dvh}
+/* Les écrans longs défilent au niveau de l'écran, quel que soit le mode. */
+.screen:not(#end-modal)>:first-child{flex:0 0 auto;width:100%;margin-top:auto;margin-bottom:auto}
+#end-modal{align-items:center;justify-content:center}
+@media(min-width:640px){.screen{padding:1.5rem}}
 #difficulty-screen,#lobby-screen,#learn-intro-screen,#dates-screen{z-index:61}
 #end-modal{z-index:100;background:rgba(15,23,42,.92)}
 
@@ -158,21 +142,6 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .mb-section{margin-bottom:1.75rem}
 @media(min-width:640px){.mb-section{margin-bottom:2.5rem}}
 .list-picker{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;text-align:left;margin-bottom:.75rem}
-/* Garder les écrans de sélection défilables lorsque beaucoup de listes sont affichées. */
-#difficulty-screen .diff-inner,
-#lobby-screen .lobby-inner{
-  max-height:calc(100dvh - 2rem);
-  overflow-y:auto;
-  overscroll-behavior-y:contain;
-  scrollbar-width:thin;
-  -webkit-overflow-scrolling:touch;
-  align-self:flex-start;
-}
-@media(min-width:640px){
-  #difficulty-screen .diff-inner,
-  #lobby-screen .lobby-inner{max-height:calc(100dvh - 3rem)}
-}
-
 .list-card{background:#fff;border-radius:.875rem;padding:.75rem;cursor:pointer;border:2px solid transparent;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:.625rem}
 @media(hover:hover){.list-card:hover{border-color:#6366f1}}
 .list-card.selected{border-color:#6366f1;background:#eef2ff}
