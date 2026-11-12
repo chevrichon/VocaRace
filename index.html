@@ -2019,7 +2019,7 @@ function getDateHint(value){
   const raw=String(value||'').trim();
   if(currentDifficulty==='expert'||currentDifficulty==='hardcore')return '';
   if(/^\d{3,4}$/.test(raw)){
-    const digitIndex=Math.floor(Math.random()*raw.length);
+    const digitIndex=Math.random()<0.5?raw.length-2:raw.length-1;
     return 'le '+raw.split('').map((digit,i)=>i===digitIndex?digit:'X').join('');
   }
   const lower=raw.toLocaleLowerCase('fr');
@@ -2031,13 +2031,17 @@ function getDateHint(value){
     choices.push('le '+nums[0]);
     if(month)choices.push(month);
     const year=nums.find(n=>n.length>=3);
-    if(year)choices.push('le '+year.split('').map((digit,i)=>i===Math.floor(Math.random()*year.length)?digit:'X').join(''));
+    if(year){
+      const digitIndex=Math.random()<0.5?year.length-2:year.length-1;
+      choices.push('le '+year.split('').map((digit,i)=>i===digitIndex?digit:'X').join(''));
+    }
   }else{
     if(nums.length>=1)choices.push('le '+nums[0]);
     if(month)choices.push(month);
     if(nums.length>=2){
       const year=nums[nums.length-1];
-      choices.push('le '+year.split('').map((digit,i)=>i===Math.floor(Math.random()*year.length)?digit:'X').join(''));
+      const digitIndex=Math.random()<0.5?year.length-2:year.length-1;
+      choices.push('le '+year.split('').map((digit,i)=>i===digitIndex?digit:'X').join(''));
     }
   }
   if(!choices.length)return '';
