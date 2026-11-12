@@ -9,7 +9,24 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 /* ── THÈMES CLAIR / SOMBRE ── */
-#theme-toggle{position:fixed;top:.75rem;right:.75rem;z-index:200;background:#334155;color:#fff;border:1px solid #64748b;border-radius:999px;padding:.55rem .8rem;font-size:.72rem;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+#theme-toggle-button{position:fixed;top:.65rem;right:.75rem;z-index:200;display:inline-block;width:7em;font-size:17px;cursor:pointer;line-height:0;user-select:none}
+#theme-toggle-button input{position:absolute;opacity:0;width:0;height:0}
+#theme-toggle-button svg{display:block;width:100%;height:auto;overflow:visible}
+#theme-toggle-button #container,#theme-toggle-button #patches,#theme-toggle-button #stars,#theme-toggle-button #button,#theme-toggle-button #sun,#theme-toggle-button #moon,#theme-toggle-button #cloud{transition:all .25s cubic-bezier(.4,0,.2,1)}
+#theme-toggle-button #container{fill:#83cbd8}
+#theme-toggle-button input:checked+svg #container{fill:#2b4360}
+#theme-toggle-button input:checked+svg #button{transform:translate(28px,2.333px)}
+#theme-toggle-button #sun{opacity:1}
+#theme-toggle-button input:checked+svg #sun{opacity:0}
+#theme-toggle-button #moon{opacity:0}
+#theme-toggle-button input:checked+svg #moon{opacity:1}
+#theme-toggle-button #cloud{opacity:1}
+#theme-toggle-button input:checked+svg #cloud{opacity:0}
+#theme-toggle-button #stars{opacity:0}
+#theme-toggle-button input:checked+svg #stars{opacity:1}
+/* Pendant une partie, placer le switch à gauche de Quitter pour éviter tout chevauchement. */
+body:has(#game-header:not(.hidden)) #theme-toggle-button{right:6.5rem;top:.55rem}
+@media(max-width:420px){#theme-toggle-button{width:5.5em;right:.5rem;top:.5rem}body:has(#game-header:not(.hidden)) #theme-toggle-button{right:5.5rem;top:.5rem}}
 body.theme-light .screen{background:#f1f5f9;color:#1e293b}
 body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title{color:#0f172a}
 body.theme-light .menu-sub,body.theme-light .section-label{color:#64748b}
@@ -28,7 +45,7 @@ body.theme-light .rooms-empty,body.theme-light .rooms-loading{color:#64748b}
 body.theme-light .btn-back{color:#475569}
 body.theme-light .btn-back:hover{color:#0f172a}
 body.theme-light #dates-answer-input{background:#fff!important;color:#1e293b!important}
-body.theme-light #theme-toggle{background:#e2e8f0;color:#0f172a;border-color:#cbd5e1}
+
 
 /* Le jeu est sombre par défaut ; ces règles couvrent aussi les écrans de partie. */
 body:not(.theme-light) #game-header{background:rgba(15,23,42,.96);border-bottom-color:#334155;color:#e2e8f0}
@@ -43,7 +60,7 @@ body:not(.theme-light) .progress-bar{background:#334155}
 body:not(.theme-light) #game-main .text-slate-500,body:not(.theme-light) #game-main .text-slate-400{color:#94a3b8!important}
 body:not(.theme-light) #game-main .bg-white{background:#1e293b!important}
 body:not(.theme-light) #game-main .text-slate-800,body:not(.theme-light) #game-main .text-slate-700{color:#e2e8f0!important}
-body:not(.theme-light) #theme-toggle{background:#334155;color:#fff;border-color:#64748b}
+
 body.theme-light #game-header{background:rgba(255,255,255,.96);border-bottom-color:#f1f5f9;color:#1e293b}
 body.theme-light #question-card{background:rgba(255,255,255,.98);border-color:#e2e8f0;color:#1e293b;box-shadow:0 4px 24px rgba(0,0,0,.06)}
 body.theme-light #question-card #question-text,body.theme-light #question-card .question-text{color:#1e293b}
@@ -852,7 +869,42 @@ body.theme-light .miss-es{
 </style>
 </head>
 <body>
-<button id="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Basculer entre thème clair et sombre">☀️ Mode clair</button>
+<label id="theme-toggle-button" title="Basculer entre le thème clair et sombre" aria-label="Basculer entre le thème clair et sombre">
+  <input type="checkbox" id="theme-toggle-checkbox" onchange="toggleTheme()" aria-label="Thème sombre activé">
+  <svg id="theme-toggle-svg" viewBox="0 0 69.667 44" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g transform="translate(3.5 3.5)" id="Component_15_1">
+      <g transform="matrix(1, 0, 0, 1, -3.5, -3.5)">
+        <rect id="container" fill="#83cbd8" transform="translate(3.5 3.5)" rx="17.5" height="35" width="60.667"/>
+      </g>
+      <g transform="translate(2.333 2.333)" id="button">
+        <g id="sun">
+          <circle fill="#f8e664" r="15.167" cy="15.167" cx="15.167" id="sun-outer-2"/>
+          <path fill="rgba(246,254,247,0.29)" transform="translate(3.5 3.5)" d="M11.667,0A11.667,11.667,0,1,1,0,11.667,11.667,11.667,0,0,1,11.667,0Z" id="sun-3"/>
+          <circle fill="#fcf4b9" transform="translate(8.167 8.167)" r="7" cy="7" cx="7" id="sun-inner"/>
+        </g>
+        <g id="moon">
+          <circle fill="#cce6ee" transform="translate(16.333 0)" r="15.167" cy="15.167" cx="15.167" id="moon-3"/>
+          <g fill="#a6cad0" transform="translate(-8.082 4.821)" id="patches">
+            <circle transform="translate(19 0)" r="2" cy="2" cx="2"/>
+            <circle transform="translate(15 13)" r="2" cy="2" cx="2"/>
+            <circle transform="translate(9 3)" r="1" cy="1" cx="1"/>
+            <circle transform="translate(27 14)" r="1" cy="1" cx="1"/>
+            <circle transform="translate(9 18)" r="1" cy="1" cx="1"/>
+            <circle transform="translate(26 5)" r="1.5" cy="1.5" cx="1.5"/>
+          </g>
+        </g>
+      </g>
+      <path fill="#fff" transform="translate(36 6)" d="M6,7a4.5,4.5 0 0 1 2 .5 3,3 0 0 1 5-2 3,3 0 0 1 4 2 3,3 0 0 1 4 3 4,4 0 0 1-3 3H7a3,3 0 0 1-1-6Z" id="cloud"/>
+      <g fill="#def8ff" transform="translate(3.585 1.325)" id="stars">
+        <path d="M.774,0 .566,.559 0,.539 .458,.933 .25,1.492 .735,1.131 1.193,1.525 1.024,.953 1.509,.592 .943,.572Z"/>
+        <path d="M1.341,.529 .836,.472 .736,0 .505,.46 0,.4 .4,.729 .169,1.189 .605,.932 1.005,1.258 .9,.786Z" transform="translate(19 10)"/>
+        <path d="M.015,1.065 .475,.9 .76,1.265 .766,.772 1.226,.608 .745,.494 .751,0 .481,.407 0,.293 .285,.658Z" transform="translate(18 25)"/>
+        <path d="M1.161,1.6 1.059,1 1.574,.722 .962,.607 .86,0 .613,.572 0,.457 .446,.881 .2,1.454 .716,1.18Z" transform="translate(12 1)"/>
+        <path d="M.873,1.648 .987,1.028 1.579,.945 1.03,.62 1.144,0 .706,.464 .157,.139 .438,.7 0,1.167 .592,1.084Z" transform="translate(8 15)"/>
+      </g>
+    </g>
+  </svg>
+</label>
 
 <!-- CHOIX DE LA MATIÈRE -->
 <div id="category-selection-screen" class="screen">
@@ -2282,19 +2334,20 @@ window.showTab=tab=>{
   });
 };
 
-// Thème clair/sombre : le libellé indique le thème vers lequel basculer.
+// Le switch est coché en thème sombre, décoché en thème clair.
 window.toggleTheme=()=>{
-  const light=document.body.classList.toggle('theme-light');
+  const checkbox=document.getElementById('theme-toggle-checkbox');
+  const light=!checkbox.checked;
+  document.body.classList.toggle('theme-light',light);
   try{localStorage.setItem('vocarace-theme',light?'light':'dark');}catch(e){}
-  const b=document.getElementById('theme-toggle');
-  if(b){b.textContent=light?'🌙 Passer en sombre':'☀️ Passer en clair';b.setAttribute('aria-label',light?'Activer le thème sombre':'Activer le thème clair');}
+  checkbox.setAttribute('aria-label',light?'Thème clair activé':'Thème sombre activé');
 };
 (()=>{
   let theme='dark';
   try{theme=localStorage.getItem('vocarace-theme')||'dark';}catch(e){}
   document.body.classList.toggle('theme-light',theme==='light');
-  const b=document.getElementById('theme-toggle');
-  if(b)b.textContent=theme==='light'?'🌙 Passer en sombre':'☀️ Passer en clair';
+  const checkbox=document.getElementById('theme-toggle-checkbox');
+  if(checkbox){checkbox.checked=theme!=='light';checkbox.setAttribute('aria-label',theme==='light'?'Thème clair activé':'Thème sombre activé');}
 })();
 
 // Navigation gérée par l'input caché — ces fonctions ne sont plus nécessaires
