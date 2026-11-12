@@ -81,6 +81,25 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 /* ── SCREENS ── */
 .screen{position:fixed;inset:0;background:#0f172a;z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @media(min-width:640px){.screen{align-items:center;padding:1.5rem}}
+/* Corrige le défilement complet des écrans de sélection de listes. */
+#difficulty-screen,#lobby-screen{
+  align-items:flex-start!important;
+  justify-content:flex-start;
+  overflow-y:scroll;
+  overscroll-behavior-y:contain;
+  height:100vh;
+  height:100dvh;
+}
+#difficulty-screen .diff-inner,#lobby-screen .lobby-inner{
+  flex:0 0 auto;
+  max-height:none;
+  overflow:visible;
+  align-self:stretch;
+  margin:0 auto;
+}
+@media(min-width:640px){
+  #difficulty-screen,#lobby-screen{align-items:flex-start!important}
+}
 #difficulty-screen,#lobby-screen,#learn-intro-screen,#dates-screen{z-index:61}
 #end-modal{z-index:100;background:rgba(15,23,42,.92)}
 
