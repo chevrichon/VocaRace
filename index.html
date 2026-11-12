@@ -2001,9 +2001,11 @@ function startBotAI(){
   function scheduleNext(){
     if(botProgress>=gameQueue.length){showEnd(false);return;}
     const word=gameQueue[botProgress];
-    // Lettres uniquement (pas espaces, chiffres, ponctuation)
-    const letters=(word.es.match(/[a-záéíóúñü]/gi)||[]).length;
-    const delay=think+(letters*base)+(Math.random()*400-200); // ±200ms aléatoire
+    // Temps de saisie calculé sur tous les caractères de la réponse.
+    const characters=Array.from(String(word.es||'').trim()).length;
+    // Le bot attend aussi 800 ms pour la validation, en plus du délai lié à la difficulté.
+    const validationDelay=800;
+    const delay=think+(characters*base)+validationDelay+(Math.random()*400-200); // ±200 ms aléatoire
     botInterval=setTimeout(()=>{
       botProgress++;updateProgressUI();
       scheduleNext();
