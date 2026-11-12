@@ -81,7 +81,7 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 /* ── SCREENS ── */
 .screen{position:fixed;inset:0;background:#0f172a;z-index:60;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:1rem;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;height:100vh;height:100dvh}
 /* Les écrans longs défilent au niveau de l'écran, quel que soit le mode. */
-.screen:not(#end-modal)>:first-child{flex:0 0 auto;width:100%;margin-top:auto;margin-bottom:auto}
+.screen:not(#end-modal)>:first-child{flex:0 0 auto;width:100%;margin:auto}
 #end-modal{align-items:center;justify-content:center}
 @media(min-width:640px){.screen{padding:1.5rem}}
 #difficulty-screen,#lobby-screen,#learn-intro-screen,#dates-screen{z-index:61}
