@@ -25,8 +25,8 @@
 #theme-toggle-button #stars{opacity:0}
 #theme-toggle-button input:checked+svg #stars{opacity:1}
 /* Pendant une partie, placer le switch à gauche de Quitter pour éviter tout chevauchement. */
-body:has(#game-header:not(.hidden)) #theme-toggle-button{right:5.5rem;top:.2rem}
-@media(max-width:420px){#theme-toggle-button{width:3.8em;right:.5rem;top:.25rem}body:has(#game-header:not(.hidden)) #theme-toggle-button{right:4.8rem;top:.25rem}}
+body:has(#game-header:not(.hidden)) #theme-toggle-button{display:none}
+@media(max-width:420px){#theme-toggle-button{width:3.8em;right:.5rem;top:.25rem}body:has(#game-header:not(.hidden)) #theme-toggle-button{display:none}}
 body.theme-light .screen{background:#f1f5f9;color:#1e293b}
 body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title{color:#0f172a}
 body.theme-light .menu-sub,body.theme-light .section-label{color:#64748b}
@@ -1179,7 +1179,6 @@ body.theme-light .miss-es{
     <div id="test-zone">
       <h2 id="fr-word" class="fr-word">"Cargando..."</h2>
       <div id="dates-answer-wrap" class="hidden" style="max-width:26rem;margin:0 auto 1.5rem">
-        <label for="dates-answer-input" style="display:block;text-align:left;color:#64748b;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Ta réponse (jour/mois/année)</label>
         <input id="dates-answer-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="" style="width:100%;padding:1rem;border:2px solid #c7d2fe;border-radius:1rem;background:#fff;color:#1e293b;font-size:1.2rem;font-weight:800;text-align:center">
       </div>
       <div id="letter-inputs" class="letter-inputs"></div>
@@ -1231,6 +1230,7 @@ body.theme-light .miss-es{
       <p id="no-misses-msg" class="no-miss hidden">🎉 Aucun mot raté — parfait !</p>
     </div>
     <button onclick="retryMissedWords()" id="btn-retry-missed" class="btn-retry-missed hidden">🔁 Rejouer avec les mots ratés</button>
+    <button onclick="replayGame()" id="btn-replay-game" class="btn-check">Rejouer</button>
     <button onclick="location.reload()" class="btn-return">Retour au menu</button>
   </div>
 </div>
@@ -2304,7 +2304,7 @@ function showEnd(isVictory){
   if(activeDatasetType==='history'||selectedMode==='dates'){
     icon=isVictory?'🏆':'📅';
     title=isVictory?'CHRONOLOGIE TERMINÉE':'RÉVISION TERMINÉE';
-    desc='Série finale : '+streak+'. Une erreur remet la série à zéro.';
+    desc='';
   }
   document.getElementById('modal-icon').textContent=icon;
   document.getElementById('modal-title').textContent=title;
@@ -2323,6 +2323,24 @@ function showEnd(isVictory){
   if(selectedMode!=='learn'&&misses.length>0)retryBtn.classList.remove('hidden');
   else retryBtn.classList.add('hidden');
 }
+
+// Rejouer la même liste et le même mode après les résultats.
+window.replayGame=()=>{
+  document.getElementById('end-modal').classList.add('hidden');
+  if(selectedMode==='learn'){
+    const shuffled=[...activeVocabulary].sort(()=>Math.random()-.5);
+    learnGroups=[];
+    for(let i=0;i<shuffled.length;i+=learnGroupSize) learnGroups.push(shuffled.slice(i,i+learnGroupSize));
+    learnGroupIndex=0; score=0; missedWords=[];
+    beginGroup();
+    return;
+  }
+  if(selectedMode==='online'){
+    document.getElementById('end-modal').classList.remove('hidden');
+    return;
+  }
+  startGame();
+};
 
 // ════════════════════════════════════════════════════
 // REJOUER AVEC LES MOTS RATÉS
