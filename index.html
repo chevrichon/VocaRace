@@ -2322,6 +2322,7 @@ function showEnd(isVictory){
   const retryBtn=document.getElementById('btn-retry-missed');
   if(selectedMode!=='learn'&&misses.length>0)retryBtn.classList.remove('hidden');
   else retryBtn.classList.add('hidden');
+  document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online');
 }
 
 // Rejouer la même liste et le même mode après les résultats.
