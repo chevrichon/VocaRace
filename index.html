@@ -2331,6 +2331,8 @@ window.confirmStartHistoryTimeline=async()=>{
     document.getElementById('list-name-display').textContent=activeListName;
     renderHistoryPracticeTimeline();
     updateHistoryPracticeStep(false);
+    // Certains navigateurs conservent la position de défilement entre deux sessions.
+    document.getElementById('history-practice-scroll').scrollTo({left:0,behavior:'auto'});
   }catch(error){
     console.error('Erreur du mode frise :',error);
     alert('Impossible de démarrer cette frise. Vérifie que la liste contient des événements avec le format date::événement.');
@@ -2339,6 +2341,9 @@ window.confirmStartHistoryTimeline=async()=>{
 
 function renderHistoryPracticeTimeline(){
   const track=document.getElementById('history-practice-track');
+  const scroller=document.getElementById('history-practice-scroll');
+  // Réinitialise le défilement horizontal à chaque nouvelle session.
+  scroller.scrollLeft=0;
   track.textContent='';
   historyTimelineEntries.forEach((entry,index)=>{
     const card=document.createElement('article');
@@ -2971,7 +2976,7 @@ window.toggleTheme=()=>{
   let theme='dark';
   try{theme=localStorage.getItem('vocarace-theme')||'dark';}catch(e){}
   document.body.classList.toggle('theme-light',theme==='light');
-  const checkbox=document.getElementById('theme-toggle-checkbox');
+  const checkbox=document.getElementById('toggle');
   if(checkbox){checkbox.checked=theme!=='light';checkbox.setAttribute('aria-label',theme==='light'?'Thème clair activé':'Thème sombre activé');}
 })();
 
