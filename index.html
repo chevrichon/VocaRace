@@ -1405,6 +1405,8 @@ const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase
 function formatHistoryDate(value){
   const raw=String(value??'').trim();
   const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const period=raw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
+  if(period)return Number(period[1])+'–'+Number(period[2]);
   const clean=raw.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const named=clean.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
   if(named){
@@ -1438,6 +1440,10 @@ const normalizeDate=s=>{
   const raw=String(s).trim().toLocaleLowerCase('fr')
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[,]/g,' ').replace(/\s+/g,' ').trim();
+
+  // Accepte les périodes historiques, par exemple « 1789-1890 ».
+  const yearRange=raw.match(/^(\d{3,4})\s*(?:[-–—−/]|\s+à\s+)\s*(\d{3,4})$/);
+  if(yearRange)return [Number(yearRange[1]),Number(yearRange[2])].join('-');
 
   // Accepte aussi les dates écrites en toutes lettres : « 2 juin 2777 ».
   const months={
@@ -1521,6 +1527,8 @@ function parseHistoryFile(text){
 
 function historyDateSortValue(value){
   const raw=String(value||'').trim();
+  const period=raw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
+  if(period)return Number(period[1])*10000;
   let m=raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
   if(m)return Number(m[3])*10000+Number(m[2])*100+Number(m[1]);
   m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -2074,6 +2082,7 @@ function showFlashcard(){
     const dateWords=formatHistoryDate(dateRaw);
     const numeric=dateRaw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
     const monthYear=dateRaw.match(/^(\d{1,2})[\/.-](\d{3,4})$/);
+    const period=dateRaw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
     const iso=dateRaw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     let numericDate=dateRaw;
     if(numeric)numericDate=String(Number(numeric[1])).padStart(2,'0')+'/'+String(Number(numeric[2])).padStart(2,'0')+'/'+numeric[3];
@@ -2084,6 +2093,7 @@ function showFlashcard(){
       if(named&&monthIndex>=0)numericDate=String(Number(named[1])).padStart(2,'0')+'/'+String(monthIndex+1).padStart(2,'0')+'/'+named[3];
     }
     if(/^\d{3,4}$/.test(dateRaw))answerEl.textContent=dateRaw;
+    else if(period)answerEl.textContent=formatHistoryDate(dateRaw);
     else if(monthYear&&Number(monthYear[1])>=1&&Number(monthYear[1])<=12)answerEl.textContent=String(Number(monthYear[1])).padStart(2,'0')+'/'+monthYear[2]+' — '+dateWords;
     else answerEl.textContent=numericDate+' — '+dateWords;
   }else answerEl.textContent=w.es;
@@ -2204,6 +2214,7 @@ window.handleCheck=()=>{if(activeDatasetType==='history'||selectedMode==='dates'
 function getDateAnswerFormat(value){
   const raw=String(value||'').trim();
   const lower=raw.toLocaleLowerCase('fr');
+  if(/^\d{3,4}\s*[-–—−/]\s*\d{3,4}$/.test(raw))return 'Période : année de début et année de fin';
   const hasMonth=/(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/i.test(lower)
     || /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{3,4}$/.test(raw)
     || /^\d{1,2}[\/.-]\d{3,4}$/.test(raw)
@@ -2220,6 +2231,17 @@ function getDateAnswerFormat(value){
 function getDateHint(value){
   const raw=String(value||'').trim();
   if(currentDifficulty==='expert'||currentDifficulty==='hardcore')return '';
+  const period=raw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
+  if(period){
+    const maskYear=year=>{
+      const digitIndex=Math.random()<0.5?year.length-2:year.length-1;
+      return year.split('').map((digit,i)=>i===digitIndex?digit:'X').join('');
+    };
+    if(currentDifficulty==='debutant')return 'de '+period[1]+' à '+maskYear(period[2]);
+    if(currentDifficulty==='intermediaire')return 'de '+maskYear(period[1])+' à '+maskYear(period[2]);
+    const choices=['de '+period[1]+' à '+maskYear(period[2]),'de '+maskYear(period[1])+' à '+period[2]];
+    return choices[Math.floor(Math.random()*choices.length)];
+  }
   if(/^\d{3,4}$/.test(raw)){
     const digitIndex=Math.random()<0.5?raw.length-2:raw.length-1;
     return 'le '+raw.split('').map((digit,i)=>i===digitIndex?digit:'X').join('');
