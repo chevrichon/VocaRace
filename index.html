@@ -1557,17 +1557,31 @@ async function renderHistoryTimeline(files,selectedFile){
     events.sort((a,b)=>historyDateSortValue(a.es)-historyDateSortValue(b.es)||a.list.localeCompare(b.list,'fr'));
     if(!events.length){status.textContent='Aucun événement trouvé.';return;}
     const heading=document.createElement('h3');heading.style.cssText='font-weight:900;font-size:1.1rem;margin-bottom:.25rem';heading.textContent=selectedFile?'Frise : '+selectedFile.split('/').pop().replace(/\.histoire$/i,''):'Frise globale — toutes les listes';results.appendChild(heading);
-    const line=document.createElement('div');line.style.cssText='border-left:3px solid #818cf8;margin-left:.45rem;padding-left:1rem;display:grid;gap:.85rem';
-    events.forEach(event=>{
-      const card=document.createElement('article');card.style.cssText='background:rgba(30,41,59,.75);border:1px solid #475569;border-radius:.8rem;padding:.8rem';
-      const date=document.createElement('p');date.style.cssText='font-weight:900;color:#a5b4fc;margin-bottom:.25rem';date.textContent=formatHistoryDate(event.es);
-      const desc=document.createElement('p');desc.style.cssText='font-size:.9rem;line-height:1.45';desc.textContent=event.fr;
+    const scroller=document.createElement('div');
+    scroller.style.cssText='width:100%;overflow-x:auto;overflow-y:hidden;padding:1rem .25rem 1.25rem;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch';
+    scroller.setAttribute('aria-label','Frise chronologique horizontale, défilement horizontal possible');
+    const timeline=document.createElement('div');
+    timeline.style.cssText='position:relative;display:flex;align-items:stretch;gap:0;width:max-content;min-width:100%;padding:0 1rem';
+    const arrow=document.createElement('div');
+    arrow.style.cssText='position:absolute;left:1rem;right:1rem;top:50%;height:4px;background:#818cf8;border-radius:4px;transform:translateY(-50%);pointer-events:none';
+    const arrowHead=document.createElement('span');
+    arrowHead.style.cssText='position:absolute;right:-1px;top:50%;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:14px solid #818cf8;transform:translateY(-50%)';
+    arrow.appendChild(arrowHead);timeline.appendChild(arrow);
+    events.forEach((event,index)=>{
+      const item=document.createElement('div');
+      item.style.cssText='position:relative;z-index:1;flex:0 0 230px;width:230px;min-height:330px;display:grid;grid-template-rows:1fr 28px 1fr;align-items:stretch;padding:0 .65rem';
+      const card=document.createElement('article');
+      card.style.cssText='grid-row:'+(index%2===0?'1':'3')+';align-self:'+(index%2===0?'end':'start')+';background:rgba(30,41,59,.96);border:1px solid #64748b;border-radius:.8rem;padding:.8rem;white-space:normal;overflow-wrap:anywhere;box-shadow:0 4px 14px rgba(0,0,0,.18)';
+      const date=document.createElement('p');date.style.cssText='font-weight:900;color:#a5b4fc;margin-bottom:.4rem';date.textContent=formatHistoryDate(event.es);
+      const desc=document.createElement('p');desc.style.cssText='font-size:.85rem;line-height:1.45';desc.textContent=event.fr;
       card.append(date,desc);
-      if(!selectedFile){const tag=document.createElement('p');tag.style.cssText='font-size:.7rem;color:#94a3b8;margin-top:.4rem';tag.textContent=event.list;card.appendChild(tag);}
-      line.appendChild(card);
+      if(!selectedFile){const tag=document.createElement('p');tag.style.cssText='font-size:.7rem;color:#94a3b8;margin-top:.5rem';tag.textContent=event.list;card.appendChild(tag);}
+      const node=document.createElement('span');
+      node.style.cssText='grid-row:2;grid-column:1;justify-self:center;align-self:center;width:17px;height:17px;border-radius:50%;background:#c7d2fe;border:4px solid #6366f1;box-shadow:0 0 0 3px #0f172a';
+      item.appendChild(card);item.appendChild(node);timeline.appendChild(item);
     });
-    results.appendChild(line);
-    status.textContent=events.length+' événements affichés, du plus ancien au plus récent.';
+    scroller.appendChild(timeline);results.appendChild(scroller);
+    status.textContent=events.length+' événements affichés du plus ancien au plus récent sur une frise horizontale. Fais défiler horizontalement pour parcourir les dates.';
   }catch(e){status.textContent='Impossible de charger une ou plusieurs chronologies.';}
 }
 
