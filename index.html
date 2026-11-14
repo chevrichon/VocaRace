@@ -271,6 +271,39 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .duel-fill{position:absolute;height:100%;transition:width .5s;border-radius:9999px}
 .duel-fill--player{background:#6366f1}.duel-fill--bot{background:#f43f5e}.duel-fill--online{background:#10b981}
 
+/* ── SOLO AVEC FRISE ── */
+.history-practice{width:100%;display:flex;flex-direction:column;gap:1rem}
+.history-practice-question,.history-practice-timeline-panel{background:rgba(255,255,255,.97);border:1px solid rgba(255,255,255,.85);border-radius:1.5rem;padding:1.1rem;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+@media(min-width:640px){.history-practice-question,.history-practice-timeline-panel{padding:1.75rem;border-radius:1.75rem}}
+.history-practice-counter{font-size:.67rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#6366f1;text-align:center}
+.history-practice-event-prompt{font-size:clamp(1.05rem,4vw,1.7rem);font-weight:900;text-align:center;color:#1e293b;margin:1rem 0 .8rem;line-height:1.25;overflow-wrap:anywhere}
+.history-practice-format{text-align:center;font-size:.78rem;color:#64748b;font-weight:800;margin-bottom:1rem}
+.history-practice-answer-zone{display:grid;grid-template-columns:1fr;gap:.65rem;max-width:28rem;margin:0 auto}
+.history-practice-answer-zone input{width:100%;min-width:0;padding:.9rem 1rem;border:2px solid #c7d2fe;border-radius:.9rem;background:#fff;color:#1e293b;font-size:1.1rem;font-weight:800;text-align:center;outline:none}
+.history-practice-answer-zone input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.history-practice-answer-zone input.date-answer-wrong{border-color:#ef4444;background:#fff1f2}
+.history-practice-answer-zone .btn-check{margin:0;width:100%}
+.history-practice-feedback{min-height:1.1rem;text-align:center;font-size:.82rem;font-weight:800;color:#64748b;margin-top:.7rem}
+.history-practice-feedback.is-error{color:#dc2626}
+.history-practice-feedback.is-success{color:#059669}
+.history-practice-complete{text-align:center;margin-top:.85rem;color:#047857;font-weight:900;line-height:1.5}
+.history-practice-complete .btn-back{margin:1rem auto 0}
+.history-practice-timeline-heading h3{font-size:1rem;font-weight:900;color:#1e293b}
+.history-practice-timeline-heading p{font-size:.75rem;color:#64748b;margin-top:.25rem}
+.history-practice-scroll{width:100%;overflow-x:auto;overflow-y:hidden;padding:1.25rem .1rem .75rem;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.history-practice-track{position:relative;display:flex;align-items:flex-start;gap:.15rem;width:max-content;min-width:100%;padding:.1rem .3rem .25rem}
+.history-practice-track::before{content:"";position:absolute;left:1.45rem;right:1.45rem;top:1.15rem;height:4px;background:#c7d2fe;border-radius:99px;z-index:0}
+.history-practice-event{position:relative;z-index:1;display:flex;flex:0 0 13rem;min-width:0;flex-direction:column;align-items:flex-start;padding:0 .55rem .25rem}
+.history-practice-marker{width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;border:3px solid #c7d2fe;border-radius:50%;background:#fff;color:#64748b;font-size:.72rem;font-weight:900;margin:0 0 .6rem .15rem;transition:background .2s,border-color .2s,color .2s}
+.history-practice-event-name{width:100%;min-height:4.6rem;padding:.65rem;border:1px solid #e2e8f0;border-radius:.85rem;background:#fff;color:#334155;font-size:.78rem;line-height:1.35;font-weight:800;overflow-wrap:anywhere}
+.history-practice-event-date{min-height:1.1rem;margin:.45rem .15rem 0;color:#059669;font-size:.75rem;font-weight:900;line-height:1.3}
+.history-practice-event.is-active .history-practice-marker{background:#6366f1;border-color:#6366f1;color:#fff;box-shadow:0 0 0 4px #e0e7ff}
+.history-practice-event.is-active .history-practice-event-name{background:#eef2ff;border-color:#818cf8;color:#3730a3}
+.history-practice-event.is-done .history-practice-marker{background:#10b981;border-color:#10b981;color:#fff}
+.history-practice-event.is-done .history-practice-event-name{border-color:#a7f3d0;background:#ecfdf5;color:#065f46}
+.history-practice-event.is-done .history-practice-event-date{color:#047857}
+@media(max-width:420px){.history-practice-event{flex-basis:11.5rem}.history-practice-question,.history-practice-timeline-panel{padding:1rem}}
+
 /* ── QUESTION CARD ── */
 #question-card{background:rgba(255,255,255,.97);backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,.06);border-radius:1.75rem;padding:1.25rem;border:1px solid rgba(255,255,255,.8)}
 @media(min-width:640px){#question-card{border-radius:2.5rem;padding:2.5rem}}
@@ -976,6 +1009,12 @@ body.theme-light .miss-es{
         <p class="mode-card-desc mode-card-desc--dates">Toutes les dates d'une liste ou de toutes les listes d'histoire.</p>
         <div class="mode-cta mode-cta--dates">Voir les frises →</div>
       </div>
+      <div id="history-timeline-practice-mode" onclick="showDifficulty('timeline')" class="mode-card mode-card--dates hidden">
+        <div class="mode-icon mode-icon--dates">✍️</div>
+        <h3 class="mode-card-title mode-card-title--dates">Solo avec frise</h3>
+        <p class="mode-card-desc mode-card-desc--dates">Retrouve les dates dans l'ordre et complète la frise en avançant.</p>
+        <div class="mode-cta mode-cta--dates">Compléter la frise →</div>
+      </div>
 
     </div>
     <button onclick="backToCategories()" class="btn-back" style="margin-top:1.5rem">← Changer de matière</button>
@@ -1025,6 +1064,7 @@ body.theme-light .miss-es{
       <button onclick="confirmStart('expert')"        class="diff-btn diff-btn--exp">Expert</button>
       <button onclick="confirmStart('hardcore')"      class="diff-btn diff-btn--hc">Hardcore</button>
     </div>
+    <button id="btn-start-history-timeline" onclick="confirmStartHistoryTimeline()" class="btn-check hidden" style="max-width:26rem;margin:0 auto 1rem">Commencer la frise →</button>
     <button onclick="hideDifficulty()" class="btn-back">← Retour</button>
   </div>
 </div>
@@ -1226,6 +1266,31 @@ body.theme-light .miss-es{
       <p id="list-name-display" class="list-name-display"></p>
     </div>
   </div>
+  <section id="history-timeline-practice" class="history-practice hidden" aria-label="Mode solo avec frise chronologique">
+    <div class="history-practice-question">
+      <p id="history-practice-counter" class="history-practice-counter">Événement 1 sur 1</p>
+      <h2 id="history-practice-event-name" class="history-practice-event-prompt"></h2>
+      <p id="history-practice-date-format" class="history-practice-format"></p>
+      <div id="history-practice-answer-zone" class="history-practice-answer-zone">
+        <input id="history-practice-date-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Saisis la date ou la période">
+        <button id="history-practice-submit" onclick="checkHistoryTimelineDate()" class="btn-check">Valider la date →</button>
+      </div>
+      <p id="history-practice-feedback" class="history-practice-feedback" aria-live="polite"></p>
+      <div id="history-practice-complete" class="history-practice-complete hidden">
+        <p>Frise terminée : toutes les dates ont été retrouvées dans l'ordre chronologique.</p>
+        <button onclick="backToModeSelection()" class="btn-back">← Retour aux modes d'histoire</button>
+      </div>
+    </div>
+    <div class="history-practice-timeline-panel">
+      <div class="history-practice-timeline-heading">
+        <h3>Frise chronologique</h3>
+        <p>Les dates apparaissent quand tu trouves la bonne réponse.</p>
+      </div>
+      <div id="history-practice-scroll" class="history-practice-scroll" aria-label="Frise horizontale, défilement automatique">
+        <div id="history-practice-track" class="history-practice-track"></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <!-- MODAL FIN -->
@@ -1498,19 +1563,23 @@ window.chooseSubject=type=>{
   document.getElementById('mode-menu-subtitle').textContent=activeDatasetType==='history'
     ?'Révise les événements et les dates historiques':'Maîtrise le vocabulaire espagnol';
   document.getElementById('history-timeline-mode').classList.toggle('hidden',activeDatasetType!=='history');
+  document.getElementById('history-timeline-practice-mode').classList.toggle('hidden',activeDatasetType!=='history');
   document.getElementById('mode-selection-screen').classList.remove('hidden');
 };
 window.showDifficulty=mode=>{
   const history=activeDatasetType==='history';
-  selectedMode=history&&mode==='solo'?'dates':mode;
+  const timelineMode=history&&mode==='timeline';
+  selectedMode=history&&mode==='solo'?'dates':(timelineMode?'historyTimeline':mode);
   document.getElementById('diff-title').textContent=history
-    ?(mode==='bot'?'Duel Histoire':'Entraînement Histoire')
+    ?(mode==='bot'?'Duel Histoire':timelineMode?'Solo avec frise':'Entraînement Histoire')
     :(mode==='bot'?'Nivel de Duel':'Nivel de Entrenamiento');
   document.getElementById('dataset-picker-label').textContent=history?'📜 Choisir une chronologie':'📚 Choisir une liste de mots';
   document.getElementById('builtin-card').classList.toggle('hidden',history);
   document.getElementById('difficulty-history-import').classList.toggle('hidden',!history);
   document.getElementById('btn-refresh').textContent=history?'↻ Actualiser les chronologies GitHub':'↻ Actualiser les listes GitHub';
   document.getElementById('difficulty-history-status').textContent='';
+  document.querySelector('#difficulty-screen .diff-grid').classList.toggle('hidden',timelineMode);
+  document.getElementById('btn-start-history-timeline').classList.toggle('hidden',!timelineMode);
   document.getElementById('difficulty-screen').classList.remove('hidden');
   fetchGithubLists();
 };
@@ -2145,6 +2214,8 @@ function learnCheckGroupDone(){
 // ════════════════════════════════════════════════════
 function showGameUI(){
   hideAll();
+  document.getElementById('question-card').classList.remove('hidden');
+  document.getElementById('history-timeline-practice').classList.add('hidden');
   const hdr=document.getElementById('game-header');
   hdr.classList.remove('hidden');hdr.style.display='flex';
   const mn=document.getElementById('game-main');
@@ -2179,6 +2250,146 @@ function startGame(){
   document.getElementById('list-name-display').textContent=activeListName;
   updateProgressUI(); displayQuestion();
 }
+
+// ════════════════════════════════════════════════════
+// SOLO AVEC FRISE CHRONOLOGIQUE
+// ════════════════════════════════════════════════════
+let historyTimelineEntries=[], historyTimelineIndex=0;
+
+window.confirmStartHistoryTimeline=async()=>{
+  try{
+    await datasetLoadPromise;
+    if(activeDatasetType!=='history'||!Array.isArray(activeVocabulary)||!activeVocabulary.length){
+      alert('Choisis une chronologie avant de commencer.');
+      return;
+    }
+    historyTimelineEntries=activeVocabulary
+      .map((entry,index)=>({...entry,_timelineOriginalIndex:index}))
+      .sort((a,b)=>historyDateSortValue(a.es)-historyDateSortValue(b.es)||a._timelineOriginalIndex-b._timelineOriginalIndex);
+    historyTimelineIndex=0;
+    selectedMode='historyTimeline';
+    currentDifficulty='debutant';
+    lives=3;score=0;streak=0;playerProgress=0;botProgress=0;
+    gameStartedAt=Date.now();leaderboardSubmittedForRun=false;
+    missedWords=[];errorCount=0;isRevealing=false;
+    gameQueue=historyTimelineEntries;
+    showGameUI();
+    document.getElementById('duel-bar').classList.add('hidden');
+    document.getElementById('question-card').classList.add('hidden');
+    document.getElementById('history-timeline-practice').classList.remove('hidden');
+    document.getElementById('lives-display').classList.add('hidden');
+    document.getElementById('score').textContent='0';
+    document.getElementById('streak-val').textContent='🔥 Série: 0';
+    document.getElementById('history-practice-complete').classList.add('hidden');
+    document.getElementById('history-practice-answer-zone').classList.remove('hidden');
+    document.getElementById('history-practice-date-input').onkeydown=event=>{
+      if(event.key==='Enter'){event.preventDefault();checkHistoryTimelineDate();}
+    };
+    document.getElementById('total-words').textContent=historyTimelineEntries.length;
+    document.getElementById('list-name-display').textContent=activeListName;
+    renderHistoryPracticeTimeline();
+    updateHistoryPracticeStep(false);
+  }catch(error){
+    console.error('Erreur du mode frise :',error);
+    alert('Impossible de démarrer cette frise. Vérifie que la liste contient des événements avec le format date::événement.');
+  }
+};
+
+function renderHistoryPracticeTimeline(){
+  const track=document.getElementById('history-practice-track');
+  track.textContent='';
+  historyTimelineEntries.forEach((entry,index)=>{
+    const card=document.createElement('article');
+    card.className='history-practice-event';
+    card.dataset.index=String(index);
+    const marker=document.createElement('div');
+    marker.className='history-practice-marker';
+    marker.textContent=String(index+1);
+    const name=document.createElement('div');
+    name.className='history-practice-event-name';
+    name.textContent=entry.fr;
+    const date=document.createElement('div');
+    date.className='history-practice-event-date';
+    date.id='history-practice-date-'+index;
+    date.textContent='';
+    card.append(marker,name,date);
+    track.appendChild(card);
+  });
+}
+
+function updateHistoryPracticeStep(shouldScroll){
+  if(historyTimelineIndex>=historyTimelineEntries.length){
+    const complete=document.getElementById('history-practice-complete');
+    complete.classList.remove('hidden');
+    document.getElementById('history-practice-answer-zone').classList.add('hidden');
+    document.getElementById('history-practice-counter').textContent=historyTimelineEntries.length+' / '+historyTimelineEntries.length+' événements';
+    document.getElementById('history-practice-event-name').textContent='Frise terminée !';
+    document.getElementById('history-practice-date-format').textContent='';
+    const feedback=document.getElementById('history-practice-feedback');
+    feedback.textContent='Toutes les dates sont correctes.';
+    feedback.className='history-practice-feedback is-success';
+    return;
+  }
+  const entry=historyTimelineEntries[historyTimelineIndex];
+  document.getElementById('history-practice-counter').textContent='Événement '+(historyTimelineIndex+1)+' sur '+historyTimelineEntries.length;
+  document.getElementById('history-practice-event-name').textContent=entry.fr;
+  document.getElementById('history-practice-date-format').textContent=getDateAnswerFormat(entry.es);
+  const input=document.getElementById('history-practice-date-input');
+  input.value='';input.disabled=false;input.classList.remove('date-answer-wrong');
+  document.getElementById('history-practice-submit').disabled=false;
+  const feedback=document.getElementById('history-practice-feedback');
+  feedback.textContent='';feedback.className='history-practice-feedback';
+  const cards=document.querySelectorAll('#history-practice-track .history-practice-event');
+  cards.forEach((card,index)=>{
+    card.classList.toggle('is-active',index===historyTimelineIndex);
+    if(index===historyTimelineIndex)card.setAttribute('aria-current','step');
+    else card.removeAttribute('aria-current');
+  });
+  if(shouldScroll){
+    const scroller=document.getElementById('history-practice-scroll');
+    const target=cards[historyTimelineIndex];
+    if(target){
+      const left=target.offsetLeft-Math.max(0,(scroller.clientWidth-target.offsetWidth)/2);
+      scroller.scrollTo({left,behavior:'smooth'});
+    }
+  }
+  input.focus();
+}
+
+window.checkHistoryTimelineDate=()=>{
+  if(historyTimelineIndex>=historyTimelineEntries.length)return;
+  const input=document.getElementById('history-practice-date-input');
+  const typed=normalizeDate(input.value);
+  const feedback=document.getElementById('history-practice-feedback');
+  if(!typed){
+    feedback.textContent='Saisis une date avant de valider.';
+    feedback.className='history-practice-feedback is-error';
+    input.focus();return;
+  }
+  const entry=historyTimelineEntries[historyTimelineIndex];
+  if(typed===normalizeDate(entry.es)){
+    const card=document.querySelector('#history-practice-track .history-practice-event[data-index="'+historyTimelineIndex+'"]');
+    if(card){
+      card.classList.remove('is-active');card.classList.add('is-done');
+      card.removeAttribute('aria-current');
+      const date=card.querySelector('.history-practice-event-date');
+      if(date)date.textContent=formatHistoryDate(entry.es);
+    }
+    score+=100;streak++;playerProgress++;
+    document.getElementById('score').textContent=String(score);
+    updateStreakUI();
+    document.getElementById('words-mastered').textContent=String(playerProgress);
+    document.getElementById('progress-bar-fill').style.width=(playerProgress/Math.max(1,historyTimelineEntries.length)*100)+'%';
+    historyTimelineIndex++;
+    updateHistoryPracticeStep(true);
+  }else{
+    streak=0;updateStreakUI();
+    input.classList.add('date-answer-wrong');
+    feedback.textContent='Date incorrecte. Réessaie pour cet événement.';
+    feedback.className='history-practice-feedback is-error';
+    input.focus();input.select();
+  }
+};
 
 // ════════════════════════════════════════════════════
 // BOT — vitesse proportionnelle à la longueur du mot
