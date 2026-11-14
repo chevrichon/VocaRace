@@ -1946,9 +1946,17 @@ function showFlashcard(){
   if(activeDatasetType==='history'||selectedMode==='dates'){
     const dateRaw=String(w.es??'').trim();
     const dateWords=formatHistoryDate(dateRaw);
-    answerEl.textContent=/^\d{1,2}[/. -]\d{1,2}[/. -]\d{3,4}$/.test(dateRaw)||/^\d{4}-\d{2}-\d{2}$/.test(dateRaw)
-      ?dateRaw+' — '+dateWords
-      :dateRaw+' — '+dateWords;
+    const numeric=dateRaw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
+    const iso=dateRaw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    let numericDate=dateRaw;
+    if(numeric)numericDate=String(Number(numeric[1])).padStart(2,'0')+'/'+String(Number(numeric[2])).padStart(2,'0')+'/'+numeric[3];
+    else if(iso)numericDate=iso[3]+'/'+iso[2]+'/'+iso[1];
+    else{
+      const named=dateRaw.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
+      const monthIndex=named?['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'].indexOf(named[2]):-1;
+      if(named&&monthIndex>=0)numericDate=String(Number(named[1])).padStart(2,'0')+'/'+String(monthIndex+1).padStart(2,'0')+'/'+named[3];
+    }
+    answerEl.textContent=numericDate+' — '+dateWords;
   }else answerEl.textContent=w.es;
   document.getElementById('fc-counter').textContent=(learnFlashIndex+1)+' / '+group.length;
   const btn=document.getElementById('btn-fc-next');
