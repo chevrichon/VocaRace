@@ -1421,6 +1421,11 @@ function formatHistoryDate(value){
     const month=Number(iso[2]),day=Number(iso[3]);
     if(month>=1&&month<=12)return day+' '+months[month-1]+' '+iso[1];
   }
+  const numericMonthYear=raw.match(/^(\d{1,2})[\/.-](\d{3,4})$/);
+  if(numericMonthYear){
+    const month=Number(numericMonthYear[1]);
+    if(month>=1&&month<=12)return months[month-1]+' '+numericMonthYear[2];
+  }
   const monthYear=clean.match(/^([a-z]+)\s+(\d{3,4})$/);
   if(monthYear){
     const monthIndex=['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'].indexOf(monthYear[1]);
@@ -1439,14 +1444,22 @@ const normalizeDate=s=>{
     janvier:1,fevrier:2,mars:3,avril:4,mai:5,juin:6,
     juillet:7,aout:8,septembre:9,octobre:10,novembre:11,decembre:12
   };
-  const named=raw.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/);
+  const named=raw.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
   if(named && months[named[2]])
     return [Number(named[1]),months[named[2]],Number(named[3])].join('/');
+
+  const namedMonthYear=raw.match(/^([a-z]+)\s+(\d{3,4})$/);
+  if(namedMonthYear && months[namedMonthYear[1]])
+    return [months[namedMonthYear[1]],Number(namedMonthYear[2])].join('/');
 
   const value=raw.replace(/\s/g,'').replace(/[.\-–—−]/g,'/').replace(/／/g,'/');
   const parts=value.split('/');
   if(parts.length===3 && parts.every(p=>/^\d+$/.test(p)))
     return parts.map(p=>String(Number(p))).join('/');
+  if(parts.length===2 && /^\d{1,2}$/.test(parts[0]) && /^\d{3,4}$/.test(parts[1])){
+    const month=Number(parts[0]);
+    if(month>=1&&month<=12)return [month,String(Number(parts[1]))].join('/');
+  }
   if(parts.length===1 && /^\d{4}$/.test(parts[0])) return String(Number(parts[0]));
   return value;
 };
@@ -1507,11 +1520,13 @@ function historyDateSortValue(value){
   m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if(m)return Number(m[1])*10000+Number(m[2])*100+Number(m[3]);
   const clean=normalize(raw);
-  m=clean.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
   const months=['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+  m=raw.match(/^(\d{1,2})[\/.-](\d{3,4})$/);
+  if(m){const mi=Number(m[1]);if(mi>=1&&mi<=12)return Number(m[2])*10000+mi*100+1;}
+  m=clean.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
   if(m){const mi=months.indexOf(m[2]);if(mi>=0)return Number(m[3])*10000+(mi+1)*100+Number(m[1]);}
   m=clean.match(/^([a-z]+)\s+(\d{3,4})$/);
-  if(m){const mi=months.indexOf(m[1]);if(mi>=0)return Number(m[2])*10000+(mi+1)*100;}
+  if(m){const mi=months.indexOf(m[1]);if(mi>=0)return Number(m[2])*10000+(mi+1)*100+1;}
   m=raw.match(/^(\d{3,4})$/);
   if(m)return Number(m[1])*10000;
   return Number.MAX_SAFE_INTEGER;
@@ -2052,6 +2067,7 @@ function showFlashcard(){
     const dateRaw=String(w.es??'').trim();
     const dateWords=formatHistoryDate(dateRaw);
     const numeric=dateRaw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
+    const monthYear=dateRaw.match(/^(\d{1,2})[\/.-](\d{3,4})$/);
     const iso=dateRaw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     let numericDate=dateRaw;
     if(numeric)numericDate=String(Number(numeric[1])).padStart(2,'0')+'/'+String(Number(numeric[2])).padStart(2,'0')+'/'+numeric[3];
@@ -2061,7 +2077,9 @@ function showFlashcard(){
       const monthIndex=named?['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'].indexOf(named[2]):-1;
       if(named&&monthIndex>=0)numericDate=String(Number(named[1])).padStart(2,'0')+'/'+String(monthIndex+1).padStart(2,'0')+'/'+named[3];
     }
-    answerEl.textContent=/^\d{3,4}$/.test(dateRaw)?dateRaw:numericDate+' — '+dateWords;
+    if(/^\d{3,4}$/.test(dateRaw))answerEl.textContent=dateRaw;
+    else if(monthYear&&Number(monthYear[1])>=1&&Number(monthYear[1])<=12)answerEl.textContent=String(Number(monthYear[1])).padStart(2,'0')+'/'+monthYear[2]+' — '+dateWords;
+    else answerEl.textContent=numericDate+' — '+dateWords;
   }else answerEl.textContent=w.es;
   document.getElementById('fc-counter').textContent=(learnFlashIndex+1)+' / '+group.length;
   const btn=document.getElementById('btn-fc-next');
