@@ -1228,6 +1228,15 @@ body.theme-light .miss-es{
         <div class="results-cell results-cell--amber"><span id="r-total"     class="results-cell-val">0</span><p class="results-cell-label">Total</p></div>
       </div>
       <p id="r-listname" class="results-list-name"></p>
+      <section id="leaderboard-panel" style="margin-top:1rem;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left">
+        <h3 style="font-size:1rem;font-weight:900;margin-bottom:.65rem">🏆 Classement mondial</h3>
+        <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+          <input id="leaderboard-name" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="nickname" style="min-width:0;flex:1;padding:.7rem;border:1px solid #94a3b8;border-radius:.65rem;font:inherit">
+          <button id="leaderboard-submit" onclick="saveLeaderboardScore()" style="padding:.7rem .8rem;border-radius:.65rem;background:#4f46e5;color:white;font-weight:800">Envoyer</button>
+        </div>
+        <p id="leaderboard-status" style="font-size:.75rem;margin-bottom:.5rem;color:#94a3b8" aria-live="polite">Chargement du classement…</p>
+        <ol id="leaderboard-list" style="padding-left:1.5rem;font-size:.85rem;display:grid;gap:.35rem"></ol>
+      </section>
     </div>
     <div id="tab-misses-content" class="hidden">
       <div id="missed-words-list" class="miss-list"></div>
@@ -1376,6 +1385,33 @@ async function fetchJsonFrom(paths){
   throw lastError||new Error('Impossible de charger le manifeste');
 }
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function formatHistoryDate(value){
+  const raw=String(value??'').trim();
+  const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const clean=raw.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const named=clean.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
+  if(named){
+    const monthIndex=['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'].indexOf(named[2]);
+    if(monthIndex>=0)return Number(named[1])+' '+months[monthIndex]+' '+named[3];
+  }
+  const numeric=raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
+  if(numeric){
+    const day=Number(numeric[1]),month=Number(numeric[2]),year=numeric[3];
+    if(month>=1&&month<=12)return day+' '+months[month-1]+' '+year;
+  }
+  const iso=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(iso){
+    const month=Number(iso[2]),day=Number(iso[3]);
+    if(month>=1&&month<=12)return day+' '+months[month-1]+' '+iso[1];
+  }
+  const monthYear=clean.match(/^([a-z]+)\s+(\d{3,4})$/);
+  if(monthYear){
+    const monthIndex=['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'].indexOf(monthYear[1]);
+    if(monthIndex>=0)return months[monthIndex]+' '+monthYear[2];
+  }
+  return raw;
+}
+
 const normalizeDate=s=>{
   const raw=String(s).trim().toLocaleLowerCase('fr')
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -2244,7 +2280,7 @@ function checkDateAnswer(){
     }
     input.disabled=true;
     isRevealing=true;
-    document.getElementById('reveal-answer').textContent=item.es;
+    document.getElementById('reveal-answer').textContent=activeDatasetType==='history'?formatHistoryDate(item.es):item.es;
     document.getElementById('reveal-zone').classList.remove('hidden');
     document.getElementById('btn-check').classList.add('hidden');
     document.getElementById('feedback-area').classList.add('hidden');
@@ -2297,7 +2333,7 @@ function revealAnswer(){
   });
   const hidden=document.getElementById('hidden-input');
   if(hidden) hidden.blur();
-  document.getElementById('reveal-answer').textContent=w.es;
+  document.getElementById('reveal-answer').textContent=activeDatasetType==='history'?formatHistoryDate(w.es):w.es;
   if(selectedMode==='dates'){
     document.getElementById('dates-answer-wrap').classList.remove('hidden');
     document.getElementById('dates-answer-input').disabled=true;
@@ -2376,11 +2412,68 @@ function showEnd(isVictory){
   if(misses.length>0){badge.textContent=misses.length;badge.classList.remove('hidden');}else badge.classList.add('hidden');
   const list=document.getElementById('missed-words-list'),none=document.getElementById('no-misses-msg');
   if(!misses.length){list.innerHTML='';none.classList.remove('hidden');}
-  else{none.classList.add('hidden');list.innerHTML=misses.map(w=>`<div class="miss-item"><span class="miss-fr">${w.fr}</span><span class="miss-arrow">→</span><span class="miss-es">${w.es}</span></div>`).join('');}
+  else{none.classList.add('hidden');list.innerHTML=misses.map(w=>`<div class="miss-item"><span class="miss-fr">${w.fr}</span><span class="miss-arrow">→</span><span class="miss-es">${activeDatasetType==='history'?formatHistoryDate(w.es):w.es}</span></div>`).join('');}
   const retryBtn=document.getElementById('btn-retry-missed');
   if(selectedMode!=='learn'&&misses.length>0)retryBtn.classList.remove('hidden');
   else retryBtn.classList.add('hidden');
   document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online');
+  const nameInput=document.getElementById('leaderboard-name');
+  if(nameInput&&!nameInput.value){
+    const lobbyName=document.getElementById('player-name-input')?.value?.trim();
+    nameInput.value=lobbyName||localStorage.getItem('vocarace-leaderboard-name')||'';
+  }
+  const submitButton=document.getElementById('leaderboard-submit');
+  if(submitButton){submitButton.disabled=false;submitButton.textContent='Envoyer';submitButton.style.opacity='1';}
+  loadLeaderboard();
+}
+
+async function loadLeaderboard(){
+  const status=document.getElementById('leaderboard-status');
+  const list=document.getElementById('leaderboard-list');
+  if(!status||!list)return;
+  if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
+  status.textContent='Chargement du classement…';
+  try{
+    const snapshot=await db.ref('leaderboard').orderByChild('score').limitToLast(10).once('value');
+    const rows=[];
+    snapshot.forEach(child=>rows.push({name:String(child.val()?.name||'Joueur'),score:Number(child.val()?.score)||0}));
+    rows.sort((a,b)=>b.score-a.score);
+    list.textContent='';
+    if(!rows.length){status.textContent='Aucun score enregistré pour le moment.';return;}
+    rows.forEach((row,index)=>{
+      const li=document.createElement('li');
+      li.textContent=(index+1)+'. '+row.name+' — '+row.score+' pts';
+      list.appendChild(li);
+    });
+    status.textContent='Top 10 des scores, tous modes confondus.';
+  }catch(error){
+    status.textContent='Impossible de charger le classement. Vérifie les règles Firebase.';
+  }
+}
+
+window.saveLeaderboardScore=async function(){
+  const nameInput=document.getElementById('leaderboard-name');
+  const button=document.getElementById('leaderboard-submit');
+  const status=document.getElementById('leaderboard-status');
+  const name=String(nameInput?.value||'').trim().slice(0,20);
+  if(!name){status.textContent='Entre un pseudo avant d’envoyer ton score.';nameInput?.focus();return;}
+  if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
+  button.disabled=true;button.textContent='Envoi…';
+  try{
+    const user=await ensureFirebaseAuth();
+    await db.ref('leaderboard').push({
+      uid:user.uid,name,score:Number(score)||0,mode:String(selectedMode||'solo'),
+      dataset:String(activeDatasetType||'vocab'),list:String(activeListName||'Liste'),
+      createdAt:firebase.database.ServerValue.TIMESTAMP
+    });
+    localStorage.setItem('vocarace-leaderboard-name',name);
+    status.textContent='Score enregistré.';
+    button.textContent='Envoyé';button.style.opacity='.65';
+    await loadLeaderboard();
+  }catch(error){
+    status.textContent='Échec de l’envoi. Vérifie les règles Firebase.';
+    button.disabled=false;button.textContent='Réessayer';
+  }
 }
 
 // Rejouer la même liste et le même mode après les résultats.
