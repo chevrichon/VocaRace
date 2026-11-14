@@ -1405,7 +1405,7 @@ const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase
 function formatHistoryDate(value){
   const raw=String(value??'').trim();
   const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  const period=raw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
+  const period=raw.match(/^(\d{3,4})(?:\s*[-–—−/]\s*|\s+à\s+)(\d{3,4})$/);
   if(period)return Number(period[1])+'–'+Number(period[2]);
   const clean=raw.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const named=clean.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
@@ -1442,7 +1442,7 @@ const normalizeDate=s=>{
     .replace(/[,]/g,' ').replace(/\s+/g,' ').trim();
 
   // Accepte les périodes historiques, par exemple « 1789-1890 ».
-  const yearRange=raw.match(/^(\d{3,4})\s*(?:[-–—−/]|\s+à\s+)\s*(\d{3,4})$/);
+  const yearRange=raw.match(/^(\d{3,4})(?:\s*[-–—−/]\s*|\s+à\s+)(\d{3,4})$/);
   if(yearRange)return [Number(yearRange[1]),Number(yearRange[2])].join('-');
 
   // Accepte aussi les dates écrites en toutes lettres : « 2 juin 2777 ».
@@ -1527,7 +1527,7 @@ function parseHistoryFile(text){
 
 function historyDateSortValue(value){
   const raw=String(value||'').trim();
-  const period=raw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
+  const period=raw.match(/^(\d{3,4})(?:\s*[-–—−/]\s*|\s+à\s+)(\d{3,4})$/);
   if(period)return Number(period[1])*10000;
   let m=raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
   if(m)return Number(m[3])*10000+Number(m[2])*100+Number(m[1]);
@@ -2082,7 +2082,7 @@ function showFlashcard(){
     const dateWords=formatHistoryDate(dateRaw);
     const numeric=dateRaw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
     const monthYear=dateRaw.match(/^(\d{1,2})[\/.-](\d{3,4})$/);
-    const period=dateRaw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
+    const period=dateRaw.match(/^(\d{3,4})(?:\s*[-–—−/]\s*|\s+à\s+)(\d{3,4})$/);
     const iso=dateRaw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     let numericDate=dateRaw;
     if(numeric)numericDate=String(Number(numeric[1])).padStart(2,'0')+'/'+String(Number(numeric[2])).padStart(2,'0')+'/'+numeric[3];
@@ -2231,7 +2231,7 @@ function getDateAnswerFormat(value){
 function getDateHint(value){
   const raw=String(value||'').trim();
   if(currentDifficulty==='expert'||currentDifficulty==='hardcore')return '';
-  const period=raw.match(/^(\d{3,4})\s*[-–—−/]\s*(\d{3,4})$/);
+  const period=raw.match(/^(\d{3,4})(?:\s*[-–—−/]\s*|\s+à\s+)(\d{3,4})$/);
   if(period){
     const maskYear=year=>{
       const digitIndex=Math.random()<0.5?year.length-2:year.length-1;
