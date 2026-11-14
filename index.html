@@ -1452,6 +1452,12 @@ const normalizeDate=s=>{
   if(namedMonthYear && months[namedMonthYear[1]])
     return [months[namedMonthYear[1]],Number(namedMonthYear[2])].join('/');
 
+  const numericMonthYear=raw.match(/^(\d{1,2})\s*[\/.-]\s*(\d{3,4})$/);
+  if(numericMonthYear){
+    const month=Number(numericMonthYear[1]);
+    if(month>=1&&month<=12)return [month,String(Number(numericMonthYear[2]))].join('/');
+  }
+
   const value=raw.replace(/\s/g,'').replace(/[.\-–—−]/g,'/').replace(/／/g,'/');
   const parts=value.split('/');
   if(parts.length===3 && parts.every(p=>/^\d+$/.test(p)))
@@ -2200,6 +2206,7 @@ function getDateAnswerFormat(value){
   const lower=raw.toLocaleLowerCase('fr');
   const hasMonth=/(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/i.test(lower)
     || /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{3,4}$/.test(raw)
+    || /^\d{1,2}[\/.-]\d{3,4}$/.test(raw)
     || /^\d{4}-\d{2}-\d{2}$/.test(raw);
   const hasDay=/^\d{1,2}\s+(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/i.test(lower)
     || /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{3,4}$/.test(raw)
@@ -2219,6 +2226,18 @@ function getDateHint(value){
   }
   const lower=raw.toLocaleLowerCase('fr');
   const months=['janvier','février','fevrier','mars','avril','mai','juin','juillet','août','aout','septembre','octobre','novembre','décembre','decembre'];
+  const numericMonthYear=raw.match(/^(\d{1,2})[\/.-](\d{3,4})$/);
+  if(numericMonthYear){
+    const monthIndex=Number(numericMonthYear[1])-1;
+    if(monthIndex>=0&&monthIndex<12){
+      const monthNames=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+      const year=numericMonthYear[2];
+      const digitIndex=Math.random()<0.5?year.length-2:year.length-1;
+      const yearHint='le '+year.split('').map((digit,i)=>i===digitIndex?digit:'X').join('');
+      if(currentDifficulty==='intermediaire')return monthNames[monthIndex];
+      return Math.random()<0.5?monthNames[monthIndex]:yearHint;
+    }
+  }
   const month=months.find(m=>lower.includes(m));
   const nums=raw.match(/\d+/g)||[];
   const choices=[];
