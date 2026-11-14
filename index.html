@@ -302,6 +302,48 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .history-practice-event.is-done .history-practice-marker{background:#10b981;border-color:#10b981;color:#fff}
 .history-practice-event.is-done .history-practice-event-name{border-color:#a7f3d0;background:#ecfdf5;color:#065f46}
 .history-practice-event.is-done .history-practice-event-date{color:#047857}
+
+/* La frise suit bien le thème global : le thème sombre est le style par défaut. */
+body:not(.theme-light) .history-practice-question,
+body:not(.theme-light) .history-practice-timeline-panel{background:rgba(30,41,59,.98);border-color:#475569;color:#e2e8f0;box-shadow:0 4px 24px rgba(0,0,0,.25)}
+body:not(.theme-light) .history-practice-counter{color:#a5b4fc}
+body:not(.theme-light) .history-practice-event-prompt,
+body:not(.theme-light) .history-practice-timeline-heading h3{color:#f8fafc}
+body:not(.theme-light) .history-practice-format,
+body:not(.theme-light) .history-practice-timeline-heading p{color:#94a3b8}
+body:not(.theme-light) .history-practice-answer-zone input{background:#0f172a;color:#f8fafc;border-color:#475569}
+body:not(.theme-light) .history-practice-answer-zone input::placeholder{color:#94a3b8}
+body:not(.theme-light) .history-practice-answer-zone input.date-answer-wrong{background:#450a0a;color:#fee2e2;border-color:#f87171}
+body:not(.theme-light) .history-practice-feedback{color:#cbd5e1}
+body:not(.theme-light) .history-practice-feedback.is-error{color:#fca5a5}
+body:not(.theme-light) .history-practice-feedback.is-success,
+body:not(.theme-light) .history-practice-complete{color:#6ee7b7}
+body:not(.theme-light) .history-practice-track::before{background:#475569}
+body:not(.theme-light) .history-practice-marker{background:#1e293b;border-color:#64748b;color:#cbd5e1}
+body:not(.theme-light) .history-practice-event-name{background:#0f172a;color:#e2e8f0;border-color:#475569}
+body:not(.theme-light) .history-practice-event-date{color:#6ee7b7}
+body:not(.theme-light) .history-practice-event.is-active .history-practice-marker{background:#6366f1;border-color:#818cf8;color:#fff}
+body:not(.theme-light) .history-practice-event.is-active .history-practice-event-name{background:#312e81;color:#e0e7ff;border-color:#818cf8}
+body:not(.theme-light) .history-practice-event.is-done .history-practice-marker{background:#047857;border-color:#34d399;color:#ecfdf5}
+body:not(.theme-light) .history-practice-event.is-done .history-practice-event-name{background:#064e3b;color:#d1fae5;border-color:#059669}
+body:not(.theme-light) .history-practice-event.is-done .history-practice-event-date{color:#6ee7b7}
+
+/* Règles explicites pour que le thème clair reste lisible après l'ajout du thème sombre. */
+body.theme-light .history-practice-question,
+body.theme-light .history-practice-timeline-panel{background:rgba(255,255,255,.98);border-color:#e2e8f0;color:#1e293b}
+body.theme-light .history-practice-event-prompt,
+body.theme-light .history-practice-timeline-heading h3{color:#1e293b}
+body.theme-light .history-practice-format,
+body.theme-light .history-practice-timeline-heading p{color:#64748b}
+body.theme-light .history-practice-answer-zone input{background:#fff;color:#1e293b;border-color:#c7d2fe}
+body.theme-light .history-practice-answer-zone input.date-answer-wrong{background:#fff1f2;color:#7f1d1d;border-color:#ef4444}
+body.theme-light .history-practice-track::before{background:#c7d2fe}
+body.theme-light .history-practice-marker{background:#fff;border-color:#c7d2fe;color:#64748b}
+body.theme-light .history-practice-event-name{background:#fff;color:#334155;border-color:#e2e8f0}
+body.theme-light .history-practice-event-date{color:#059669}
+body.theme-light .history-practice-event.is-active .history-practice-event-name{background:#eef2ff;color:#3730a3;border-color:#818cf8}
+body.theme-light .history-practice-event.is-done .history-practice-event-name{background:#ecfdf5;color:#065f46;border-color:#a7f3d0}
+
 @media(max-width:420px){.history-practice-event{flex-basis:11.5rem}.history-practice-question,.history-practice-timeline-panel{padding:1rem}}
 
 /* ── QUESTION CARD ── */
