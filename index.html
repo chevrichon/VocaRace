@@ -1229,11 +1229,9 @@ body.theme-light .miss-es{
       </div>
       <p id="r-listname" class="results-list-name"></p>
       <section id="leaderboard-panel" style="margin-top:1rem;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left">
-        <h3 style="font-size:1rem;font-weight:900;margin-bottom:.65rem">🏆 Classement mondial</h3>
-        <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
-          <input id="leaderboard-name" type="text" maxlength="20" placeholder="Ton pseudo" autocomplete="nickname" style="min-width:0;flex:1;padding:.7rem;border:1px solid #94a3b8;border-radius:.65rem;font:inherit">
-          <button id="leaderboard-submit" onclick="saveLeaderboardScore()" style="padding:.7rem .8rem;border-radius:.65rem;background:#4f46e5;color:white;font-weight:800">Envoyer</button>
-        </div>
+        <h3 style="font-size:1rem;font-weight:900;margin-bottom:.35rem">🏆 Top 3 — cette liste</h3>
+        <p style="font-size:.75rem;color:#94a3b8;margin-bottom:.75rem">Classement automatique : points, puis temps le plus rapide.</p>
+        <input id="leaderboard-name" type="text" maxlength="20" placeholder="Ton pseudo (facultatif)" autocomplete="nickname" style="width:100%;box-sizing:border-box;margin-bottom:.75rem;padding:.7rem;border:1px solid #94a3b8;border-radius:.65rem;font:inherit">
         <p id="leaderboard-status" style="font-size:.75rem;margin-bottom:.5rem;color:#94a3b8" aria-live="polite">Chargement du classement…</p>
         <ol id="leaderboard-list" style="padding-left:1.5rem;font-size:.85rem;display:grid;gap:.35rem"></ol>
       </section>
@@ -1356,6 +1354,7 @@ let selectedMode='solo', currentDifficulty='debutant';
 let activeDatasetType='vocab';
 let datasetLoadPromise=Promise.resolve();
 let lives=3, score=0, streak=0;
+let gameStartedAt=Date.now(), leaderboardSubmittedForRun=false;
 let gameQueue=[], playerProgress=0, botProgress=0;
 let isCooldown=false, botInterval=null;
 let errorCount=0, isRevealing=false, missedWords=[];
@@ -2007,6 +2006,7 @@ function showGameUI(){
 
 function startGame(){
   lives=3;score=0;streak=0;playerProgress=0;botProgress=0;
+  gameStartedAt=Date.now();leaderboardSubmittedForRun=false;
   errorCount=0;isRevealing=false;missedWords=[];
   gameQueue=[...activeVocabulary].sort(()=>Math.random()-.5);
   showGameUI();
@@ -2422,9 +2422,13 @@ function showEnd(isVictory){
     const lobbyName=document.getElementById('player-name-input')?.value?.trim();
     nameInput.value=lobbyName||localStorage.getItem('vocarace-leaderboard-name')||'';
   }
-  const submitButton=document.getElementById('leaderboard-submit');
-  if(submitButton){submitButton.disabled=false;submitButton.textContent='Envoyer';submitButton.style.opacity='1';}
   loadLeaderboard();
+  if(selectedMode!=='online')saveLeaderboardScore();
+}
+
+function formatLeaderboardTime(ms){
+  const total=Math.max(0,Math.floor(ms/1000));
+  return Math.floor(total/60)+':'+String(total%60).padStart(2,'0');
 }
 
 async function loadLeaderboard(){
@@ -2432,47 +2436,55 @@ async function loadLeaderboard(){
   const list=document.getElementById('leaderboard-list');
   if(!status||!list)return;
   if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
-  status.textContent='Chargement du classement…';
+  status.textContent='Chargement du top 3…';
   try{
-    const snapshot=await db.ref('leaderboard').orderByChild('score').limitToLast(10).once('value');
+    const snapshot=await db.ref('leaderboard').once('value');
     const rows=[];
-    snapshot.forEach(child=>rows.push({name:String(child.val()?.name||'Joueur'),score:Number(child.val()?.score)||0}));
-    rows.sort((a,b)=>b.score-a.score);
+    snapshot.forEach(child=>{
+      const row=child.val()||{};
+      if(String(row.list||'')!==String(activeListName||'Liste') ||
+         String(row.dataset||'vocab')!==String(activeDatasetType||'vocab'))return;
+      rows.push({name:String(row.name||'Joueur'),score:Number(row.score)||0,timeMs:Number(row.timeMs)||0});
+    });
+    rows.sort((a,b)=>b.score-a.score||a.timeMs-b.timeMs);
     list.textContent='';
-    if(!rows.length){status.textContent='Aucun score enregistré pour le moment.';return;}
-    rows.forEach((row,index)=>{
+    if(!rows.length){status.textContent='Pas encore de score pour cette liste.';return;}
+    rows.slice(0,3).forEach((row,index)=>{
       const li=document.createElement('li');
-      li.textContent=(index+1)+'. '+row.name+' — '+row.score+' pts';
+      li.textContent=(index+1)+'. '+row.name+' — '+row.score+' pts · '+formatLeaderboardTime(row.timeMs);
       list.appendChild(li);
     });
-    status.textContent='Top 10 des scores, tous modes confondus.';
+    status.textContent='Top 3 de « '+activeListName+' » · plus de points, puis temps le plus court.';
   }catch(error){
     status.textContent='Impossible de charger le classement. Vérifie les règles Firebase.';
   }
 }
 
-window.saveLeaderboardScore=async function(){
+async function saveLeaderboardScore(){
   const nameInput=document.getElementById('leaderboard-name');
-  const button=document.getElementById('leaderboard-submit');
   const status=document.getElementById('leaderboard-status');
-  const name=String(nameInput?.value||'').trim().slice(0,20);
-  if(!name){status.textContent='Entre un pseudo avant d’envoyer ton score.';nameInput?.focus();return;}
+  if(leaderboardSubmittedForRun)return;
+  leaderboardSubmittedForRun=true;
   if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
-  button.disabled=true;button.textContent='Envoi…';
+  status.textContent='Enregistrement automatique du score…';
   try{
     const user=await ensureFirebaseAuth();
+    const name=String(nameInput?.value||'').trim().slice(0,20) ||
+      String(document.getElementById('player-name-input')?.value||'').trim().slice(0,20) ||
+      localStorage.getItem('vocarace-leaderboard-name') || 'Joueur';
+    const timeMs=Math.max(0,Date.now()-(gameStartedAt||Date.now()));
     await db.ref('leaderboard').push({
-      uid:user.uid,name,score:Number(score)||0,mode:String(selectedMode||'solo'),
+      uid:user.uid,name,score:Number(score)||0,timeMs,mode:String(selectedMode||'solo'),
       dataset:String(activeDatasetType||'vocab'),list:String(activeListName||'Liste'),
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
-    localStorage.setItem('vocarace-leaderboard-name',name);
-    status.textContent='Score enregistré.';
-    button.textContent='Envoyé';button.style.opacity='.65';
+    if(nameInput&&name!=='Joueur')nameInput.value=name;
+    if(name!=='Joueur')localStorage.setItem('vocarace-leaderboard-name',name);
+    status.textContent='Score enregistré automatiquement.';
     await loadLeaderboard();
   }catch(error){
-    status.textContent='Échec de l’envoi. Vérifie les règles Firebase.';
-    button.disabled=false;button.textContent='Réessayer';
+    leaderboardSubmittedForRun=false;
+    status.textContent='Échec de l’enregistrement. Vérifie les règles Firebase.';
   }
 }
 
