@@ -2047,7 +2047,7 @@ function showFlashcard(){
       const monthIndex=named?['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'].indexOf(named[2]):-1;
       if(named&&monthIndex>=0)numericDate=String(Number(named[1])).padStart(2,'0')+'/'+String(monthIndex+1).padStart(2,'0')+'/'+named[3];
     }
-    answerEl.textContent=numericDate+' — '+dateWords;
+    answerEl.textContent=/^\d{3,4}$/.test(dateRaw)?dateRaw:numericDate+' — '+dateWords;
   }else answerEl.textContent=w.es;
   document.getElementById('fc-counter').textContent=(learnFlashIndex+1)+' / '+group.length;
   const btn=document.getElementById('btn-fc-next');
