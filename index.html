@@ -970,9 +970,27 @@ body.theme-light .miss-es{
         <p class="mode-card-desc mode-card-desc--learn">Apprenez par petits groupes, puis testez-vous !</p>
         <div class="mode-cta mode-cta--learn">Commencer →</div>
       </div>
+      <div id="history-timeline-mode" onclick="showHistoryTimelineChooser()" class="mode-card mode-card--dates hidden">
+        <div class="mode-icon mode-icon--dates">🗓️</div>
+        <h3 class="mode-card-title mode-card-title--dates">Frise chronologique</h3>
+        <p class="mode-card-desc mode-card-desc--dates">Toutes les dates d'une liste ou de toutes les listes d'histoire.</p>
+        <div class="mode-cta mode-cta--dates">Voir les frises →</div>
+      </div>
 
     </div>
     <button onclick="backToCategories()" class="btn-back" style="margin-top:1.5rem">← Changer de matière</button>
+  </div>
+</div>
+
+<!-- FRISE CHRONOLOGIQUE HISTOIRE -->
+<div id="history-timeline-screen" class="screen hidden">
+  <div class="diff-inner" style="max-width:56rem">
+    <h2 class="diff-title">Frise chronologique</h2>
+    <p class="section-label">Choisis une liste ou affiche toutes les listes</p>
+    <div id="history-timeline-choices" class="list-picker"></div>
+    <p id="history-timeline-status" style="color:#94a3b8;font-size:.8rem;margin:.75rem 0" aria-live="polite"></p>
+    <div id="history-timeline-results" style="text-align:left;display:grid;gap:.75rem;margin-top:1rem"></div>
+    <button onclick="backToModeSelection()" class="btn-back" style="margin-top:1.5rem">← Retour aux modes d'histoire</button>
   </div>
 </div>
 
@@ -1454,6 +1472,7 @@ window.chooseSubject=type=>{
   hideAll();
   document.getElementById('mode-menu-subtitle').textContent=activeDatasetType==='history'
     ?'Révise les événements et les dates historiques':'Maîtrise le vocabulaire espagnol';
+  document.getElementById('history-timeline-mode').classList.toggle('hidden',activeDatasetType!=='history');
   document.getElementById('mode-selection-screen').classList.remove('hidden');
 };
 window.showDifficulty=mode=>{
@@ -1480,6 +1499,78 @@ function parseHistoryFile(text){
     return date&&event?{es:date,fr:event}:null;
   }).filter(Boolean);
 }
+
+function historyDateSortValue(value){
+  const raw=String(value||'').trim();
+  let m=raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{3,4})$/);
+  if(m)return Number(m[3])*10000+Number(m[2])*100+Number(m[1]);
+  m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m)return Number(m[1])*10000+Number(m[2])*100+Number(m[3]);
+  const clean=normalize(raw);
+  m=clean.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{3,4})$/);
+  const months=['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+  if(m){const mi=months.indexOf(m[2]);if(mi>=0)return Number(m[3])*10000+(mi+1)*100+Number(m[1]);}
+  m=clean.match(/^([a-z]+)\s+(\d{3,4})$/);
+  if(m){const mi=months.indexOf(m[1]);if(mi>=0)return Number(m[2])*10000+(mi+1)*100;}
+  m=raw.match(/^(\d{3,4})$/);
+  if(m)return Number(m[1])*10000;
+  return Number.MAX_SAFE_INTEGER;
+}
+
+window.backToModeSelection=()=>{hideAll();document.getElementById('mode-selection-screen').classList.remove('hidden');};
+window.showHistoryTimelineChooser=async()=>{
+  hideAll();
+  document.getElementById('history-timeline-screen').classList.remove('hidden');
+  const choices=document.getElementById('history-timeline-choices');
+  const status=document.getElementById('history-timeline-status');
+  const results=document.getElementById('history-timeline-results');
+  choices.textContent='';results.textContent='';status.textContent='Chargement des listes…';
+  try{
+    const files=await fetchJsonFrom([HISTORY_LISTS_JSON,GH_RAW+'histoire_lists.json']);
+    const names=Array.isArray(files)?files.filter(n=>typeof n==='string'&&n.toLowerCase().endsWith('.histoire')):[];
+    const allButton=document.createElement('button');
+    allButton.className='list-card';allButton.innerHTML='<span class="list-card-icon">🌍</span><div><p class="list-card-name">Toutes les listes</p><p class="list-card-count">Frise globale</p></div>';
+    allButton.onclick=()=>renderHistoryTimeline(names,null);
+    choices.appendChild(allButton);
+    names.forEach(filename=>{
+      const button=document.createElement('button');button.className='list-card';
+      const info=document.createElement('div');const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.split('/').pop().replace(/\.histoire$/i,'');
+      const sub=document.createElement('p');sub.className='list-card-count';sub.textContent='Frise de cette liste';info.append(title,sub);
+      const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='📜';button.append(icon,info);
+      button.onclick=()=>renderHistoryTimeline([filename],filename);choices.appendChild(button);
+    });
+    status.textContent='Choisis une frise pour afficher les événements dans l’ordre chronologique.';
+  }catch(e){status.textContent='Impossible de charger le manifeste des listes d’histoire.';}
+};
+
+async function renderHistoryTimeline(files,selectedFile){
+  const status=document.getElementById('history-timeline-status');
+  const results=document.getElementById('history-timeline-results');
+  results.textContent='';status.textContent='Chargement des événements…';
+  try{
+    const datasets=await Promise.all(files.map(async filename=>{
+      const response=await fetch(rawFile(filename));
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      return {name:filename.split('/').pop().replace(/\.histoire$/i,''),entries:parseHistoryFile(await response.text())};
+    }));
+    const events=datasets.flatMap(ds=>ds.entries.map(entry=>({...entry,list:ds.name})));
+    events.sort((a,b)=>historyDateSortValue(a.es)-historyDateSortValue(b.es)||a.list.localeCompare(b.list,'fr'));
+    if(!events.length){status.textContent='Aucun événement trouvé.';return;}
+    const heading=document.createElement('h3');heading.style.cssText='font-weight:900;font-size:1.1rem;margin-bottom:.25rem';heading.textContent=selectedFile?'Frise : '+selectedFile.split('/').pop().replace(/\.histoire$/i,''):'Frise globale — toutes les listes';results.appendChild(heading);
+    const line=document.createElement('div');line.style.cssText='border-left:3px solid #818cf8;margin-left:.45rem;padding-left:1rem;display:grid;gap:.85rem';
+    events.forEach(event=>{
+      const card=document.createElement('article');card.style.cssText='background:rgba(30,41,59,.75);border:1px solid #475569;border-radius:.8rem;padding:.8rem';
+      const date=document.createElement('p');date.style.cssText='font-weight:900;color:#a5b4fc;margin-bottom:.25rem';date.textContent=formatHistoryDate(event.es);
+      const desc=document.createElement('p');desc.style.cssText='font-size:.9rem;line-height:1.45';desc.textContent=event.fr;
+      card.append(date,desc);
+      if(!selectedFile){const tag=document.createElement('p');tag.style.cssText='font-size:.7rem;color:#94a3b8;margin-top:.4rem';tag.textContent=event.list;card.appendChild(tag);}
+      line.appendChild(card);
+    });
+    results.appendChild(line);
+    status.textContent=events.length+' événements affichés, du plus ancien au plus récent.';
+  }catch(e){status.textContent='Impossible de charger une ou plusieurs chronologies.';}
+}
+
 async function loadHistoryListsInto(containerId,pickerId,builtinId){
   const cont=document.getElementById(containerId);
   const builtin=builtinId?document.getElementById(builtinId):null;
