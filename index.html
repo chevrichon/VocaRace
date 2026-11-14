@@ -1942,7 +1942,14 @@ function showFlashcard(){
   const group=learnGroups[learnGroupIndex];
   const w=group[learnFlashIndex];
   document.getElementById('fc-fr-word').textContent=w.fr;
-  document.getElementById('fc-es-word').textContent=w.es;
+  const answerEl=document.getElementById('fc-es-word');
+  if(activeDatasetType==='history'||selectedMode==='dates'){
+    const dateRaw=String(w.es??'').trim();
+    const dateWords=formatHistoryDate(dateRaw);
+    answerEl.textContent=/^\d{1,2}[/. -]\d{1,2}[/. -]\d{3,4}$/.test(dateRaw)||/^\d{4}-\d{2}-\d{2}$/.test(dateRaw)
+      ?dateRaw+' — '+dateWords
+      :dateRaw+' — '+dateWords;
+  }else answerEl.textContent=w.es;
   document.getElementById('fc-counter').textContent=(learnFlashIndex+1)+' / '+group.length;
   const btn=document.getElementById('btn-fc-next');
   const isLast=learnFlashIndex===group.length-1;
