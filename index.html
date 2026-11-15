@@ -3763,7 +3763,8 @@ async function loadLeaderboard(){
     });
     status.textContent='Top 3 · '+modeDisplayName(context.mode)+' · '+context.list+' · points puis temps.';
   }catch(error){
-    status.textContent='Impossible de charger le classement. Vérifie les règles Firebase.';
+    const detail=error&&error.code?error.code:(error&&error.message?error.message:'erreur inconnue');
+    status.textContent='Impossible de charger le classement ('+detail+'). Vérifie les règles Firebase.';
   }
 }
 
@@ -3784,18 +3785,16 @@ async function saveLeaderboardScore(){
   status.textContent='Enregistrement du score…';
   try{
     const user=await ensureFirebaseAuth();
-    if(!user||user.isAnonymous){
-      status.textContent='Connecte-toi ou crée un compte via le bouton Compte pour enregistrer ton score.';
-      leaderboardSubmittedForRun=false;
-      return;
-    }
-    let name=String(vocaProfileName||'').trim().slice(0,20);
-    if(!name){
+    if(!user)throw new Error('Firebase ne fournit aucune session active.');
+    // Un pseudo local peut aussi être publié depuis une session invitée :
+    // les règles du leaderboard exigent une session Firebase, pas un compte e-mail.
+    let name=String((!user.isAnonymous?vocaProfileName:'')||getVocaLocalName()||getLeaderboardCookie()).trim().slice(0,20);
+    if(!name&&!user.isAnonymous){
       const profile=await db.ref('profiles/'+user.uid).once('value');
       name=String((profile.val()||{}).pseudo||'').trim().slice(0,20);
     }
     if(!name){
-      status.textContent='Ton compte n’a pas de pseudo enregistré. Ouvre Compte pour le configurer.';
+      status.textContent='Choisis un pseudo dans Compte avant d’enregistrer ton score.';
       leaderboardSubmittedForRun=false;
       return;
     }
@@ -3804,11 +3803,14 @@ async function saveLeaderboardScore(){
       dataset:run.dataset,list:run.list,difficulty:run.difficulty,
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
-    status.textContent='Score enregistré avec ton compte.';
+    status.textContent=user.isAnonymous
+      ? 'Score enregistré sous '+name+' depuis la session invitée. Connecte-toi pour le rattacher à ton compte.'
+      : 'Score enregistré avec ton compte.';
     await loadLeaderboard();
   }catch(error){
     leaderboardSubmittedForRun=false;
-    status.textContent='Échec de l’enregistrement. Vérifie les règles Firebase.';
+    const detail=error&&error.code?error.code:(error&&error.message?error.message:'erreur inconnue');
+    status.textContent='Échec de l’enregistrement ('+detail+'). Vérifie les règles Firebase.';
   }
 }
 
