@@ -87,6 +87,13 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 #difficulty-screen,#lobby-screen,#learn-intro-screen,#dates-screen{z-index:61}
 #end-modal{z-index:100;background:rgba(15,23,42,.92)}
 
+@media(min-width:1000px){#difficulty-screen .diff-inner{margin-left:280px;width:calc(100% - 280px);max-width:56rem} .difficulty-leaderboard{position:absolute;left:1.5rem;top:5rem;width:250px;max-height:calc(100dvh - 7rem);overflow:auto}}
+.difficulty-leaderboard{display:none;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left;background:rgba(30,41,59,.96);color:#e2e8f0;z-index:2}
+.difficulty-leaderboard h3{font-size:1rem;font-weight:900;margin-bottom:.4rem}
+.difficulty-leaderboard p{font-size:.75rem;color:#94a3b8;margin-bottom:.6rem}
+.difficulty-leaderboard ol{padding-left:1.3rem;font-size:.82rem;display:grid;gap:.35rem}
+body.theme-light .difficulty-leaderboard{background:#fff;color:#1e293b;border-color:#cbd5e1}
+@media(max-width:999px){#difficulty-screen .difficulty-leaderboard{margin:.75rem auto 1rem;width:100%;max-width:56rem;order:2}#difficulty-screen .diff-inner{order:1}}
 /* ── MENU ── */
 .menu-inner{max-width:64rem;width:100%;text-align:center;padding-top:.5rem}
 .menu-title{font-size:clamp(2.2rem,8vw,3.5rem);font-weight:900;color:#fff;margin-bottom:.5rem;font-style:italic;text-transform:uppercase;letter-spacing:-.04em}
@@ -1079,6 +1086,11 @@ body.theme-light .miss-es{
 
 <!-- DIFFICULTÉ -->
 <div id="difficulty-screen" class="screen hidden">
+  <section id="difficulty-leaderboard-panel" class="difficulty-leaderboard" aria-live="polite">
+    <h3 id="difficulty-leaderboard-title">🏆 Classement</h3>
+    <p id="difficulty-leaderboard-status">Choisis une liste pour afficher le classement.</p>
+    <ol id="difficulty-leaderboard-list"></ol>
+  </section>
   <div class="diff-inner">
     <h2 id="diff-title" class="diff-title">Nivel de Dificultad</h2>
     <div class="mb-section">
@@ -1367,7 +1379,7 @@ body.theme-light .miss-es{
       </div>
       <p id="r-listname" class="results-list-name"></p>
       <section id="leaderboard-panel" style="margin-top:1rem;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left">
-        <h3 style="font-size:1rem;font-weight:900;margin-bottom:.35rem">🏆 Top 3 — cette liste</h3>
+        <h3 style="font-size:1rem;font-weight:900;margin-bottom:.35rem">🏆 Top 3 — ce mode et cette liste</h3>
         <p style="font-size:.75rem;color:#94a3b8;margin-bottom:.75rem">Classement automatique : points, puis temps le plus rapide.</p>
         <input id="leaderboard-name" type="text" maxlength="20" placeholder="Ton pseudo (facultatif)" autocomplete="nickname" style="width:100%;box-sizing:border-box;margin-bottom:.75rem;padding:.7rem;border:1px solid #94a3b8;border-radius:.65rem;font:inherit">
         <p id="leaderboard-status" style="font-size:.75rem;margin-bottom:.5rem;color:#94a3b8" aria-live="polite">Chargement du classement…</p>
@@ -1650,6 +1662,8 @@ window.showDifficulty=mode=>{
   document.querySelector('#difficulty-screen .diff-grid').classList.toggle('hidden',timelineMode);
   document.getElementById('btn-start-history-timeline').classList.toggle('hidden',!timelineMode);
   document.getElementById('difficulty-screen').classList.remove('hidden');
+  const sideBoard=document.getElementById('difficulty-leaderboard-panel');if(sideBoard)sideBoard.style.display='block';
+  loadDifficultyLeaderboard();
   fetchGithubLists();
 };
 window.hideDifficulty=()=>document.getElementById('difficulty-screen').classList.add('hidden');
@@ -1916,6 +1930,7 @@ function deselectIn(pickerId){document.querySelectorAll('#'+pickerId+' .list-car
 window.selectBuiltin=function(pickerId,builtinId){
   deselectIn(pickerId);document.getElementById(builtinId).classList.add('selected');
   activeVocabulary=[...defaultVocabulary];activeListName='Liste par défaut';
+  if(pickerId==='list-picker')loadDifficultyLeaderboard();
 };
 async function pickGithubList(card,url,name,pickerId,builtinId){
   deselectIn(pickerId);card.classList.add('selected','loading');
@@ -1925,10 +1940,12 @@ async function pickGithubList(card,url,name,pickerId,builtinId){
     const words=parseEspagnolFile(await res.text());
     if(!words.length)throw new Error('Aucun mot parsé');
     activeVocabulary=words;activeListName=name;
+    if(pickerId==='list-picker')loadDifficultyLeaderboard();
   }catch(e){
     alert('Impossible de charger "'+name+'".\nListe par défaut utilisée.');
     deselectIn(pickerId);document.getElementById(builtinId).classList.add('selected');
     activeVocabulary=[...defaultVocabulary];activeListName='Liste par défaut';
+    if(pickerId==='list-picker')loadDifficultyLeaderboard();
   }finally{card.classList.remove('loading');if(sp.parentNode)sp.removeChild(sp);}
 }
 
@@ -2472,7 +2489,7 @@ window.checkHistoryTimelineDate=()=>{
       const date=card.querySelector('.history-practice-event-date');
       if(date)date.textContent=formatHistoryDate(entry.es);
     }
-    score+=100;streak++;playerProgress++;
+    score+=pointsForCorrectAnswer();streak++;playerProgress++;
     document.getElementById('score').textContent=String(score);
     updateStreakUI();
     document.getElementById('words-mastered').textContent=String(playerProgress);
@@ -2749,7 +2766,7 @@ function checkDateAnswer(){
     feedback.classList.remove('hidden');
     feedback.classList.add('success-feedback');
     document.getElementById('feedback-text').textContent='✓ Correct ! Série : '+(streak+1);
-    score+=100+streak*25;
+    score+=pointsForCorrectAnswer();
     streak++;
     document.getElementById('score').textContent=score;
     updateStreakUI();
@@ -2787,8 +2804,12 @@ function checkDateAnswer(){
   }
 }
 
+function pointsForCorrectAnswer(){
+  const base={debutant:100,intermediaire:150,expert:200,hardcore:300}[currentDifficulty]||100;
+  return base+streak*25;
+}
 function handleSuccess(){
-  score+=100+streak*25;streak++;
+  score+=pointsForCorrectAnswer();streak++;
   document.getElementById('score').textContent=score;
   updateStreakUI();playerProgress++;
   if(selectedMode==='online')pushProgress();
@@ -2951,6 +2972,29 @@ function getLeaderboardCookie(){
 function setLeaderboardCookie(name){
   document.cookie='vocarace_leaderboard_name='+encodeURIComponent(String(name).trim().slice(0,20))+'; Max-Age=31536000; Path=/; SameSite=Lax';
 }
+function modeDisplayName(mode){return ({solo:'Solo',bot:'Duel contre bot',dates:'Dates historiques',historyTimeline:'Frise chronologique',online:'Duel en ligne',learn:'Apprentissage'})[mode]||String(mode||'Solo');}
+function loadDifficultyLeaderboard(){
+  const panel=document.getElementById('difficulty-leaderboard-panel');
+  if(!panel)return;
+  panel.style.display='block';
+  const title=document.getElementById('difficulty-leaderboard-title');
+  if(title)title.textContent='🏆 '+modeDisplayName(selectedMode)+' — '+activeListName;
+  const status=document.getElementById('difficulty-leaderboard-status');
+  const list=document.getElementById('difficulty-leaderboard-list');
+  if(!status||!list)return;
+  if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
+  status.textContent='Chargement…';list.textContent='';
+  ensureFirebaseAuth().then(()=>db.ref('leaderboard').once('value')).then(snapshot=>{
+    const rows=[];snapshot.forEach(child=>{const row=child.val()||{};
+      if(String(row.list||'')!==String(activeListName||'Liste')||String(row.dataset||'vocab')!==String(activeDatasetType||'vocab')||String(row.mode||'solo')!==String(selectedMode||'solo'))return;
+      rows.push({name:String(row.name||'Joueur'),score:Number(row.score)||0,timeMs:Number(row.timeMs)||0});
+    });
+    rows.sort((a,b)=>b.score-a.score||a.timeMs-b.timeMs);list.textContent='';
+    if(!rows.length){status.textContent='Aucun score pour ce mode et cette liste.';return;}
+    rows.slice(0,3).forEach(row=>{const li=document.createElement('li');li.textContent=row.name+' — '+row.score+' pts · '+formatLeaderboardTime(row.timeMs);list.appendChild(li);});
+    status.textContent='Top 3 · points puis temps.';
+  }).catch(()=>{status.textContent='Impossible de charger le classement.';});
+}
 function formatLeaderboardTime(ms){
   const total=Math.max(0,Math.floor(ms/1000));
   return Math.floor(total/60)+':'+String(total%60).padStart(2,'0');
@@ -2970,7 +3014,8 @@ async function loadLeaderboard(){
     snapshot.forEach(child=>{
       const row=child.val()||{};
       if(String(row.list||'')!==String(activeListName||'Liste') ||
-         String(row.dataset||'vocab')!==String(activeDatasetType||'vocab'))return;
+         String(row.dataset||'vocab')!==String(activeDatasetType||'vocab') ||
+         String(row.mode||'solo')!==String(selectedMode||'solo'))return;
       rows.push({name:String(row.name||'Joueur'),score:Number(row.score)||0,timeMs:Number(row.timeMs)||0});
     });
     rows.sort((a,b)=>b.score-a.score||a.timeMs-b.timeMs);
@@ -2981,7 +3026,7 @@ async function loadLeaderboard(){
       li.textContent=row.name+' — '+row.score+' pts · '+formatLeaderboardTime(row.timeMs);
       list.appendChild(li);
     });
-    status.textContent='Top 3 de « '+activeListName+' » · plus de points, puis temps le plus court.';
+    status.textContent='Top 3 · '+modeDisplayName(selectedMode)+' · '+activeListName+' · points puis temps.';
   }catch(error){
     status.textContent='Impossible de charger le classement. Vérifie les règles Firebase.';
   }
@@ -3006,7 +3051,7 @@ async function saveLeaderboardScore(){
     const timeMs=Math.max(0,Date.now()-(gameStartedAt||Date.now()));
     await db.ref('leaderboard').push({
       uid:user.uid,name,score:Number(score)||0,timeMs,mode:String(selectedMode||'solo'),
-      dataset:String(activeDatasetType||'vocab'),list:String(activeListName||'Liste'),
+      dataset:String(activeDatasetType||'vocab'),list:String(activeListName||'Liste'),difficulty:String(currentDifficulty||'debutant'),
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
     if(nameInput){nameInput.value=name;nameInput.readOnly=true;}
