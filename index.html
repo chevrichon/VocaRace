@@ -2505,9 +2505,10 @@ window.checkHistoryTimelineDate=()=>{
     historyTimelineIndex++;
     updateHistoryPracticeStep(true);
   }else{
+    if(!missedWords.some(m=>m.es===entry.es&&m.fr===entry.fr))missedWords.push({...entry,reason:'erreur'});
     streak=0;updateStreakUI();
     input.classList.add('date-answer-wrong');
-    feedback.textContent='Date incorrecte. Réessaie pour cet événement.';
+    feedback.textContent='Date incorrecte. Réessaie pour cet événement.'
     feedback.className='history-practice-feedback is-error';
     input.focus();input.select();
   }
@@ -2952,8 +2953,8 @@ function showEnd(isVictory){
   else{none.classList.add('hidden');list.innerHTML=misses.map(w=>`<div class="miss-item"><span class="miss-fr">${w.fr}</span><span class="miss-arrow">→</span><span class="miss-es">${activeDatasetType==='history'?formatHistoryDate(w.es):w.es}</span></div>`).join('');}
   const retryBtn=document.getElementById('btn-retry-missed');
   const isTimelineMode=selectedMode==='historyTimeline';
-  retryBtn.classList.toggle('hidden',isTimelineMode||selectedMode==='learn'||misses.length===0);
-  document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online'||isTimelineMode);
+  retryBtn.classList.toggle('hidden',selectedMode==='learn'||selectedMode==='online'||misses.length===0);
+  document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online');
   loadLeaderboard();
   saveLeaderboardScore();
 }
@@ -3075,6 +3076,10 @@ window.replayGame=()=>{
     document.getElementById('end-modal').classList.remove('hidden');
     return;
   }
+  if(selectedMode==='historyTimeline'){
+    window.confirmStartHistoryTimeline();
+    return;
+  }
   startGame();
 };
 
@@ -3088,8 +3093,13 @@ window.retryMissedWords=()=>{
   if(!uniq.length)return;
   activeVocabulary=uniq;
   activeListName='Mots ratés ('+uniq.length+')';
-  selectedMode='solo';
   document.getElementById('end-modal').classList.add('hidden');
+  if(activeDatasetType==='history'&&selectedMode==='historyTimeline'){
+    selectedMode='historyTimeline';
+    window.confirmStartHistoryTimeline();
+    return;
+  }
+  selectedMode='solo';
   startGame();
 };
 window.showTab=tab=>{
