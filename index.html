@@ -1057,6 +1057,222 @@ body.theme-light .miss-es{
   color:#991b1b;
 }
 
+
+/* ── Identité visuelle VocaRace : papier, encre, forêt et archives ── */
+:root{
+  --vr-paper:#F3EFE6;
+  --vr-surface:#FFFCF5;
+  --vr-ink:#242521;
+  --vr-forest:#244B40;
+  --vr-clay:#C35D3A;
+  --vr-border:#D8D0C2;
+  --vr-muted:#6F7269;
+  --vr-atlas:#234A73;
+  --vr-brass:#D89A32;
+  --vr-night:#202521;
+  --vr-night-surface:#2B302C;
+  --vr-night-border:#414941;
+  --vr-night-text:#F1EEE6;
+}
+.menu-title,.diff-title,.lobby-title,.learn-title,.modal-title{
+  font-family:Georgia,"Times New Roman",serif;
+  font-style:normal;text-transform:none;letter-spacing:-.025em;font-weight:700;
+}
+.menu-sub,.section-label,.learn-size-label{text-transform:none;letter-spacing:.035em;font-weight:650}
+.mode-card,.category-card,.list-card,.diff-btn,.history-import-card,
+.lobby-name-input,.lobby-code-input,.room-item,.lobby-player,
+.learn-phase-card,.learn-size-btn,.flashcard,#question-card,
+.history-practice-event,.modal-inner,.results-score,.tabs,.lobby-tabs,
+.btn-check,.btn-next,.btn-return,.btn-retry-missed,.btn-create,
+.btn-join,.btn-start-duel,.btn-start-learn,.btn-fc{
+  border-radius:.7rem!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+.mode-card{border-width:1px;transition:border-color .18s,background-color .18s}
+@media(hover:hover){.mode-card:hover{transform:none}}
+.diff-btn{font-style:normal;transition:background-color .18s,border-color .18s}
+@media(hover:hover){.diff-btn:hover{transform:none}}
+.btn-check,.btn-next,.btn-return,.btn-retry-missed,.btn-create,.btn-join,.btn-start-duel,.btn-start-learn,.tab-btn,.lobby-tab{
+  text-transform:none;letter-spacing:.015em;font-weight:750;box-shadow:none!important;
+}
+#question-card,.flashcard,.history-practice-event,.modal-inner{border-width:1px}
+.mode-icon{border-radius:.55rem!important}
+.progress-bar,.progress-fill{border-radius:2px}
+#game-header{backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}
+
+/* Papier & encre — thème clair. */
+body.theme-light{background:var(--vr-paper);color:var(--vr-ink)}
+body.theme-light .screen{background:var(--vr-paper);color:var(--vr-ink)}
+body.theme-light #end-modal{background:rgba(36,37,33,.55)}
+body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title,body.theme-light .learn-title,body.theme-light .modal-title{color:var(--vr-ink)}
+body.theme-light .menu-sub,body.theme-light .section-label,body.theme-light .learn-size-label,body.theme-light .list-select-hint{color:var(--vr-muted)}
+body.theme-light #game-header{background:var(--vr-surface);border-bottom-color:var(--vr-border);color:var(--vr-ink)}
+body.theme-light .mode-card,body.theme-light .category-card,body.theme-light .list-card,body.theme-light .room-item,body.theme-light .history-import-card,body.theme-light .lobby-tabs,body.theme-light .lobby-name-input,body.theme-light .lobby-code-input,body.theme-light .lobby-player,body.theme-light .learn-phase-card,body.theme-light .learn-size-btn,body.theme-light .flashcard,body.theme-light #question-card,body.theme-light .duel-bar,body.theme-light .modal-inner,body.theme-light .tabs{
+  background:var(--vr-surface);color:var(--vr-ink);border-color:var(--vr-border);
+}
+body.theme-light .mode-card--solo,body.theme-light .mode-card--bot,body.theme-light .mode-card--learn,body.theme-light .mode-card--duel{background:var(--vr-surface);border-color:var(--vr-border)}
+body.theme-light .mode-card--dates,body.theme-light .category-card--history{background:var(--vr-atlas);border-color:var(--vr-atlas)}
+body.theme-light .mode-card-title--solo,body.theme-light .mode-card-title--bot,body.theme-light .mode-card-title--learn,body.theme-light .mode-card-title--duel{color:var(--vr-ink)}
+body.theme-light .mode-card-title--dates,body.theme-light .category-card--history .category-title-light{color:var(--vr-surface)}
+body.theme-light .mode-card-desc--solo,body.theme-light .mode-card-desc--bot,body.theme-light .mode-card-desc--learn,body.theme-light .mode-card-desc--duel{color:var(--vr-muted)}
+body.theme-light .mode-card-desc--dates,body.theme-light .category-card--history .category-desc-light{color:#DCE7F1}
+body.theme-light .mode-icon--solo{background:#E3ECE5;color:var(--vr-forest)}
+body.theme-light .mode-icon--bot{background:#F3E4D9;color:var(--vr-clay)}
+body.theme-light .mode-icon--duel{background:#E3ECE5;color:var(--vr-forest)}
+body.theme-light .mode-icon--learn{background:#E8E0D3;color:var(--vr-forest)}
+body.theme-light .mode-icon--dates{background:#345D84;color:#fff}
+body.theme-light .mode-cta--solo,body.theme-light .mode-cta--duel,body.theme-light .mode-cta--learn{color:var(--vr-forest)}
+body.theme-light .mode-cta--bot{color:var(--vr-clay)}
+body.theme-light .mode-cta--dates{color:#F1D6A5}
+body.theme-light .mode-card:hover{border-color:var(--vr-forest)}
+body.theme-light .mode-card--dates:hover,body.theme-light .category-card--history:hover{border-color:var(--vr-brass)}
+body.theme-light .list-card.selected,body.theme-light .history-import-card.selected,body.theme-light .learn-size-btn:hover,body.theme-light .learn-size-btn.sel{background:#E3ECE5;border-color:var(--vr-forest);color:var(--vr-forest)}
+body.theme-light .list-card-name,body.theme-light .history-import-title,body.theme-light .room-item-host,body.theme-light .lobby-player-name{color:var(--vr-ink)}
+body.theme-light .list-card-count,body.theme-light .history-import-status,body.theme-light .rooms-empty,body.theme-light .rooms-loading,body.theme-light .room-item-time,body.theme-light .lobby-player-status{color:var(--vr-muted)}
+body.theme-light .history-import-card input{color:var(--vr-ink)}
+body.theme-light .history-import-card button{background:var(--vr-forest);color:var(--vr-surface)}
+body.theme-light .learn-phase-card{background:#E3ECE5;border-color:#C5D7C8}
+body.theme-light .learn-phase-title{color:var(--vr-forest)}
+body.theme-light .learn-phase-desc{color:#3D5949}
+body.theme-light .learn-size-btn{color:var(--vr-ink)}
+body.theme-light .lobby-name-input,body.theme-light .lobby-code-input{background:var(--vr-surface);color:var(--vr-ink)}
+body.theme-light .lobby-name-input::placeholder,body.theme-light .lobby-code-input::placeholder{color:var(--vr-muted)}
+body.theme-light .lobby-name-input:focus,body.theme-light .lobby-code-input:focus{border-color:var(--vr-forest)}
+body.theme-light .lobby-tab:not(.active){color:var(--vr-muted)}
+body.theme-light .lobby-tab.active,body.theme-light .tab-btn.active{background:var(--vr-forest);color:var(--vr-surface)}
+body.theme-light .lobby-tab:not(.active):hover,body.theme-light .tab-btn:not(.active):hover{background:#E8E0D3;color:var(--vr-ink)}
+body.theme-light .room-item:hover{border-color:var(--vr-forest);background:#E3ECE5}
+body.theme-light .room-item-join{background:#E3ECE5;color:var(--vr-forest);border-color:#A8C2AD}
+body.theme-light .room-item:hover .room-item-join{background:var(--vr-forest);color:var(--vr-surface)}
+body.theme-light .lobby-sub{color:var(--vr-forest)}
+body.theme-light .lobby-waiting{background:#E3ECE5;border-color:#B6CDBB}
+body.theme-light .lobby-waiting-label,body.theme-light .lobby-waiting-code{color:var(--vr-forest)}
+body.theme-light .lobby-waiting-hint{color:var(--vr-muted)}
+body.theme-light .btn-create,body.theme-light .btn-start-duel,body.theme-light .btn-start-learn,body.theme-light .btn-check,body.theme-light .btn-return,body.theme-light .btn-fc-done,body.theme-light .btn-next{background:var(--vr-forest);color:var(--vr-surface)}
+body.theme-light .btn-create:hover,body.theme-light .btn-start-duel:hover:not(:disabled),body.theme-light .btn-start-learn:hover,body.theme-light .btn-check:hover,body.theme-light .btn-return:hover,body.theme-light .btn-fc-done:hover,body.theme-light .btn-next:hover{background:#1B3B32}
+body.theme-light .btn-join{background:#E3ECE5;color:var(--vr-forest);border-color:#A8C2AD}
+body.theme-light .btn-join:hover{background:var(--vr-forest);color:var(--vr-surface)}
+body.theme-light .diff-btn--deb{background:var(--vr-forest)}
+body.theme-light .diff-btn--int{background:var(--vr-atlas)}
+body.theme-light .diff-btn--exp{background:var(--vr-clay)}
+body.theme-light .diff-btn--hc{background:var(--vr-ink);border:1px solid var(--vr-clay)}
+body.theme-light .btn-back{color:var(--vr-muted)}
+body.theme-light .btn-back:hover{color:var(--vr-forest)}
+body.theme-light .btn-refresh{color:var(--vr-forest)}
+body.theme-light .btn-refresh:hover{color:var(--vr-clay)}
+body.theme-light .solo-progress{border-top-color:var(--vr-border)}
+body.theme-light .progress-bar{background:#E8E0D3}
+body.theme-light .progress-fill{background:var(--vr-forest)}
+body.theme-light .prog-cur,body.theme-light .fr-word,body.theme-light .static-char{color:var(--vr-ink)}
+body.theme-light .mode-label{background:#E3ECE5;color:var(--vr-forest)}
+body.theme-light .reveal-zone{background:#F3E4D9;border-color:#E0B29C}
+body.theme-light .reveal-label,body.theme-light .reveal-answer{color:#8E422B}
+body.theme-light .btn-timer{color:#F1D6A5}
+body.theme-light .results-score{background:#E3ECE5}
+body.theme-light .results-score-val{color:var(--vr-forest)}
+body.theme-light .results-score-label{color:#597561}
+body.theme-light .difficulty-leaderboard{background:var(--vr-surface);color:var(--vr-ink);border-color:var(--vr-border)}
+
+/* Palette sombre assortie, moins saturée et sans lueur violette. */
+body:not(.theme-light){background:var(--vr-night);color:var(--vr-night-text)}
+body:not(.theme-light) .screen{background:var(--vr-night);color:var(--vr-night-text)}
+body:not(.theme-light) #end-modal{background:rgba(24,28,25,.88)}
+body:not(.theme-light) .menu-title,body:not(.theme-light) .diff-title,body:not(.theme-light) .lobby-title,body:not(.theme-light) .learn-title,body:not(.theme-light) .modal-title{color:var(--vr-night-text)}
+body:not(.theme-light) .menu-sub,body:not(.theme-light) .section-label,body:not(.theme-light) .learn-size-label{color:#B4B7AD}
+body:not(.theme-light) #game-header{background:var(--vr-night);border-bottom-color:var(--vr-night-border);color:var(--vr-night-text)}
+body:not(.theme-light) .mode-card,body:not(.theme-light) .category-card,body:not(.theme-light) .list-card,body:not(.theme-light) .room-item,body:not(.theme-light) .history-import-card,body:not(.theme-light) .lobby-tabs,body:not(.theme-light) .lobby-name-input,body:not(.theme-light) .lobby-code-input,body:not(.theme-light) .lobby-player,body:not(.theme-light) .learn-phase-card,body:not(.theme-light) .learn-size-btn,body:not(.theme-light) .flashcard,body:not(.theme-light) #question-card,body:not(.theme-light) .duel-bar,body:not(.theme-light) .modal-inner,body:not(.theme-light) .tabs,body:not(.theme-light) .difficulty-leaderboard{background:var(--vr-night-surface);color:var(--vr-night-text);border-color:var(--vr-night-border)}
+body:not(.theme-light) .mode-card--dates,body:not(.theme-light) .category-card--history{background:var(--vr-atlas);border-color:var(--vr-atlas)}
+body:not(.theme-light) .mode-card-title--solo,body:not(.theme-light) .mode-card-title--bot,body:not(.theme-light) .mode-card-title--duel,body:not(.theme-light) .mode-card-title--learn,body:not(.theme-light) .mode-card-title--dates,body:not(.theme-light) .category-title-light{color:var(--vr-night-text)}
+body:not(.theme-light) .mode-card-desc--solo,body:not(.theme-light) .mode-card-desc--bot,body:not(.theme-light) .mode-card-desc--duel,body:not(.theme-light) .mode-card-desc--learn{color:#B4B7AD}
+body:not(.theme-light) .mode-card-desc--dates,body:not(.theme-light) .category-card--history .category-desc-light{color:#DCE7F1}
+body:not(.theme-light) .mode-icon--solo{background:#34483A;color:#C8DEC9}
+body:not(.theme-light) .mode-icon--bot{background:#4A362D;color:#E7B39D}
+body:not(.theme-light) .mode-icon--duel{background:#315C4B;color:#E5EEE5}
+body:not(.theme-light) .mode-icon--learn{background:#34483A;color:#C8DEC9}
+body:not(.theme-light) .mode-icon--dates{background:#345D84;color:#fff}
+body:not(.theme-light) .mode-cta--solo,body:not(.theme-light) .mode-cta--duel,body:not(.theme-light) .mode-cta--learn{color:#A5C5AC}
+body:not(.theme-light) .mode-cta--bot{color:#E7B39D}
+body:not(.theme-light) .mode-cta--dates{color:#F1D6A5}
+body:not(.theme-light) .mode-card:hover{border-color:#A5C5AC}
+body:not(.theme-light) .mode-card--dates:hover,body:not(.theme-light) .category-card--history:hover{border-color:var(--vr-brass)}
+body:not(.theme-light) .list-card.selected,body:not(.theme-light) .history-import-card.selected,body:not(.theme-light) .learn-size-btn:hover,body:not(.theme-light) .learn-size-btn.sel{background:#34483A;border-color:#8FB39B;color:#F1EEE6}
+body:not(.theme-light) .list-card-name,body:not(.theme-light) .history-import-title,body:not(.theme-light) .room-item-host,body:not(.theme-light) .lobby-player-name{color:var(--vr-night-text)}
+body:not(.theme-light) .list-card-count,body:not(.theme-light) .history-import-status,body:not(.theme-light) .rooms-empty,body:not(.theme-light) .rooms-loading,body:not(.theme-light) .room-item-time,body:not(.theme-light) .lobby-player-status{color:#B4B7AD}
+body:not(.theme-light) .history-import-card input{color:var(--vr-night-text)}
+body:not(.theme-light) .history-import-card button{background:#315C4B;color:#fff}
+body:not(.theme-light) .learn-phase-card{background:#2D3D31;border-color:#465B49}
+body:not(.theme-light) .learn-phase-title{color:#A5C5AC}
+body:not(.theme-light) .learn-phase-desc{color:#D4E0D4}
+body:not(.theme-light) .lobby-name-input,body:not(.theme-light) .lobby-code-input{background:var(--vr-night-surface);color:var(--vr-night-text)}
+body:not(.theme-light) .lobby-name-input::placeholder,body:not(.theme-light) .lobby-code-input::placeholder{color:#B4B7AD}
+body:not(.theme-light) .lobby-name-input:focus,body:not(.theme-light) .lobby-code-input:focus{border-color:#8FB39B}
+body:not(.theme-light) .lobby-tab:not(.active){color:#B4B7AD}
+body:not(.theme-light) .lobby-tab.active,body:not(.theme-light) .tab-btn.active{background:#315C4B;color:#fff}
+body:not(.theme-light) .lobby-tab:not(.active):hover,body:not(.theme-light) .tab-btn:not(.active):hover{background:#414941;color:var(--vr-night-text)}
+body:not(.theme-light) .room-item:hover{border-color:#8FB39B;background:#34483A}
+body:not(.theme-light) .room-item-join{background:#34483A;color:#A5C5AC;border-color:#5D8064}
+body:not(.theme-light) .room-item:hover .room-item-join{background:#315C4B;color:#fff}
+body:not(.theme-light) .lobby-sub{color:#A5C5AC}
+body:not(.theme-light) .lobby-waiting{background:#2D3D31;border-color:#465B49}
+body:not(.theme-light) .lobby-waiting-label,body:not(.theme-light) .lobby-waiting-code{color:#A5C5AC}
+body:not(.theme-light) .lobby-waiting-hint{color:#B4B7AD}
+body:not(.theme-light) .btn-create,body:not(.theme-light) .btn-start-duel,body:not(.theme-light) .btn-start-learn,body:not(.theme-light) .btn-check,body:not(.theme-light) .btn-return,body:not(.theme-light) .btn-fc-done,body:not(.theme-light) .btn-next{background:#315C4B;color:#fff}
+body:not(.theme-light) .btn-create:hover,body:not(.theme-light) .btn-start-duel:hover:not(:disabled),body:not(.theme-light) .btn-start-learn:hover,body:not(.theme-light) .btn-check:hover,body:not(.theme-light) .btn-return:hover,body:not(.theme-light) .btn-fc-done:hover,body:not(.theme-light) .btn-next:hover{background:#3D705B}
+body:not(.theme-light) .btn-join{background:#34483A;color:#A5C5AC;border-color:#5D8064}
+body:not(.theme-light) .btn-join:hover{background:#315C4B;color:#fff}
+body:not(.theme-light) .diff-btn--deb{background:#315C4B}
+body:not(.theme-light) .diff-btn--int{background:var(--vr-atlas)}
+body:not(.theme-light) .diff-btn--exp{background:#8F4A31}
+body:not(.theme-light) .diff-btn--hc{background:#242521;border:1px solid #8F4A31}
+body:not(.theme-light) .btn-back{color:#B4B7AD}
+body:not(.theme-light) .btn-back:hover{color:var(--vr-night-text)}
+body:not(.theme-light) .btn-refresh{color:#A5C5AC}
+body:not(.theme-light) .btn-refresh:hover{color:#E7B39D}
+body:not(.theme-light) .solo-progress{border-top-color:var(--vr-night-border)}
+body:not(.theme-light) .progress-bar{background:#414941}
+body:not(.theme-light) .progress-fill{background:#8FB39B}
+body:not(.theme-light) .prog-cur,body:not(.theme-light) .fr-word,body:not(.theme-light) .static-char{color:var(--vr-night-text)}
+body:not(.theme-light) .mode-label{background:#34483A;color:#C8DEC9}
+body:not(.theme-light) .reveal-zone{background:#3B2D27;border-color:#6E4939}
+body:not(.theme-light) .reveal-label,body:not(.theme-light) .reveal-answer{color:#E7B39D}
+body:not(.theme-light) .btn-timer{color:#F1D6A5}
+body:not(.theme-light) .results-score{background:#2D3D31}
+body:not(.theme-light) .results-score-val{color:#A5C5AC}
+body:not(.theme-light) .results-score-label{color:#B7CCB9}
+body:not(.theme-light) .spinner{border-color:#414941;border-top-color:#C35D3A}
+
+/* L’histoire utilise le bleu des atlas et des accents laiton. */
+body.theme-light .history-practice-event{background:var(--vr-surface);color:var(--vr-ink);border-color:var(--vr-border);box-shadow:none}
+body.theme-light .history-practice-event-name{background:#F6F2E8;color:var(--vr-ink);border-color:var(--vr-border)}
+body.theme-light .history-practice-event.is-active{background:#EAF0F5;border-color:var(--vr-atlas);box-shadow:none}
+body.theme-light .history-practice-event.is-active .history-practice-marker{background:var(--vr-atlas);border-color:var(--vr-atlas);color:#fff;box-shadow:0 0 0 3px #DCE6EF}
+body.theme-light .history-practice-event.is-active .history-practice-event-name{background:var(--vr-surface);border-color:var(--vr-atlas);color:var(--vr-atlas)}
+body.theme-light .history-practice-event.is-done{background:#E5EEE5;border-color:#B7CCB9}
+body.theme-light .history-practice-event.is-done .history-practice-marker{background:var(--vr-forest);border-color:var(--vr-forest);color:#fff}
+body.theme-light .history-practice-event.is-done .history-practice-event-name{background:#E5EEE5;border-color:#B7CCB9;color:var(--vr-forest)}
+body.theme-light .history-practice-card-input{border-color:#A8BACA;background:var(--vr-surface);color:var(--vr-ink)}
+body.theme-light .history-practice-card-input:focus{border-color:var(--vr-atlas);box-shadow:0 0 0 2px rgba(35,74,115,.12)}
+body.theme-light .history-practice-event-date{color:var(--vr-forest)}
+body.theme-light .history-practice-track::before{background:#A7B9C8}
+body:not(.theme-light) .history-practice-event{background:var(--vr-night-surface);color:var(--vr-night-text);border-color:var(--vr-night-border);box-shadow:none}
+body:not(.theme-light) .history-practice-event-name{background:#343A35;color:var(--vr-night-text);border-color:var(--vr-night-border)}
+body:not(.theme-light) .history-practice-event.is-active{background:var(--vr-atlas);border-color:var(--vr-brass);box-shadow:none}
+body:not(.theme-light) .history-practice-event.is-active .history-practice-marker{background:var(--vr-brass);border-color:var(--vr-brass);color:var(--vr-ink);box-shadow:none}
+body:not(.theme-light) .history-practice-event.is-active .history-practice-event-name{background:#2D5278;color:#fff;border-color:#6C8AA7}
+body:not(.theme-light) .history-practice-event.is-done{background:#2D3D31;border-color:#5D8064}
+body:not(.theme-light) .history-practice-event.is-done .history-practice-marker{background:#315C4B;border-color:#8FB39B;color:#fff}
+body:not(.theme-light) .history-practice-event.is-done .history-practice-event-name{background:#2D3D31;border-color:#5D8064;color:#D4E0D4}
+body:not(.theme-light) .history-practice-card-input{border-color:#5D7180;background:#202521;color:var(--vr-night-text)}
+body:not(.theme-light) .history-practice-card-input:focus{border-color:var(--vr-brass);box-shadow:0 0 0 2px rgba(216,154,50,.12)}
+body:not(.theme-light) .history-practice-track::before{background:#50677A}
+body:not(.theme-light) .history-practice-format{color:#B4C5D3}
+body:not(.theme-light) .history-practice-event-date,body:not(.theme-light) .history-practice-complete{color:#A5C5AC}
+body.theme-light .history-practice-event .btn-check{background:var(--vr-atlas);color:#fff}
+body.theme-light .history-practice-event .btn-check:hover{background:#193B5F}
+body:not(.theme-light) .history-practice-event .btn-check{background:#345D84;color:#fff}
+body:not(.theme-light) .history-practice-event .btn-check:hover{background:#416F9B}
+body.theme-light .history-practice-card-input.date-answer-correct{border-color:var(--vr-forest);background:#E5EEE5;color:var(--vr-forest);box-shadow:none}
+body:not(.theme-light) .history-practice-card-input.date-answer-correct{border-color:#8FB39B;background:#2D3D31;color:#D4E0D4;box-shadow:none}
+
 </style>
 </head>
 <body>
