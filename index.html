@@ -1712,8 +1712,9 @@ function historyDateSortValue(value){
 }
 
 window.backToModeSelection=()=>{hideAll();document.getElementById('mode-selection-screen').classList.remove('hidden');};
+let historyTimelineChooserFiles=[];
 window.showHistoryTimelineChooser=async()=>{
-  hideAll();
+  hideAll();historyTimelineChooserFiles=[];
   document.getElementById('history-timeline-screen').classList.remove('hidden');
   const choices=document.getElementById('history-timeline-choices');
   const status=document.getElementById('history-timeline-status');
@@ -1724,14 +1725,31 @@ window.showHistoryTimelineChooser=async()=>{
     const names=Array.isArray(files)?files.filter(n=>typeof n==='string'&&n.toLowerCase().endsWith('.histoire')):[];
     const allButton=document.createElement('button');
     allButton.className='list-card';allButton.innerHTML='<span class="list-card-icon">🌍</span><div><p class="list-card-name">Toutes les listes</p><p class="list-card-count">Frise globale</p></div>';
-    allButton.onclick=()=>renderHistoryTimeline(names,null);
+    allButton.onclick=()=>{
+      historyTimelineChooserFiles=[...names];
+      choices.querySelectorAll('.list-card').forEach(card=>card.classList.add('selected'));
+      renderHistoryTimeline([...historyTimelineChooserFiles],null);
+    };
     choices.appendChild(allButton);
     names.forEach(filename=>{
       const button=document.createElement('button');button.className='list-card';
       const info=document.createElement('div');const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.split('/').pop().replace(/\.histoire$/i,'');
       const sub=document.createElement('p');sub.className='list-card-count';sub.textContent='Frise de cette liste';info.append(title,sub);
       const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='📜';button.append(icon,info);
-      button.onclick=()=>renderHistoryTimeline([filename],filename);choices.appendChild(button);
+      button.onclick=event=>{
+        const additive=!!(event&&(event.ctrlKey||event.metaKey));
+        if(!additive)historyTimelineChooserFiles=[filename];
+        else if(historyTimelineChooserFiles.includes(filename)&&historyTimelineChooserFiles.length>1)historyTimelineChooserFiles=historyTimelineChooserFiles.filter(item=>item!==filename);
+        else if(!historyTimelineChooserFiles.includes(filename))historyTimelineChooserFiles.push(filename);
+        if(!historyTimelineChooserFiles.length)historyTimelineChooserFiles=[filename];
+        choices.querySelectorAll('.list-card').forEach(card=>{
+          const label=card.dataset.timelineFile;
+          card.classList.toggle('selected',card===allButton?historyTimelineChooserFiles.length===names.length:historyTimelineChooserFiles.includes(label));
+        });
+        const selectedLabel=historyTimelineChooserFiles.length===names.length?null:historyTimelineChooserFiles.map(item=>item.split('/').pop().replace(/\.histoire$/i,'')).join(' + ');
+        renderHistoryTimeline([...historyTimelineChooserFiles],selectedLabel);
+      };
+      button.dataset.timelineFile=filename;choices.appendChild(button);
     });
     status.textContent='Choisis une frise pour afficher les événements dans l’ordre chronologique.';
   }catch(e){status.textContent='Impossible de charger le manifeste des listes d’histoire.';}
@@ -1875,6 +1893,7 @@ window.showLearnIntro=()=>{
 async function loadListsInto(containerId,pickerId,builtinId){
   if(activeDatasetType==='history'){
     await loadHistoryListsInto(containerId,pickerId,builtinId);
+    if(await datasetLoadPromise===false)return;
     const importId=containerId==='lobby-github-lists'?'lobby-history-import':
       containerId==='learn-github-lists'?'learn-history-import':null;
     if(importId)document.getElementById(importId).classList.remove('hidden');
@@ -1905,6 +1924,8 @@ async function loadListsInto(containerId,pickerId,builtinId){
       fetch(url).then(r=>r.text()).then(t=>{const el=document.getElementById(cid);if(el)el.textContent=parseEspagnolFile(t).length+' mots';}).catch(()=>{});
     });
     paintPickerSelection(pickerId);
+    const selected=pickerSelections.get(pickerId);
+    if(selected&&selected.length&&await loadPickerSources(pickerId,selected)===false)return;
   }catch(e){}
 }
 
@@ -1920,6 +1941,7 @@ window.fetchGithubLists=async function(){
     finally{loader.classList.add('hidden');btn.textContent='↻ Actualiser les chronologies GitHub';btn.style.opacity='';btn.style.pointerEvents='';}
     return;
   }
+  ensurePickerDataset('list-picker','vocab');
   loader.classList.remove('hidden');errDiv.classList.add('hidden');cont.innerHTML='';
   btn.textContent='↻ Chargement...';btn.style.opacity='.5';btn.style.pointerEvents='none';
   try{
@@ -1941,6 +1963,8 @@ window.fetchGithubLists=async function(){
       fetch(url).then(r=>r.text()).then(t=>{const el=document.getElementById(cid);if(el)el.textContent=parseEspagnolFile(t).length+' mots';}).catch(()=>{});
     });
     paintPickerSelection('list-picker');
+    const selected=pickerSelections.get('list-picker');
+    if(selected&&selected.length&&await loadPickerSources('list-picker',selected)===false)return;
   }catch(e){errDiv.textContent='⚠️ '+e.message;errDiv.classList.remove('hidden');}
   finally{loader.classList.add('hidden');btn.textContent='↻ Actualiser les listes GitHub';btn.style.opacity='';btn.style.pointerEvents='';}
 };
@@ -1972,6 +1996,22 @@ function ensurePickerDataset(pickerId,dataset){
     if(builtin)builtin._vocaListSource=source;pickerSelections.set(pickerId,[source]);paintPickerSelection(pickerId);
   }else pickerSelections.delete(pickerId);
 }
+function loadPickerSources(pickerId,sources){
+  const next=[...sources],version=(pickerLoadVersions.get(pickerId)||0)+1;
+  pickerLoadVersions.set(pickerId,version);
+  const names=next.map(item=>item.name);
+  datasetLoadPromise=(async()=>{
+    try{
+      const loaded=await Promise.all(next.map(item=>item.load()));
+      if(pickerLoadVersions.get(pickerId)!==version)return true;
+      const combined=[],seen=new Set();
+      loaded.flat().forEach(entry=>{const key=normalize(String(entry.es??''))+'\u0000'+normalize(String(entry.fr??''));if(seen.has(key))return;seen.add(key);combined.push({...entry});});
+      if(!combined.length)throw new Error('Aucune entrée dans les listes sélectionnées.');
+      activeVocabulary=combined;activeListName=names.join(' + ');activeDatasetType=next[0].dataset;
+      if(pickerId==='list-picker')loadDifficultyLeaderboard();return true;
+    }catch(error){if(pickerLoadVersions.get(pickerId)===version){console.error('Erreur de chargement des listes :',error);alert('Impossible de charger toutes les listes sélectionnées. Vérifie les fichiers GitHub.');}return false;}
+  })();return datasetLoadPromise;
+}
 function selectPickerSource(pickerId,source,event){
   if(!source)return Promise.resolve(false);
   const additive=!!(event&&(event.ctrlKey||event.metaKey));let current=currentPickerSources(pickerId);
@@ -1982,18 +2022,7 @@ function selectPickerSource(pickerId,source,event){
   if(!next.length)next=[source];
   next=next.filter((item,index,array)=>array.findIndex(other=>other.key===item.key)===index);
   pickerSelections.set(pickerId,next);paintPickerSelection(pickerId);
-  const version=(pickerLoadVersions.get(pickerId)||0)+1;pickerLoadVersions.set(pickerId,version);
-  const names=next.map(item=>item.name);
-  datasetLoadPromise=(async()=>{
-    try{
-      const loaded=await Promise.all(next.map(item=>item.load()));if(pickerLoadVersions.get(pickerId)!==version)return true;
-      const combined=[],seen=new Set();
-      loaded.flat().forEach(entry=>{const key=normalize(String(entry.es??''))+'\u0000'+normalize(String(entry.fr??''));if(seen.has(key))return;seen.add(key);combined.push({...entry});});
-      if(!combined.length)throw new Error('Aucune entrée dans les listes sélectionnées.');
-      activeVocabulary=combined;activeListName=names.join(' + ');activeDatasetType=next[0].dataset;
-      if(pickerId==='list-picker')loadDifficultyLeaderboard();return true;
-    }catch(error){if(pickerLoadVersions.get(pickerId)===version){console.error('Erreur de chargement des listes :',error);alert('Impossible de charger toutes les listes sélectionnées. Vérifie les fichiers GitHub.');}return false;}
-  })();return datasetLoadPromise;
+  return loadPickerSources(pickerId,next);
 }
 function selectPickerCard(card,pickerId,event){return selectPickerSource(pickerId,sourceForPickerCard(card),event);}
 function deselectIn(pickerId){document.querySelectorAll('#'+pickerId+' .list-card').forEach(card=>card.classList.remove('selected'));pickerSelections.delete(pickerId);}
