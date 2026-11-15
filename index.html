@@ -1122,7 +1122,7 @@ body.theme-light .miss-es{
       <div id="difficulty-history-import" class="history-import-card hidden">
         <p class="history-import-title">Importer un fichier personnel</p>
         <input id="difficulty-history-file" type="file" accept=".histoire,.txt,text/plain">
-        <button onclick="importHistoryFile('difficulty-history-file','difficulty-history-status','list-picker','difficulty-history-import')">Utiliser ce fichier .histoire</button>
+        <button onclick="importHistoryFile('difficulty-history-file','difficulty-history-status','list-picker','difficulty-history-import',event)">Utiliser ce fichier .histoire</button>
         <p id="difficulty-history-status" class="history-import-status"></p>
       </div>
     </div>
@@ -1157,7 +1157,7 @@ body.theme-light .miss-es{
       <div id="lobby-history-import" class="history-import-card hidden">
         <p class="history-import-title">Importer un fichier personnel</p>
         <input id="lobby-history-file" type="file" accept=".histoire,.txt,text/plain">
-        <button onclick="importHistoryFile('lobby-history-file','lobby-history-status','lobby-list-picker','lobby-history-import')">Utiliser ce fichier .histoire</button>
+        <button onclick="importHistoryFile('lobby-history-file','lobby-history-status','lobby-list-picker','lobby-history-import',event)">Utiliser ce fichier .histoire</button>
         <p id="lobby-history-status" class="history-import-status"></p>
       </div>
 
@@ -1224,7 +1224,7 @@ body.theme-light .miss-es{
       <div id="learn-history-import" class="history-import-card hidden">
         <p class="history-import-title">Importer un fichier personnel</p>
         <input id="learn-history-file" type="file" accept=".histoire,.txt,text/plain">
-        <button onclick="importHistoryFile('learn-history-file','learn-history-status','learn-list-picker','learn-history-import')">Utiliser ce fichier .histoire</button>
+        <button onclick="importHistoryFile('learn-history-file','learn-history-status','learn-list-picker','learn-history-import',event)">Utiliser ce fichier .histoire</button>
         <p id="learn-history-status" class="history-import-status"></p>
       </div>
     </div>
@@ -1849,7 +1849,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
     paintPickerSelection(pickerId);
   }catch(e){cont.innerHTML='<p style="grid-column:1/-1;color:#fda4af;font-size:.72rem">Impossible de charger histoire_lists.json depuis GitHub.</p>';}
 }
-window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId)=>{
+window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId,event)=>{
   const input=document.getElementById(inputId),status=document.getElementById(statusId),wrapper=document.getElementById(wrapperId);
   const file=input.files&&input.files[0];
   if(!file){status.textContent='Choisis d’abord un fichier .histoire.';return;}
@@ -1857,7 +1857,7 @@ window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId)=>{
     const entries=parseHistoryFile(await file.text());
     if(!entries.length)throw new Error('Aucune ligne valide. Format attendu : date::événement.');
     const source={key:'history-import:'+file.name+':'+file.lastModified,name:file.name,dataset:'history',element:wrapper,load:async()=>entries};
-    await selectPickerSource(pickerId,source,null);
+    await selectPickerSource(pickerId,source,event);
     status.textContent=entries.length+' événements chargés depuis '+file.name+'.';
   }catch(e){status.textContent=e.message||'Impossible de lire ce fichier.';}
 };
@@ -1992,10 +1992,16 @@ function paintPickerSelection(pickerId){
   document.querySelectorAll('.history-import-card').forEach(wrapper=>wrapper.classList.toggle('selected',selected.some(source=>source.element===wrapper)));
 }
 function ensurePickerDataset(pickerId,dataset){
-  const current=pickerSelections.get(pickerId);if(current&&current.length&&current.every(source=>source.dataset===dataset))return;
+  const current=pickerSelections.get(pickerId);
+  if(current&&current.length&&current.every(source=>source.dataset===dataset)){
+    loadPickerSources(pickerId,current);
+    return;
+  }
   if(dataset==='vocab'){
     const root=document.getElementById(pickerId),builtin=root&&root.querySelector('.list-card[id$="builtin-card"]'),source=makeBuiltinListSource();
-    if(builtin)builtin._vocaListSource=source;pickerSelections.set(pickerId,[source]);paintPickerSelection(pickerId);
+    if(builtin)builtin._vocaListSource=source;
+    pickerSelections.set(pickerId,[source]);paintPickerSelection(pickerId);
+    loadPickerSources(pickerId,[source]);
   }else pickerSelections.delete(pickerId);
 }
 function loadPickerSources(pickerId,sources){
