@@ -9,7 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 /* ── THÈMES CLAIR / SOMBRE ── */
-#theme-toggle-button{position:fixed;top:.25rem;right:.75rem;z-index:200;display:inline-block;width:4.5em;font-size:16px;cursor:pointer;line-height:0;user-select:none}
+#theme-toggle-button{position:fixed;top:.25rem;right:.5rem;z-index:200;display:inline-block;width:3em;font-size:16px;cursor:pointer;line-height:0;user-select:none}
 #theme-toggle-button #toggle{opacity:0;width:0;height:0;position:absolute}
 #theme-toggle-button svg{display:block;width:100%;height:auto;overflow:hidden}
 #theme-toggle-button #container,#theme-toggle-button #patches,#theme-toggle-button #stars,#theme-toggle-button #button,#theme-toggle-button #sun,#theme-toggle-button #moon,#theme-toggle-button #cloud{transition:all .25s cubic-bezier(.4,0,.2,1)}
@@ -26,7 +26,7 @@
 #theme-toggle-button input:checked+svg #stars{opacity:1}
 /* Pendant une partie, placer le switch à gauche de Quitter pour éviter tout chevauchement. */
 body:has(#game-header:not(.hidden)) #theme-toggle-button{display:none}
-@media(max-width:420px){#theme-toggle-button{width:3.8em;right:.5rem;top:.25rem}body:has(#game-header:not(.hidden)) #theme-toggle-button{display:none}}
+@media(max-width:420px){#theme-toggle-button{width:3em;right:.5rem;top:.25rem}body:has(#game-header:not(.hidden)) #theme-toggle-button{display:none}}
 body.theme-light .screen{background:#f1f5f9;color:#1e293b}
 body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title{color:#0f172a}
 body.theme-light .menu-sub,body.theme-light .section-label{color:#64748b}
@@ -1018,8 +1018,8 @@ body.theme-light .miss-es{
 <!-- MENU DES MODES -->
 <div id="mode-selection-screen" class="screen hidden">
   <div class="menu-inner" style="position:relative">
-    <button id="voca-account-button" onclick="openVocaAccount()" aria-label="Compte facultatif" title="Compte" style="position:absolute;right:1rem;top:.5rem;width:36px;height:36px;border-radius:50%;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer">♙</button>
-    <span id="voca-account-label" style="position:absolute;right:1rem;top:2.8rem;font-size:.65rem;color:#94a3b8;max-width:110px;text-align:right">Compte facultatif</span>
+    <button id="voca-account-button" onclick="openVocaAccount()" aria-label="Compte facultatif" title="Compte" style="position:fixed;right:3.8rem;top:.25rem;width:30px;height:30px;border-radius:50%;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer;z-index:201">♙</button>
+    <span id="voca-account-label" style="position:fixed;right:3.8rem;top:2.05rem;font-size:.55rem;color:#94a3b8;max-width:90px;text-align:right;z-index:201">Compte facultatif</span>
     <h2 class="menu-title">VocaRace</h2>
     <p id="mode-menu-subtitle" class="menu-sub">Maîtrisez l'orthographe espagnole</p>
     <div class="mode-grid">
@@ -1237,7 +1237,7 @@ body.theme-light .miss-es{
   <div class="streak-box">
     <span id="streak-val" class="streak-val">🔥 Série: 0</span>
   </div>
-  <button onclick="quitGame()" class="btn-quit-game" aria-label="Quitter la partie">✕ Quitter</button>
+  <div id="game-action-buttons" style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;justify-content:flex-end"><button id="btn-restart-game" onclick="restartCurrentGame()" class="btn-quit-game hidden" aria-label="Recommencer la partie">↻ Recommencer</button><button onclick="quitGame()" class="btn-quit-game" aria-label="Quitter la partie">✕ Quitter</button></div>
 </header>
 
 <!-- ZONE DE JEU -->
@@ -2316,6 +2316,7 @@ function showGameUI(){
 }
 
 function startGame(){
+  const restartBtn=document.getElementById('btn-restart-game');if(restartBtn)restartBtn.classList.toggle('hidden',selectedMode==='online'||selectedMode==='learn');
   lives=3;score=0;streak=0;playerProgress=0;botProgress=0;
   gameStartedAt=Date.now();leaderboardSubmittedForRun=false;
   errorCount=0;isRevealing=false;missedWords=[];
@@ -2640,6 +2641,13 @@ function displayQuestion(){
     }
   }
 
+  // Évite qu'un mot soit entièrement prérempli : sinon n'importe quelle saisie pouvait être validée.
+  const answerBoxes=[...cont.querySelectorAll('.letter-box')];
+  if(answerBoxes.length && answerBoxes.every(box=>box.dataset.prefilled)){
+    const box=answerBoxes[Math.floor(Math.random()*answerBoxes.length)];
+    delete box.dataset.prefilled;box.classList.remove('input-hint');box.textContent='';
+  }
+
   // ── Input caché unique — reçoit toute la frappe, dispatche dans les cases ──
   const hidden=document.createElement('input');
   hidden.type='text';
@@ -2859,6 +2867,20 @@ function updateProgressUI(){
   document.getElementById('progress-bar-fill').style.width=pp+'%';
 }
 function updateStreakUI(){document.getElementById('streak-val').textContent='🔥 Série: '+streak;}
+
+let restartCountdownActive=false;
+function restartCurrentGame(){
+  if(restartCountdownActive||selectedMode==='online'||selectedMode==='learn')return;
+  const btn=document.getElementById('btn-restart-game');if(!btn)return;
+  restartCountdownActive=true;btn.disabled=true;let remaining=3;btn.textContent='↻ '+remaining+'…';
+  const tick=()=>{
+    remaining--;
+    if(remaining>0){btn.textContent='↻ '+remaining+'…';setTimeout(tick,1000);return;}
+    btn.textContent='↻ Recommencer';btn.disabled=false;restartCountdownActive=false;
+    if(selectedMode==='historyTimeline')window.confirmStartHistoryTimeline();else startGame();
+  };
+  setTimeout(tick,1000);
+}
 function updateLivesUI(){for(let i=1;i<=3;i++)document.getElementById('heart-'+i).style.opacity=i<=lives?'1':'.2';}
 
 // ════════════════════════════════════════════════════
