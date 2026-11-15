@@ -1518,6 +1518,27 @@ body:not(.theme-light) .history-practice-event.is-active .history-practice-event
   }
 }
 
+
+/* Illustrations vectorielles originales : exemples visuels cohérents avec la palette. */
+.mode-art{
+  width:100%;height:76px;margin:0 0 .85rem;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:var(--vr-blue-soft);border-radius:.7rem;
+}
+.mode-art svg{display:block;width:100%;height:100%;max-width:320px}
+.mode-art--raspberry{background:var(--vr-raspberry-soft)}
+.mode-art--timeline{background:#E2EBF2}
+.category-card .mode-art{height:132px;margin-bottom:1rem;max-width:100%}
+.category-card .mode-art svg{max-width:380px}
+body:not(.theme-light) .mode-art{background:#31424F}
+body:not(.theme-light) .mode-art--raspberry{background:#402C34}
+body:not(.theme-light) .mode-art--timeline{background:#293642}
+body:not(.theme-light) .mode-art svg text{fill:var(--vr-night-text)}
+@media(max-width:639px){
+  .category-card .mode-art{height:112px}
+  .mode-art{height:72px}
+}
+
 </style>
 </head>
 <body>
@@ -1576,12 +1597,12 @@ body:not(.theme-light) .history-practice-event.is-active .history-practice-event
     <p class="menu-sub">Choisis ta matière</p>
     <div class="category-grid">
       <div onclick="chooseSubject('vocab')" class="mode-card mode-card--solo category-card">
-        <div><div class="mode-icon mode-icon--solo"></div><h3 class="mode-card-title mode-card-title--solo">Espagnol</h3>
+        <div><div class="mode-art mode-art--subject" aria-hidden="true"><svg viewBox="0 0 320 120"><g transform="translate(58 15) rotate(-7 66 43)"><rect width="132" height="82" rx="8" fill="var(--vr-surface)" stroke="var(--vr-border)" stroke-width="2"/><rect x="12" y="12" width="32" height="22" rx="5" fill="var(--vr-blue)"/><text x="28" y="27" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">ES</text><path d="M15 47h92M15 58h72M15 69h50" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" opacity=".55"/></g><g transform="translate(138 22) rotate(7 66 43)"><rect width="132" height="82" rx="8" fill="var(--vr-surface)" stroke="var(--vr-raspberry)" stroke-width="2"/><rect x="12" y="12" width="32" height="22" rx="5" fill="var(--vr-raspberry)"/><text x="28" y="27" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">FR</text><path d="M15 47h92M15 58h72M15 69h50" stroke="var(--vr-raspberry)" stroke-width="4" stroke-linecap="round" opacity=".55"/></g></svg></div><h3 class="mode-card-title mode-card-title--solo">Espagnol</h3>
         <p class="mode-card-desc mode-card-desc--solo">Révise le vocabulaire et les traductions.</p></div>
         <div class="mode-cta mode-cta--solo">Choisir l’espagnol</div>
       </div>
       <div onclick="chooseSubject('history')" class="mode-card mode-card--dates category-card category-card--history">
-        <div><div class="mode-icon mode-icon--dates"></div><h3 class="mode-card-title category-title-light">Histoire</h3>
+        <div><div class="mode-art mode-art--timeline" aria-hidden="true"><svg viewBox="0 0 320 120"><path d="M28 62H292" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round"/><path d="M281 52l12 10-12 10" fill="none" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="4"><circle cx="62" cy="62" r="10"/><circle cx="160" cy="62" r="10"/><circle cx="258" cy="62" r="10"/></g><g font-size="13" font-weight="700" fill="var(--vr-ink)" text-anchor="middle"><text x="62" y="37">1789</text><text x="160" y="37">1914</text><text x="258" y="37">1945</text></g><path d="M62 76v15M160 76v15M258 76v15" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round"/><path d="M47 96h30M145 96h30M243 96h30" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round"/></svg></div><h3 class="mode-card-title category-title-light">Histoire</h3>
         <p class="mode-card-desc category-desc-light">Révise les événements et leurs dates.</p></div>
         <div class="mode-cta mode-cta--dates">Choisir l’histoire</div>
       </div>
@@ -1598,37 +1619,37 @@ body:not(.theme-light) .history-practice-event.is-active .history-practice-event
     <p id="mode-menu-subtitle" class="menu-sub">Maîtrisez l'orthographe espagnole</p>
     <div class="mode-grid">
       <div onclick="showDifficulty('solo')" class="mode-card mode-card--solo">
-        <div class="mode-icon mode-icon--solo"></div>
+        <div class="mode-art" aria-hidden="true"><svg viewBox="0 0 280 88"><rect x="18" y="12" width="112" height="64" rx="7" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2"/><rect x="29" y="22" width="25" height="16" rx="4" fill="var(--vr-blue)"/><path d="M63 30h49M29 49h83M29 60h55" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" opacity=".5"/><path d="M144 44h22m-7-7 7 7-7 7" fill="none" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="179" y="12" width="82" height="64" rx="7" fill="var(--vr-raspberry-soft)" stroke="var(--vr-raspberry)" stroke-width="2"/><path d="M194 30h52M194 42h40M194 54h47" stroke="var(--vr-raspberry)" stroke-width="4" stroke-linecap="round" opacity=".65"/></svg></div>
         <h3 class="mode-card-title mode-card-title--solo">Réviser seul</h3>
         <p class="mode-card-desc mode-card-desc--solo">Révise le vocabulaire ou les dates à ton rythme.</p>
         <div class="mode-cta mode-cta--solo">Choisir le niveau</div>
       </div>
       <div onclick="showDifficulty('bot')" class="mode-card mode-card--bot">
-        <div class="mode-icon mode-icon--bot"></div>
+        <div class="mode-art mode-art--raspberry" aria-hidden="true"><svg viewBox="0 0 280 88"><rect x="16" y="13" width="88" height="62" rx="7" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2"/><rect x="176" y="13" width="88" height="62" rx="7" fill="var(--vr-surface)" stroke="var(--vr-raspberry)" stroke-width="2"/><text x="60" y="49" text-anchor="middle" font-size="28" font-weight="700" fill="var(--vr-blue)">08</text><text x="220" y="49" text-anchor="middle" font-size="28" font-weight="700" fill="var(--vr-raspberry)">06</text><circle cx="140" cy="44" r="17" fill="var(--vr-blue)"/><text x="140" y="49" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">VS</text><path d="M28 62h64M188 62h64" stroke="var(--vr-border)" stroke-width="3" stroke-linecap="round"/></svg></div>
         <h3 class="mode-card-title mode-card-title--bot">Duel contre l’ordinateur</h3>
         <p class="mode-card-desc mode-card-desc--bot">Affronte l’ordinateur et compare ton score.</p>
         <div class="mode-cta mode-cta--bot">Choisir le niveau du duel</div>
       </div>
       <div onclick="showLobby()" class="mode-card mode-card--duel">
-        <div class="mode-icon mode-icon--duel"></div>
+        <div class="mode-art" aria-hidden="true"><svg viewBox="0 0 280 88"><rect x="14" y="10" width="112" height="52" rx="8" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2"/><path d="M36 29h66M36 41h49" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" opacity=".65"/><path d="M42 62l-8 10 23-10" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2" stroke-linejoin="round"/><rect x="154" y="26" width="112" height="52" rx="8" fill="var(--vr-surface)" stroke="var(--vr-raspberry)" stroke-width="2"/><path d="M176 45h66M176 57h49" stroke="var(--vr-raspberry)" stroke-width="4" stroke-linecap="round" opacity=".65"/><path d="M238 26l8-10-23 10" fill="var(--vr-surface)" stroke="var(--vr-raspberry)" stroke-width="2" stroke-linejoin="round"/></svg></div>
         <h3 class="mode-card-title mode-card-title--duel">Duel en ligne</h3>
         <p class="mode-card-desc mode-card-desc--duel">Crée un salon pour jouer avec un ami en temps réel.</p>
         <div class="mode-cta mode-cta--duel">Créer un salon de duel</div>
       </div>
       <div onclick="showLearnIntro()" class="mode-card mode-card--learn">
-        <div class="mode-icon mode-icon--learn"></div>
+        <div class="mode-art" aria-hidden="true"><svg viewBox="0 0 280 88"><g transform="translate(26 15) rotate(-7 45 30)"><rect width="82" height="56" rx="6" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2"/><path d="M13 17h56M13 29h44M13 41h30" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" opacity=".55"/></g><g transform="translate(100 10) rotate(4 45 30)"><rect width="82" height="56" rx="6" fill="var(--vr-surface)" stroke="var(--vr-raspberry)" stroke-width="2"/><path d="M13 17h56M13 29h44M13 41h30" stroke="var(--vr-raspberry)" stroke-width="4" stroke-linecap="round" opacity=".55"/></g><path d="M198 45l10 10 23-27" fill="none" stroke="var(--vr-blue)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h3 class="mode-card-title mode-card-title--learn">Mémoriser puis tester</h3>
         <p class="mode-card-desc mode-card-desc--learn">Mémorise des groupes de mots, puis vérifie tes réponses.</p>
         <div class="mode-cta mode-cta--learn">Choisir une liste</div>
       </div>
       <div id="history-timeline-mode" onclick="showHistoryTimelineChooser()" class="mode-card mode-card--dates hidden">
-        <div class="mode-icon mode-icon--dates"></div>
+        <div class="mode-art mode-art--timeline" aria-hidden="true"><svg viewBox="0 0 280 88"><path d="M24 46H256" stroke="var(--vr-blue)" stroke-width="3" stroke-linecap="round"/><path d="M247 38l10 8-10 8" fill="none" stroke="var(--vr-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--vr-surface)" stroke="var(--vr-raspberry)" stroke-width="3"><circle cx="57" cy="46" r="8"/><circle cx="140" cy="46" r="8"/><circle cx="223" cy="46" r="8"/></g><g font-size="11" font-weight="700" fill="var(--vr-ink)" text-anchor="middle"><text x="57" y="25">1789</text><text x="140" y="25">1914</text><text x="223" y="25">1945</text></g></svg></div>
         <h3 class="mode-card-title mode-card-title--dates">Frise chronologique</h3>
         <p class="mode-card-desc mode-card-desc--dates">Toutes les dates d'une liste ou de toutes les listes d'histoire.</p>
         <div class="mode-cta mode-cta--dates">Ouvrir les frises</div>
       </div>
       <div id="history-timeline-practice-mode" onclick="showDifficulty('timeline')" class="mode-card mode-card--dates hidden">
-        <div class="mode-icon mode-icon--dates"></div>
+        <div class="mode-art mode-art--raspberry" aria-hidden="true"><svg viewBox="0 0 280 88"><rect x="18" y="12" width="92" height="62" rx="7" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2"/><path d="M31 25h66M31 37h52" stroke="var(--vr-border)" stroke-width="4" stroke-linecap="round"/><rect x="31" y="47" width="66" height="15" rx="4" fill="var(--vr-blue-soft)" stroke="var(--vr-blue)" stroke-width="1.5"/><path d="M131 43h24m-7-7 7 7-7 7" fill="none" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M180 24h67M180 36h53M180 48h43" stroke="var(--vr-raspberry)" stroke-width="4" stroke-linecap="round" opacity=".55"/><circle cx="239" cy="64" r="9" fill="var(--vr-blue)"/><path d="M235 64l3 3 6-7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h3 class="mode-card-title mode-card-title--dates">Solo avec frise</h3>
         <p class="mode-card-desc mode-card-desc--dates">Retrouve les dates dans l'ordre et complète la frise en avançant.</p>
         <div class="mode-cta mode-cta--dates">Commencer la frise</div>
@@ -1981,11 +2002,46 @@ try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
   auth = firebase.auth();
-  // Chaque joueur reçoit une identité anonyme persistante pour sécuriser les salons.
-  authReady = auth.signInAnonymously().then(credential => credential.user);
-  // L'erreur sera affichée proprement lorsqu'un joueur ouvrira le lobby.
-  authReady.catch(() => {});
-  auth.onAuthStateChanged(async user=>{vocaUser=user||null;vocaProfileName="";if(db&&user&&!user.isAnonymous){try{const p=await db.ref("profiles/"+user.uid).once("value");vocaProfileName=String((p.val()||{}).pseudo||"").slice(0,20);if(vocaProfileName)setVocaLocalName(vocaProfileName);}catch(e){}}updateVocaAccountButton();});
+  // Restaurer d'abord la session existante ; créer un invité uniquement si personne n'est connecté.
+  let anonymousSignInInProgress=false;
+  let initialSessionResolved=false;
+  authReady = new Promise((resolve,reject)=>{
+    auth.onAuthStateChanged(async user=>{
+      if(user){
+        const uid=user.uid;
+        vocaUser=user;
+        vocaProfileName="";
+        if(db&&!user.isAnonymous){
+          try{
+            const p=await db.ref("profiles/"+uid).once("value");
+            if(auth.currentUser&&auth.currentUser.uid===uid){
+              vocaProfileName=String((p.val()||{}).pseudo||"").slice(0,20);
+              if(vocaProfileName)setVocaLocalName(vocaProfileName);
+            }
+          }catch(e){}
+        }
+        if(auth.currentUser&&auth.currentUser.uid===uid)updateVocaAccountButton();
+        if(!initialSessionResolved&&auth.currentUser&&auth.currentUser.uid===uid){
+          initialSessionResolved=true;
+          resolve(user);
+        }
+        return;
+      }
+      vocaUser=null;
+      vocaProfileName="";
+      updateVocaAccountButton();
+      if(anonymousSignInInProgress)return;
+      anonymousSignInInProgress=true;
+      try{
+        await auth.signInAnonymously();
+      }catch(e){
+        if(!initialSessionResolved){initialSessionResolved=true;reject(e);}
+      }finally{
+        anonymousSignInInProgress=false;
+      }
+    });
+  });
+  authReady.catch(()=>{});
 } catch(e) {
   console.warn('Firebase non configuré — duel en ligne désactivé', e);
 }
@@ -1993,7 +2049,7 @@ try {
 function makeVocaAccountEmail(pseudo){let h=2166136261;for(const c of String(pseudo).trim().toLowerCase()){h^=c.codePointAt(0);h=Math.imul(h,16777619);}return "u"+(h>>>0).toString(16)+"@accounts.vocarace.invalid";}
 function getVocaLocalName(){try{return localStorage.getItem("vocarace_leaderboard_name")||"";}catch(e){return "";}}
 function setVocaLocalName(n){n=String(n||"").trim().slice(0,20);if(!n)return;try{localStorage.setItem("vocarace_leaderboard_name",n);}catch(e){}setLeaderboardCookie(n);updateVocaAccountButton();}
-function updateVocaAccountButton(){const b=document.getElementById("voca-account-button"),l=document.getElementById("voca-account-label");if(!b||!l)return;const n=vocaProfileName||getVocaLocalName();b.textContent="Compte";b.title=vocaUser&&!vocaUser.isAnonymous?"Compte connecté":"Compte facultatif";l.textContent=n||"Compte facultatif";}
+function updateVocaAccountButton(){const b=document.getElementById("voca-account-button"),l=document.getElementById("voca-account-label");if(!b||!l)return;const member=!!(vocaUser&&!vocaUser.isAnonymous),n=vocaProfileName||getVocaLocalName();b.textContent=member?"Compte connecté":"Compte";b.title=member?"Compte connecté":"Compte facultatif";l.textContent=member?(vocaProfileName||n||"Connecté"):(n?"Pseudo local : "+n:"Compte facultatif");}
 window.openVocaAccount=()=>{const m=document.getElementById("voca-account-modal");m.classList.remove("hidden");m.style.display="flex";const member=!!(vocaUser&&!vocaUser.isAnonymous);document.getElementById("voca-account-guest").classList.toggle("hidden",member);document.getElementById("voca-account-member").classList.toggle("hidden",!member);document.getElementById("voca-account-message").textContent="";if(member){document.getElementById("voca-account-email-label").textContent="Connecté : "+(vocaProfileName||"compte");document.getElementById("voca-account-pseudo-edit").value=vocaProfileName;}else document.getElementById("voca-account-pseudo").value=getVocaLocalName();};
 window.closeVocaAccount=()=>{const m=document.getElementById("voca-account-modal");m.style.display="none";m.classList.add("hidden");};
 function vocaAccountMsg(t){document.getElementById("voca-account-message").textContent=t;}
@@ -2004,8 +2060,16 @@ window.logoutVocaAccount=async()=>{await auth.signOut();vocaUser=null;vocaProfil
 async function ensureFirebaseAuth(){
   if(!auth) throw new Error('Firebase Authentication n’est pas initialisé.');
   if(auth.currentUser) return auth.currentUser;
-  if(!authReady) throw new Error('Connexion anonyme Firebase indisponible.');
-  return await authReady;
+  if(!authReady) throw new Error('Connexion Firebase indisponible.');
+  await authReady;
+  if(auth.currentUser) return auth.currentUser;
+  // En cas de déconnexion récente, attendre la nouvelle session invitée ou utilisateur.
+  return await new Promise((resolve,reject)=>{
+    let unsubscribe=()=>{};
+    unsubscribe=auth.onAuthStateChanged(user=>{
+      if(user){unsubscribe();resolve(user);}
+    },error=>{unsubscribe();reject(error);});
+  });
 }
 
 function firebaseLobbyError(error){
