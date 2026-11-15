@@ -2913,6 +2913,8 @@ async function loadLeaderboard(){
   if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
   status.textContent='Chargement du top 3…';
   try{
+    // Les règles du classement exigent une session Firebase anonyme.
+    await ensureFirebaseAuth();
     const snapshot=await db.ref('leaderboard').once('value');
     const rows=[];
     snapshot.forEach(child=>{
