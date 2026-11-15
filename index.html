@@ -1811,7 +1811,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
             if(!response.ok)throw new Error('HTTP '+response.status);
             const entries=parseHistoryFile(await response.text());
             if(!entries.length)throw new Error('Aucun événement valide');
-            activeVocabulary=entries;activeListName=filename.split('/').pop().replace(/\.histoire$/i,'');activeDatasetType='history';
+            activeVocabulary=entries;activeListName=filename.split('/').pop().replace(/\.histoire$/i,'');activeDatasetType='history';loadDifficultyLeaderboard();
           }catch(e){alert('Impossible de charger la chronologie '+filename+'.');card.classList.remove('selected');}
           finally{card.classList.remove('loading');}
         })();
@@ -1827,7 +1827,7 @@ window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId)=>{
   try{
     const entries=parseHistoryFile(await file.text());
     if(!entries.length)throw new Error('Aucune ligne valide. Format attendu : date::événement.');
-    activeVocabulary=entries;activeListName=file.name;activeDatasetType='history';
+    activeVocabulary=entries;activeListName=file.name;activeDatasetType='history';loadDifficultyLeaderboard();
     deselectIn(pickerId);wrapper.classList.add('selected');
     status.textContent=entries.length+' événements chargés depuis '+file.name+'.';
     datasetLoadPromise=Promise.resolve();
