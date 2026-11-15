@@ -1087,6 +1087,7 @@ body.theme-light .miss-es{
   <div class="diff-inner" style="max-width:56rem">
     <h2 class="diff-title">Frise chronologique</h2>
     <p class="section-label">Choisis une liste ou affiche toutes les listes</p>
+    <p class="list-select-hint">Ctrl + clic (ou Cmd + clic sur Mac) pour combiner plusieurs frises.</p>
     <div id="history-timeline-choices" class="list-picker"></div>
     <p id="history-timeline-status" style="color:#94a3b8;font-size:.8rem;margin:.75rem 0" aria-live="polite"></p>
     <div id="history-timeline-results" style="text-align:left;display:grid;gap:.75rem;margin-top:1rem"></div>
@@ -1798,7 +1799,7 @@ async function renderHistoryTimeline(files,selectedFile){
         const date=document.createElement('p');date.style.cssText='font-weight:900;color:#a5b4fc;margin-bottom:.4rem';date.textContent=formatHistoryDate(event.es);
         const desc=document.createElement('p');desc.style.cssText='font-size:.85rem;line-height:1.45';desc.textContent=event.fr;
         card.append(date,desc);
-        if(!selectedFile){const tag=document.createElement('p');tag.style.cssText='font-size:.7rem;color:#94a3b8;margin-top:.5rem';tag.textContent=event.list;card.appendChild(tag);}
+        if(!selectedFile||files.length>1){const tag=document.createElement('p');tag.style.cssText='font-size:.7rem;color:#94a3b8;margin-top:.5rem';tag.textContent=event.list;card.appendChild(tag);}
         stack.appendChild(card);
       });
       const node=document.createElement('span');
@@ -1971,6 +1972,7 @@ window.fetchGithubLists=async function(){
 
 const pickerSelections=new Map();
 const pickerLoadVersions=new Map();
+let activePickerLoadVersion=0;
 function makeBuiltinListSource(){return {key:'vocab:builtin',name:'Liste par défaut',dataset:'vocab',load:async()=>[...defaultVocabulary]};}
 function sourceForPickerCard(card){
   if(!card)return null;if(card._vocaListSource)return card._vocaListSource;
@@ -1999,17 +2001,18 @@ function ensurePickerDataset(pickerId,dataset){
 function loadPickerSources(pickerId,sources){
   const next=[...sources],version=(pickerLoadVersions.get(pickerId)||0)+1;
   pickerLoadVersions.set(pickerId,version);
+  const activation=++activePickerLoadVersion;
   const names=next.map(item=>item.name);
   datasetLoadPromise=(async()=>{
     try{
       const loaded=await Promise.all(next.map(item=>item.load()));
-      if(pickerLoadVersions.get(pickerId)!==version)return true;
+      if(pickerLoadVersions.get(pickerId)!==version||activePickerLoadVersion!==activation)return true;
       const combined=[],seen=new Set();
       loaded.flat().forEach(entry=>{const key=normalize(String(entry.es??''))+'\u0000'+normalize(String(entry.fr??''));if(seen.has(key))return;seen.add(key);combined.push({...entry});});
       if(!combined.length)throw new Error('Aucune entrée dans les listes sélectionnées.');
       activeVocabulary=combined;activeListName=names.join(' + ');activeDatasetType=next[0].dataset;
       if(pickerId==='list-picker')loadDifficultyLeaderboard();return true;
-    }catch(error){if(pickerLoadVersions.get(pickerId)===version){console.error('Erreur de chargement des listes :',error);alert('Impossible de charger toutes les listes sélectionnées. Vérifie les fichiers GitHub.');}return false;}
+    }catch(error){if(pickerLoadVersions.get(pickerId)===version&&activePickerLoadVersion===activation){console.error('Erreur de chargement des listes :',error);alert('Impossible de charger toutes les listes sélectionnées. Vérifie les fichiers GitHub.');}return false;}
   })();return datasetLoadPromise;
 }
 function selectPickerSource(pickerId,source,event){
