@@ -2889,7 +2889,7 @@ function showEnd(isVictory){
 }
 
 function getLeaderboardCookie(){
-  const match=document.cookie.match(/(?:^|;\\s*)vocarace_leaderboard_name=([^;]*)/);
+  const match=document.cookie.match(/(?:^|;\s*)vocarace_leaderboard_name=([^;]*)/);
   return match?decodeURIComponent(match[1]).slice(0,20):'';
 }
 function setLeaderboardCookie(name){
