@@ -394,6 +394,71 @@ body.theme-light .history-practice-counter{background:#eef2ff;border-color:#c7d2
 }
 
 
+/* Carte du mode frise : grande et centrée dans la zone de jeu */
+#game-main:has(#history-timeline-practice:not(.hidden)){
+  max-width:none;
+  min-height:calc(100dvh - 4.5rem);
+  padding:clamp(1rem,3vh,2rem) clamp(1rem,4vw,3rem);
+  gap:0;
+}
+.history-practice{
+  flex:1 1 auto;
+  min-height:0;
+  justify-content:center;
+}
+.history-practice-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  padding:1rem .25rem;
+}
+.history-practice-track{
+  align-items:stretch;
+  gap:1rem;
+  padding:.5rem max(.25rem,calc((100vw - min(88vw,40rem))/2 - clamp(1rem,4vw,3rem))) .75rem;
+}
+.history-practice-event{
+  flex:0 0 min(88vw,40rem);
+  width:min(88vw,40rem);
+  min-height:clamp(25rem,66vh,35rem);
+  padding:1.5rem 1.75rem 1.75rem;
+  gap:1rem;
+  border-radius:1.5rem;
+}
+.history-practice-marker{width:2.75rem;height:2.75rem;font-size:.9rem}
+.history-practice-event-name{
+  min-height:6rem;
+  padding:1rem;
+  font-size:clamp(1.05rem,2.2vw,1.35rem);
+  line-height:1.5;
+}
+.history-practice-format{font-size:.9rem}
+.history-practice-card-input{
+  padding:1.2rem 1rem;
+  font-size:clamp(1.1rem,2vw,1.4rem);
+}
+.history-practice-event .btn-check{padding:1rem;font-size:.95rem}
+.history-practice-event-feedback{min-height:1.35rem;font-size:.85rem}
+@media(max-width:640px){
+  #game-main:has(#history-timeline-practice:not(.hidden)){
+    min-height:calc(100dvh - 4rem);
+    padding:1rem .75rem;
+  }
+  .history-practice-track{gap:.75rem}
+  .history-practice-event{
+    min-height:clamp(25rem,64vh,32rem);
+    padding:1rem;
+    gap:.8rem;
+    border-radius:1.25rem;
+  }
+  .history-practice-event-name{min-height:5rem}
+  .history-practice-card-input{padding:1rem .8rem}
+}
+@media(max-height:620px){
+  .history-practice-event{min-height:24rem}
+}
+ 
 /* ── QUESTION CARD ── */
 #question-card{background:rgba(255,255,255,.97);backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,.06);border-radius:1.75rem;padding:1.25rem;border:1px solid rgba(255,255,255,.8)}
 @media(min-width:640px){#question-card{border-radius:2.5rem;padding:2.5rem}}
