@@ -1467,6 +1467,57 @@ button,input,select,textarea{border-radius:.7rem!important}
 #end-modal{box-shadow:none}
 @media(max-width:639px){.mode-grid{grid-template-columns:1fr}.category-grid{grid-template-columns:1fr}}
 
+
+/* Cartes interactives : léger soulèvement au survol et quand elles sont sélectionnées. */
+.mode-card,.category-card,.list-card,.history-import-card,.room-item,.learn-size-btn,
+.history-practice-event{
+  transform:translateY(0);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background-color .18s ease;
+}
+@media(hover:hover){
+  .mode-card:hover,.category-card:hover,.list-card:hover,.history-import-card:hover,
+  .room-item:hover,.learn-size-btn:hover,.history-practice-event:hover{
+    transform:translateY(-3px)!important;
+    box-shadow:0 8px 18px rgba(32,42,51,.13)!important;
+    border-color:var(--vr-raspberry)!important;
+    z-index:2;
+  }
+}
+.list-card.selected,.history-import-card.selected,.learn-size-btn.sel,
+.history-practice-event.is-active{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 18px rgba(49,91,120,.16)!important;
+  border-color:var(--vr-blue)!important;
+  position:relative;
+  z-index:2;
+}
+body.theme-light .list-card.selected,body.theme-light .history-import-card.selected,
+body.theme-light .learn-size-btn.sel,body.theme-light .history-practice-event.is-active{
+  background:var(--vr-blue-soft)!important;
+  color:var(--vr-ink)!important;
+}
+body:not(.theme-light) .list-card.selected,body:not(.theme-light) .history-import-card.selected,
+body:not(.theme-light) .learn-size-btn.sel,body:not(.theme-light) .history-practice-event.is-active{
+  background:#31424F!important;
+  color:var(--vr-night-text)!important;
+  border-color:var(--vr-blue-dark)!important;
+}
+body.theme-light .history-practice-event.is-active .history-practice-event-name{
+  background:var(--vr-surface)!important;
+  border-color:var(--vr-blue)!important;
+  color:var(--vr-blue)!important;
+}
+body:not(.theme-light) .history-practice-event.is-active .history-practice-event-name{
+  background:var(--vr-night-surface)!important;
+  border-color:var(--vr-blue-dark)!important;
+  color:var(--vr-night-text)!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .mode-card,.category-card,.list-card,.history-import-card,.room-item,.learn-size-btn,.history-practice-event{
+    transition:none;
+  }
+}
+
 </style>
 </head>
 <body>
