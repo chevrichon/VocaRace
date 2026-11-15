@@ -1017,7 +1017,9 @@ body.theme-light .miss-es{
 
 <!-- MENU DES MODES -->
 <div id="mode-selection-screen" class="screen hidden">
-  <div class="menu-inner">
+  <div class="menu-inner" style="position:relative">
+    <button id="voca-account-button" onclick="openVocaAccount()" aria-label="Compte facultatif" title="Compte" style="position:absolute;right:1rem;top:.5rem;width:36px;height:36px;border-radius:50%;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer">♙</button>
+    <span id="voca-account-label" style="position:absolute;right:1rem;top:2.8rem;font-size:.65rem;color:#94a3b8;max-width:110px;text-align:right">Compte facultatif</span>
     <h2 class="menu-title">VocaRace</h2>
     <p id="mode-menu-subtitle" class="menu-sub">Maîtrisez l'orthographe espagnole</p>
     <div class="mode-grid">
@@ -1335,6 +1337,17 @@ body.theme-light .miss-es{
   </section>
 </main>
 
+<div id="voca-account-modal" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#020617cc;align-items:center;justify-content:center;padding:1rem">
+<div style="width:min(100%,390px);background:#111827;color:#f8fafc;border:1px solid #64748b66;border-radius:1rem;padding:1.25rem">
+<h2 style="font-size:1.2rem;font-weight:900;margin-bottom:.5rem">Compte VocaRace</h2><p style="font-size:.8rem;color:#94a3b8">Facultatif. Le pseudo du compte sera utilisé dans le classement.</p>
+<div id="voca-account-guest">
+<input id="voca-account-pseudo" maxlength="20" placeholder="Pseudo du classement" style="width:100%;box-sizing:border-box;padding:.7rem;margin:.3rem 0;border-radius:.6rem;color:#111">
+<input id="voca-account-email" type="email" placeholder="Adresse e-mail" autocomplete="email" style="width:100%;box-sizing:border-box;padding:.7rem;margin:.3rem 0;border-radius:.6rem;color:#111">
+<input id="voca-account-password" type="password" placeholder="Mot de passe (6 caractères minimum)" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:.7rem;margin:.3rem 0;border-radius:.6rem;color:#111">
+<div style="display:flex;gap:.5rem;margin-top:.5rem"><button onclick="createVocaAccount()" style="flex:1;padding:.65rem;border-radius:.6rem;background:#6366f1;color:white;border:0">Créer un compte</button><button onclick="loginVocaAccount()" style="flex:1;padding:.65rem;border-radius:.6rem;background:#334155;color:white;border:0">Connexion</button></div>
+<p style="font-size:.7rem;color:#94a3b8;margin-top:.6rem">Sans compte, joue normalement et choisis un pseudo en fin de partie. Il sera gardé sur cet appareil.</p></div>
+<div id="voca-account-member" class="hidden"><p id="voca-account-email-label"></p><input id="voca-account-pseudo-edit" maxlength="20" placeholder="Pseudo" style="width:100%;box-sizing:border-box;padding:.7rem;margin:.3rem 0;border-radius:.6rem;color:#111"><button onclick="saveVocaAccountPseudo()">Enregistrer le pseudo</button><button onclick="logoutVocaAccount()">Déconnexion</button></div>
+<p id="voca-account-message" role="status" style="font-size:.8rem;margin-top:.7rem;color:#a5b4fc"></p><button onclick="closeVocaAccount()" style="width:100%;margin-top:.7rem;padding:.65rem">Fermer</button></div></div>
 <!-- MODAL FIN -->
 <div id="end-modal" class="screen hidden">
   <div class="modal-inner">
@@ -1400,6 +1413,8 @@ const firebaseConfig = {
 let db = null;
 let auth = null;
 let authReady = null;
+let vocaUser=null;
+let vocaProfileName="";
 try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
@@ -1408,10 +1423,21 @@ try {
   authReady = auth.signInAnonymously().then(credential => credential.user);
   // L'erreur sera affichée proprement lorsqu'un joueur ouvrira le lobby.
   authReady.catch(() => {});
+  auth.onAuthStateChanged(async user=>{vocaUser=user||null;vocaProfileName="";if(db&&user&&!user.isAnonymous){try{const p=await db.ref("profiles/"+user.uid).once("value");vocaProfileName=String((p.val()||{}).pseudo||"").slice(0,20);if(vocaProfileName)setVocaLocalName(vocaProfileName);}catch(e){}}updateVocaAccountButton();});
 } catch(e) {
   console.warn('Firebase non configuré — duel en ligne désactivé', e);
 }
 
+function getVocaLocalName(){try{return localStorage.getItem("vocarace_leaderboard_name")||"";}catch(e){return "";}}
+function setVocaLocalName(n){n=String(n||"").trim().slice(0,20);if(!n)return;try{localStorage.setItem("vocarace_leaderboard_name",n);}catch(e){}setLeaderboardCookie(n);updateVocaAccountButton();}
+function updateVocaAccountButton(){const b=document.getElementById("voca-account-button"),l=document.getElementById("voca-account-label");if(!b||!l)return;const n=vocaProfileName||getVocaLocalName();b.textContent=vocaUser&&!vocaUser.isAnonymous?"●":"♙";b.title=vocaUser&&!vocaUser.isAnonymous?"Compte connecté":"Compte facultatif";l.textContent=n||"Compte facultatif";}
+window.openVocaAccount=()=>{const m=document.getElementById("voca-account-modal");m.style.display="flex";const member=!!(vocaUser&&!vocaUser.isAnonymous);document.getElementById("voca-account-guest").classList.toggle("hidden",member);document.getElementById("voca-account-member").classList.toggle("hidden",!member);document.getElementById("voca-account-message").textContent="";if(member){document.getElementById("voca-account-email-label").textContent="Connecté : "+(vocaUser.email||"compte");document.getElementById("voca-account-pseudo-edit").value=vocaProfileName;}else document.getElementById("voca-account-pseudo").value=getVocaLocalName();};
+window.closeVocaAccount=()=>{document.getElementById("voca-account-modal").style.display="none";};
+function vocaAccountMsg(t){document.getElementById("voca-account-message").textContent=t;}
+window.createVocaAccount=async()=>{const pseudo=document.getElementById("voca-account-pseudo").value.trim().slice(0,20),email=document.getElementById("voca-account-email").value.trim(),password=document.getElementById("voca-account-password").value;if(!pseudo||!email||password.length<6){vocaAccountMsg("Renseigne un pseudo, un e-mail et un mot de passe de 6 caractères minimum.");return;}try{const c=await auth.createUserWithEmailAndPassword(email,password);await db.ref("profiles/"+c.user.uid).set({pseudo,updatedAt:firebase.database.ServerValue.TIMESTAMP});vocaUser=c.user;vocaProfileName=pseudo;setVocaLocalName(pseudo);vocaAccountMsg("Compte créé et pseudo enregistré.");updateVocaAccountButton();}catch(e){vocaAccountMsg(e.code==="auth/operation-not-allowed"?"Active Email/Password dans Firebase → Authentication → Sign-in method.":String(e.message||e));}};
+window.loginVocaAccount=async()=>{const email=document.getElementById("voca-account-email").value.trim(),password=document.getElementById("voca-account-password").value;try{const c=await auth.signInWithEmailAndPassword(email,password),p=await db.ref("profiles/"+c.user.uid).once("value");vocaUser=c.user;vocaProfileName=String((p.val()||{}).pseudo||"").slice(0,20);if(vocaProfileName)setVocaLocalName(vocaProfileName);updateVocaAccountButton();openVocaAccount();vocaAccountMsg("Connexion réussie.");}catch(e){vocaAccountMsg("Connexion impossible : "+String(e.message||e));}};
+window.saveVocaAccountPseudo=async()=>{const pseudo=document.getElementById("voca-account-pseudo-edit").value.trim().slice(0,20);if(!pseudo){vocaAccountMsg("Choisis un pseudo.");return;}try{await db.ref("profiles/"+vocaUser.uid).set({pseudo,updatedAt:firebase.database.ServerValue.TIMESTAMP});vocaProfileName=pseudo;setVocaLocalName(pseudo);vocaAccountMsg("Pseudo enregistré.");}catch(e){vocaAccountMsg("Erreur Firebase : "+String(e.message||e));}};
+window.logoutVocaAccount=async()=>{await auth.signOut();vocaUser=null;vocaProfileName="";updateVocaAccountButton();openVocaAccount();vocaAccountMsg("Déconnecté. Tu peux jouer sans compte.");};
 async function ensureFirebaseAuth(){
   if(!auth) throw new Error('Firebase Authentication n’est pas initialisé.');
   if(auth.currentUser) return auth.currentUser;
@@ -2876,16 +2902,16 @@ function showEnd(isVictory){
   retryBtn.classList.toggle('hidden',isTimelineMode||selectedMode==='learn'||misses.length===0);
   document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online'||isTimelineMode);
   const nameInput=document.getElementById('leaderboard-name');
-  const savedName=getLeaderboardCookie();
+  const savedName=vocaProfileName||getVocaLocalName()||getLeaderboardCookie();
   if(nameInput){
     nameInput.value=savedName||'';
     nameInput.readOnly=!!savedName;
-    nameInput.placeholder=savedName?'Pseudo enregistré':'Choisis ton pseudo (une seule fois)';
+    nameInput.placeholder=savedName?'Pseudo du compte':'Choisis un pseudo pour le classement';
     nameInput.onchange=()=>{
       if(getLeaderboardCookie())return;
       const name=String(nameInput.value||'').trim().slice(0,20);
       if(!name)return;
-      setLeaderboardCookie(name);
+      setVocaLocalName(name);
       nameInput.value=name;nameInput.readOnly=true;nameInput.placeholder='Pseudo enregistré';
       saveLeaderboardScore();
     };
@@ -2941,12 +2967,13 @@ async function saveLeaderboardScore(){
   const nameInput=document.getElementById('leaderboard-name');
   const status=document.getElementById('leaderboard-status');
   if(leaderboardSubmittedForRun)return;
-  const name=getLeaderboardCookie()||String(nameInput?.value||'').trim().slice(0,20);
+  const name=(vocaProfileName||getVocaLocalName()||getLeaderboardCookie()||String(nameInput?.value||'').trim()).slice(0,20);
   if(!name){
     status.textContent='Choisis ton pseudo une seule fois pour enregistrer ton score.';
     return;
   }
   if(!getLeaderboardCookie())setLeaderboardCookie(name);
+  setVocaLocalName(name);
   leaderboardSubmittedForRun=true;
   if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
   status.textContent='Enregistrement automatique du score…';
