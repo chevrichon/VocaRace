@@ -362,6 +362,37 @@ body.theme-light .history-practice-event.is-active .history-practice-event-name{
 body.theme-light .history-practice-event.is-done{background:#ecfdf5;border-color:#a7f3d0}
 body.theme-light .history-practice-event.is-done .history-practice-event-name{background:#ecfdf5;color:#065f46;border-color:#a7f3d0}
 @media(max-width:420px){.history-practice-timeline-panel{padding:.75rem}.history-practice-event{flex-basis:82vw;width:82vw;padding:.55rem .7rem .85rem}}
+/* Espacement et hiérarchie visuelle du mode frise */
+#game-main:has(#history-timeline-practice:not(.hidden)){
+  padding-top:clamp(1.75rem,5vh,3.25rem);
+  padding-left:clamp(.85rem,3vw,1.5rem);
+  padding-right:clamp(.85rem,3vw,1.5rem);
+  gap:1.25rem;
+}
+.history-practice{gap:1rem}
+.history-practice-status{min-height:2rem;margin-bottom:.25rem}
+.history-practice-counter{display:inline-flex;align-items:center;justify-content:center;padding:.55rem 1rem;border:1px solid #c7d2fe;border-radius:999px;background:#eef2ff;color:#4338ca;letter-spacing:.08em}
+.history-practice-timeline-panel{padding:clamp(1rem,2.5vw,1.5rem)}
+.history-practice-timeline-heading{display:flex;flex-direction:column;gap:.4rem;margin:0 .15rem .85rem}
+.history-practice-timeline-heading h3{font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.3;letter-spacing:-.015em}
+.history-practice-timeline-heading p{max-width:48rem;line-height:1.55;font-size:.8rem}
+.history-practice-scroll{padding-top:1rem;padding-bottom:1.25rem}
+.history-practice-track{gap:.85rem}
+.history-practice-event{padding: .85rem 1rem 1.15rem;gap:.8rem;border-radius:1.15rem}
+.history-practice-event-name{min-height:4.5rem;padding:.85rem;line-height:1.5}
+.history-practice-card-input{padding:1rem .85rem}
+.history-practice-event .btn-check{padding:.85rem}
+body:not(.theme-light) .history-practice-counter{background:#1e1b4b;border-color:#4338ca;color:#c7d2fe}
+body.theme-light .history-practice-counter{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
+@media(max-width:640px){
+  #game-main:has(#history-timeline-practice:not(.hidden)){padding-top:1.5rem;gap:1rem}
+  .history-practice-status{margin-bottom:.15rem}
+  .history-practice-timeline-panel{border-radius:1.2rem}
+  .history-practice-timeline-heading{margin-bottom:.6rem}
+  .history-practice-timeline-heading p{font-size:.76rem}
+  .history-practice-event{padding:.7rem .8rem 1rem;gap:.7rem}
+}
+
 
 /* ── QUESTION CARD ── */
 #question-card{background:rgba(255,255,255,.97);backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,.06);border-radius:1.75rem;padding:1.25rem;border:1px solid rgba(255,255,255,.8)}
