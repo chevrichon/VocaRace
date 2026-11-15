@@ -1695,6 +1695,14 @@ async function renderHistoryTimeline(files,selectedFile){
     }));
     const events=datasets.flatMap(ds=>ds.entries.map(entry=>({...entry,list:ds.name})));
     events.sort((a,b)=>historyDateSortValue(a.es)-historyDateSortValue(b.es)||a.list.localeCompare(b.list,'fr'));
+    // Plusieurs événements ayant la même date partagent le même repère.
+    const dateGroups=[];
+    events.forEach(event=>{
+      const dateKey=normalizeDate(event.es)||String(event.es).trim().toLocaleLowerCase('fr');
+      let group=dateGroups[dateGroups.length-1];
+      if(!group||group.key!==dateKey){group={key:dateKey,date:event.es,events:[]};dateGroups.push(group);}
+      group.events.push(event);
+    });
     if(!events.length){status.textContent='Aucun événement trouvé.';return;}
     const heading=document.createElement('h3');heading.style.cssText='font-weight:900;font-size:1.1rem;margin-bottom:.25rem';heading.textContent=selectedFile?'Frise : '+selectedFile.split('/').pop().replace(/\.histoire$/i,''):'Frise globale — toutes les listes';results.appendChild(heading);
     const scroller=document.createElement('div');
@@ -1707,20 +1715,25 @@ async function renderHistoryTimeline(files,selectedFile){
     const arrowHead=document.createElement('span');
     arrowHead.style.cssText='position:absolute;right:-1px;top:50%;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:14px solid #818cf8;transform:translateY(-50%)';
     arrow.appendChild(arrowHead);timeline.appendChild(arrow);
-    events.forEach((event,index)=>{
+    dateGroups.forEach((group,index)=>{
       const item=document.createElement('div');
-      item.style.cssText='position:relative;z-index:1;flex:0 0 230px;width:230px;min-height:330px;display:grid;grid-template-rows:1fr 28px 1fr;align-items:stretch;padding:0 .65rem';
-      const card=document.createElement('article');
-      card.style.cssText='grid-row:'+(index%2===0?'1':'3')+';align-self:'+(index%2===0?'end':'start')+';background:rgba(30,41,59,.96);border:1px solid #64748b;border-radius:.8rem;padding:.8rem;white-space:normal;overflow-wrap:anywhere;box-shadow:0 4px 14px rgba(0,0,0,.18)';
-      const date=document.createElement('p');date.style.cssText='font-weight:900;color:#a5b4fc;margin-bottom:.4rem';date.textContent=formatHistoryDate(event.es);
-      const desc=document.createElement('p');desc.style.cssText='font-size:.85rem;line-height:1.45';desc.textContent=event.fr;
-      card.append(date,desc);
-      if(!selectedFile){const tag=document.createElement('p');tag.style.cssText='font-size:.7rem;color:#94a3b8;margin-top:.5rem';tag.textContent=event.list;card.appendChild(tag);}
+      item.style.cssText='position:relative;z-index:1;flex:0 0 250px;width:250px;min-height:330px;display:grid;grid-template-rows:1fr 28px 1fr;align-items:stretch;padding:0 .65rem';
+      const stack=document.createElement('div');
+      stack.style.cssText='grid-row:'+(index%2===0?'1':'3')+';align-self:'+(index%2===0?'end':'start')+';display:flex;flex-direction:column;gap:.45rem;min-width:0';
+      group.events.forEach(event=>{
+        const card=document.createElement('article');
+        card.style.cssText='background:rgba(30,41,59,.96);border:1px solid #64748b;border-radius:.8rem;padding:.8rem;white-space:normal;overflow-wrap:anywhere;box-shadow:0 4px 14px rgba(0,0,0,.18)';
+        const date=document.createElement('p');date.style.cssText='font-weight:900;color:#a5b4fc;margin-bottom:.4rem';date.textContent=formatHistoryDate(event.es);
+        const desc=document.createElement('p');desc.style.cssText='font-size:.85rem;line-height:1.45';desc.textContent=event.fr;
+        card.append(date,desc);
+        if(!selectedFile){const tag=document.createElement('p');tag.style.cssText='font-size:.7rem;color:#94a3b8;margin-top:.5rem';tag.textContent=event.list;card.appendChild(tag);}
+        stack.appendChild(card);
+      });
       const node=document.createElement('span');
       node.style.cssText='grid-row:2;grid-column:1;justify-self:center;align-self:center;width:17px;height:17px;border-radius:50%;background:#c7d2fe;border:4px solid #6366f1;box-shadow:0 0 0 3px #0f172a';
-      item.appendChild(card);item.appendChild(node);timeline.appendChild(item);
+      item.appendChild(stack);item.appendChild(node);timeline.appendChild(item);
     });
-    scroller.appendChild(timeline);results.appendChild(scroller);
+    scroller.appendChild(timeline);results.appendChild(scroller);    scroller.appendChild(timeline);results.appendChild(scroller);
     status.textContent=events.length+' événements affichés du plus ancien au plus récent sur une frise horizontale. Fais défiler horizontalement pour parcourir les dates.';
   }catch(e){status.textContent='Impossible de charger une ou plusieurs chronologies.';}
 }
@@ -2375,6 +2388,8 @@ function updateHistoryPracticeStep(shouldScroll){
     const feedback=document.getElementById('history-practice-feedback');
     feedback.textContent='Toutes les dates sont correctes.';
     feedback.className='history-practice-feedback is-success';
+    // Affiche le même écran de fin que les autres modes solo.
+    showEnd(true);
     return;
   }
   const entry=historyTimelineEntries[historyTimelineIndex];
@@ -2851,18 +2866,35 @@ function showEnd(isVictory){
   if(!misses.length){list.innerHTML='';none.classList.remove('hidden');}
   else{none.classList.add('hidden');list.innerHTML=misses.map(w=>`<div class="miss-item"><span class="miss-fr">${w.fr}</span><span class="miss-arrow">→</span><span class="miss-es">${activeDatasetType==='history'?formatHistoryDate(w.es):w.es}</span></div>`).join('');}
   const retryBtn=document.getElementById('btn-retry-missed');
-  if(selectedMode!=='learn'&&misses.length>0)retryBtn.classList.remove('hidden');
-  else retryBtn.classList.add('hidden');
-  document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online');
+  const isTimelineMode=selectedMode==='historyTimeline';
+  retryBtn.classList.toggle('hidden',isTimelineMode||selectedMode==='learn'||misses.length===0);
+  document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online'||isTimelineMode);
   const nameInput=document.getElementById('leaderboard-name');
-  if(nameInput&&!nameInput.value){
-    const lobbyName=document.getElementById('player-name-input')?.value?.trim();
-    nameInput.value=lobbyName||localStorage.getItem('vocarace-leaderboard-name')||'';
+  const savedName=getLeaderboardCookie();
+  if(nameInput){
+    nameInput.value=savedName||'';
+    nameInput.readOnly=!!savedName;
+    nameInput.placeholder=savedName?'Pseudo enregistré':'Choisis ton pseudo (une seule fois)';
+    nameInput.onchange=()=>{
+      if(getLeaderboardCookie())return;
+      const name=String(nameInput.value||'').trim().slice(0,20);
+      if(!name)return;
+      setLeaderboardCookie(name);
+      nameInput.value=name;nameInput.readOnly=true;nameInput.placeholder='Pseudo enregistré';
+      saveLeaderboardScore();
+    };
   }
   loadLeaderboard();
   saveLeaderboardScore();
 }
 
+function getLeaderboardCookie(){
+  const match=document.cookie.match(/(?:^|;\\s*)vocarace_leaderboard_name=([^;]*)/);
+  return match?decodeURIComponent(match[1]).slice(0,20):'';
+}
+function setLeaderboardCookie(name){
+  document.cookie='vocarace_leaderboard_name='+encodeURIComponent(String(name).trim().slice(0,20))+'; Max-Age=31536000; Path=/; SameSite=Lax';
+}
 function formatLeaderboardTime(ms){
   const total=Math.max(0,Math.floor(ms/1000));
   return Math.floor(total/60)+':'+String(total%60).padStart(2,'0');
@@ -2901,22 +2933,24 @@ async function saveLeaderboardScore(){
   const nameInput=document.getElementById('leaderboard-name');
   const status=document.getElementById('leaderboard-status');
   if(leaderboardSubmittedForRun)return;
+  const name=getLeaderboardCookie()||String(nameInput?.value||'').trim().slice(0,20);
+  if(!name){
+    status.textContent='Choisis ton pseudo une seule fois pour enregistrer ton score.';
+    return;
+  }
+  if(!getLeaderboardCookie())setLeaderboardCookie(name);
   leaderboardSubmittedForRun=true;
   if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
   status.textContent='Enregistrement automatique du score…';
   try{
     const user=await ensureFirebaseAuth();
-    const name=String(nameInput?.value||'').trim().slice(0,20) ||
-      String(document.getElementById('player-name-input')?.value||'').trim().slice(0,20) ||
-      localStorage.getItem('vocarace-leaderboard-name') || 'Joueur';
     const timeMs=Math.max(0,Date.now()-(gameStartedAt||Date.now()));
     await db.ref('leaderboard').push({
       uid:user.uid,name,score:Number(score)||0,timeMs,mode:String(selectedMode||'solo'),
       dataset:String(activeDatasetType||'vocab'),list:String(activeListName||'Liste'),
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
-    if(nameInput&&name!=='Joueur')nameInput.value=name;
-    if(name!=='Joueur')localStorage.setItem('vocarace-leaderboard-name',name);
+    if(nameInput){nameInput.value=name;nameInput.readOnly=true;}
     status.textContent='Score enregistré automatiquement.';
     await loadLeaderboard();
   }catch(error){
