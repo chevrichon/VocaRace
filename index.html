@@ -2955,7 +2955,7 @@ async function loadLeaderboard(){
     if(!rows.length){status.textContent='Pas encore de score pour cette liste.';return;}
     rows.slice(0,3).forEach((row,index)=>{
       const li=document.createElement('li');
-      li.textContent=(index+1)+'. '+row.name+' — '+row.score+' pts · '+formatLeaderboardTime(row.timeMs);
+      li.textContent=row.name+' — '+row.score+' pts · '+formatLeaderboardTime(row.timeMs);
       list.appendChild(li);
     });
     status.textContent='Top 3 de « '+activeListName+' » · plus de points, puis temps le plus court.';
