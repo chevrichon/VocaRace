@@ -1421,6 +1421,52 @@ body:not(.theme-light) .history-practice-event.is-done .history-practice-event-n
 body.theme-light :is(input,textarea,select,button):focus-visible{outline:2px solid var(--vr-blue);outline-offset:2px}
 body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2px solid var(--vr-blue-dark);outline-offset:2px}
 
+
+/* Ajustements sobres : une palette solide, une géométrie commune, aucun pictogramme emoji. */
+.mode-icon,.list-card-icon{display:none!important}
+.menu-inner{ text-align:left; }
+.menu-title,.menu-sub{ text-align:center; }
+.category-grid{margin:0 auto;max-width:48rem;gap:1rem}
+.category-card,.mode-card{border-radius:.7rem!important;box-shadow:none!important}
+.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+.mode-card{padding:1rem;border-width:1px}
+.mode-card-title{font-size:1rem;font-weight:700;line-height:1.35}
+.mode-card-desc{display:block;font-size:.82rem;line-height:1.5;margin:.4rem 0 .8rem}
+.mode-cta{font-size:.78rem;font-weight:700;letter-spacing:0}
+.category-card{min-height:0;gap:1rem}
+.category-card .mode-card-desc{display:block}
+.mode-card--solo,.mode-card--bot,.mode-card--duel,.mode-card--learn,.mode-card--dates,
+.category-card--history{background:var(--vr-surface)!important;color:var(--vr-ink);border-color:var(--vr-border)}
+.mode-card-title--solo,.mode-card-title--bot,.mode-card-title--duel,.mode-card-title--learn,
+.mode-card-title--dates,.category-title-light{color:var(--vr-ink)!important}
+.mode-card-desc--solo,.mode-card-desc--bot,.mode-card-desc--duel,.mode-card-desc--learn,
+.mode-card-desc--dates,.category-desc-light{color:var(--vr-muted)!important}
+.mode-cta--solo,.mode-cta--bot,.mode-cta--duel,.mode-cta--learn,.mode-cta--dates{color:var(--vr-blue)!important}
+body:not(.theme-light) .mode-card,body:not(.theme-light) .category-card{
+  background:var(--vr-night-surface)!important;color:var(--vr-night-text);border-color:var(--vr-night-border)
+}
+body:not(.theme-light) .mode-card-title--solo,body:not(.theme-light) .mode-card-title--bot,
+body:not(.theme-light) .mode-card-title--duel,body:not(.theme-light) .mode-card-title--learn,
+body:not(.theme-light) .mode-card-title--dates,body:not(.theme-light) .category-title-light{color:var(--vr-night-text)!important}
+body:not(.theme-light) .mode-card-desc--solo,body:not(.theme-light) .mode-card-desc--bot,
+body:not(.theme-light) .mode-card-desc--duel,body:not(.theme-light) .mode-card-desc--learn,
+body:not(.theme-light) .mode-card-desc--dates,body:not(.theme-light) .category-desc-light{color:#B5C0C9!important}
+body:not(.theme-light) .mode-cta--solo,body:not(.theme-light) .mode-cta--bot,
+body:not(.theme-light) .mode-cta--duel,body:not(.theme-light) .mode-cta--learn,
+body:not(.theme-light) .mode-cta--dates{color:var(--vr-blue-dark)!important}
+.mode-card:hover,.category-card:hover{border-color:var(--vr-raspberry)!important}
+.mode-card,.category-card,.list-card,.diff-btn,.history-import-card,.room-item,.lobby-player,
+.learn-phase-card,.learn-size-btn,.flashcard,#question-card,.history-practice-event,
+.results-score,.lobby-tabs,.lobby-name-input,.lobby-code-input,.modal-inner,
+button,input,select,textarea{border-radius:.7rem!important}
+.mode-card,.category-card,.list-card,.diff-btn,.history-import-card,.room-item,.lobby-player,
+.learn-phase-card,.learn-size-btn,.flashcard,#question-card,.history-practice-event,
+.results-score,.lobby-tabs,.lobby-name-input,.lobby-code-input,.btn-check,.btn-next,
+.btn-return,.btn-retry-missed,.btn-create,.btn-join,.btn-start-duel,.btn-start-learn,
+.btn-fc,.tab-btn,.lobby-tab{box-shadow:none!important}
+#end-modal{box-shadow:none}
+@media(max-width:639px){.mode-grid{grid-template-columns:1fr}.category-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -1479,12 +1525,12 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
     <p class="menu-sub">Choisis ta matière</p>
     <div class="category-grid">
       <div onclick="chooseSubject('vocab')" class="mode-card mode-card--solo category-card">
-        <div><div class="mode-icon mode-icon--solo">🇪🇸</div><h3 class="mode-card-title mode-card-title--solo">Espagnol</h3>
+        <div><div class="mode-icon mode-icon--solo"></div><h3 class="mode-card-title mode-card-title--solo">Espagnol</h3>
         <p class="mode-card-desc mode-card-desc--solo">Révise le vocabulaire et les traductions.</p></div>
         <div class="mode-cta mode-cta--solo">Continuer →</div>
       </div>
       <div onclick="chooseSubject('history')" class="mode-card mode-card--dates category-card category-card--history">
-        <div><div class="mode-icon mode-icon--dates">📜</div><h3 class="mode-card-title category-title-light">Histoire</h3>
+        <div><div class="mode-icon mode-icon--dates"></div><h3 class="mode-card-title category-title-light">Histoire</h3>
         <p class="mode-card-desc category-desc-light">Révise les événements et leurs dates.</p></div>
         <div class="mode-cta mode-cta--dates">Continuer →</div>
       </div>
@@ -1495,43 +1541,43 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
 <!-- MENU DES MODES -->
 <div id="mode-selection-screen" class="screen hidden">
   <div class="menu-inner" style="position:relative">
-    <button id="voca-account-button" onclick="openVocaAccount()" aria-label="Compte facultatif" title="Compte" style="position:fixed;right:3.8rem;top:.25rem;width:30px;height:30px;border-radius:50%;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer;z-index:201">♙</button>
+    <button id="voca-account-button" onclick="openVocaAccount()" aria-label="Compte facultatif" title="Compte" style="position:fixed;right:3.8rem;top:.25rem;width:30px;height:30px;border-radius:50%;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer;z-index:201">Compte</button>
     <span id="voca-account-label" style="position:fixed;right:3.8rem;top:2.05rem;font-size:.55rem;color:#94a3b8;max-width:90px;text-align:right;z-index:201">Compte facultatif</span>
     <h2 class="menu-title">VocaRace</h2>
     <p id="mode-menu-subtitle" class="menu-sub">Maîtrisez l'orthographe espagnole</p>
     <div class="mode-grid">
       <div onclick="showDifficulty('solo')" class="mode-card mode-card--solo">
-        <div class="mode-icon mode-icon--solo">👤</div>
-        <h3 class="mode-card-title mode-card-title--solo">Entraînement Solo</h3>
-        <p class="mode-card-desc mode-card-desc--solo">Pratiquez à votre rythme sans pression.</p>
+        <div class="mode-icon mode-icon--solo"></div>
+        <h3 class="mode-card-title mode-card-title--solo">Réviser seul</h3>
+        <p class="mode-card-desc mode-card-desc--solo">Révise le vocabulaire ou les dates à ton rythme.</p>
         <div class="mode-cta mode-cta--solo">Choisir le niveau →</div>
       </div>
       <div onclick="showDifficulty('bot')" class="mode-card mode-card--bot">
-        <div class="mode-icon mode-icon--bot">🤖</div>
-        <h3 class="mode-card-title mode-card-title--bot">Duel contre Bot</h3>
+        <div class="mode-icon mode-icon--bot"></div>
+        <h3 class="mode-card-title mode-card-title--bot">Duel contre l’ordinateur</h3>
         <p class="mode-card-desc mode-card-desc--bot">Soyez plus rapide que l'IA !</p>
         <div class="mode-cta mode-cta--bot">Défier le Bot →</div>
       </div>
       <div onclick="showLobby()" class="mode-card mode-card--duel">
-        <div class="mode-icon mode-icon--duel">⚔️</div>
-        <h3 class="mode-card-title mode-card-title--duel">Duel En Ligne</h3>
+        <div class="mode-icon mode-icon--duel"></div>
+        <h3 class="mode-card-title mode-card-title--duel">Duel en ligne</h3>
         <p class="mode-card-desc mode-card-desc--duel">Créez un salon et affrontez un ami en temps réel !</p>
         <div class="mode-cta mode-cta--duel">Créer un salon →</div>
       </div>
       <div onclick="showLearnIntro()" class="mode-card mode-card--learn">
-        <div class="mode-icon mode-icon--learn">📖</div>
-        <h3 class="mode-card-title mode-card-title--learn">Apprentissage</h3>
-        <p class="mode-card-desc mode-card-desc--learn">Apprenez par petits groupes, puis testez-vous !</p>
+        <div class="mode-icon mode-icon--learn"></div>
+        <h3 class="mode-card-title mode-card-title--learn">Mémoriser puis tester</h3>
+        <p class="mode-card-desc mode-card-desc--learn">Mémorise des groupes de mots, puis vérifie tes réponses.</p>
         <div class="mode-cta mode-cta--learn">Commencer →</div>
       </div>
       <div id="history-timeline-mode" onclick="showHistoryTimelineChooser()" class="mode-card mode-card--dates hidden">
-        <div class="mode-icon mode-icon--dates">🗓️</div>
+        <div class="mode-icon mode-icon--dates"></div>
         <h3 class="mode-card-title mode-card-title--dates">Frise chronologique</h3>
         <p class="mode-card-desc mode-card-desc--dates">Toutes les dates d'une liste ou de toutes les listes d'histoire.</p>
         <div class="mode-cta mode-cta--dates">Voir les frises →</div>
       </div>
       <div id="history-timeline-practice-mode" onclick="showDifficulty('timeline')" class="mode-card mode-card--dates hidden">
-        <div class="mode-icon mode-icon--dates">✍️</div>
+        <div class="mode-icon mode-icon--dates"></div>
         <h3 class="mode-card-title mode-card-title--dates">Solo avec frise</h3>
         <p class="mode-card-desc mode-card-desc--dates">Retrouve les dates dans l'ordre et complète la frise en avançant.</p>
         <div class="mode-cta mode-cta--dates">Compléter la frise →</div>
@@ -1556,17 +1602,17 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
 <!-- DIFFICULTÉ -->
 <div id="difficulty-screen" class="screen hidden">
   <section id="difficulty-leaderboard-panel" class="difficulty-leaderboard" aria-live="polite">
-    <h3 id="difficulty-leaderboard-title">🏆 Classement</h3>
+    <h3 id="difficulty-leaderboard-title"> Classement</h3>
     <p id="difficulty-leaderboard-status">Choisis une liste pour afficher le classement.</p>
     <ol id="difficulty-leaderboard-list"></ol>
   </section>
   <div class="diff-inner">
     <h2 id="diff-title" class="diff-title">Nivel de Dificultad</h2>
     <div class="mb-section">
-      <p id="dataset-picker-label" class="section-label">📚 Choisir une liste de mots</p>
+      <p id="dataset-picker-label" class="section-label"> Choisir une liste de mots</p>
       <div class="list-picker" id="list-picker">
         <div class="list-card selected" id="builtin-card" onclick="selectBuiltin('list-picker','builtin-card',event)">
-          <span class="list-card-icon">📖</span>
+          <span class="list-card-icon"></span>
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots · Environnement</p></div>
         </div>
         <div id="github-lists-container" class="contents"></div>
@@ -1597,15 +1643,15 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
 <!-- LOBBY DUEL EN LIGNE -->
 <div id="lobby-screen" class="screen hidden">
   <div class="lobby-inner">
-    <h2 class="lobby-title">⚔️ Duel En Ligne</h2>
+    <h2 class="lobby-title"> Duel En Ligne</h2>
     <p class="lobby-sub">Temps réel · Realtime Database</p>
 
     <!-- ÉTAPE 1 : Choix liste + pseudo + mode -->
     <div id="lobby-step1">
-      <p class="section-label" style="margin-bottom:.75rem">📚 Liste de mots</p>
+      <p class="section-label" style="margin-bottom:.75rem"> Liste de mots</p>
       <div class="list-picker" id="lobby-list-picker" style="margin-bottom:1.25rem">
         <div class="list-card selected" id="lobby-builtin-card" onclick="selectBuiltin('lobby-list-picker','lobby-builtin-card',event)">
-          <span class="list-card-icon">📖</span>
+          <span class="list-card-icon"></span>
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots</p></div>
         </div>
         <div id="lobby-github-lists" class="contents"></div>
@@ -1621,8 +1667,8 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
 
       <!-- Tabs public / privé -->
       <div class="lobby-tabs">
-        <button id="tab-public" class="lobby-tab active" onclick="switchLobbyTab('public')">🌍 Salons publics</button>
-        <button id="tab-private" class="lobby-tab" onclick="switchLobbyTab('private')">🔒 Code privé</button>
+        <button id="tab-public" class="lobby-tab active" onclick="switchLobbyTab('public')"> Salons publics</button>
+        <button id="tab-private" class="lobby-tab" onclick="switchLobbyTab('private')"> Code privé</button>
       </div>
 
       <!-- Salons publics -->
@@ -1665,13 +1711,13 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
 <!-- APPRENTISSAGE INTRO -->
 <div id="learn-intro-screen" class="screen hidden">
   <div class="learn-inner">
-    <h2 class="learn-title">📖 Apprentissage</h2>
+    <h2 class="learn-title"> Apprentissage</h2>
     <p class="learn-sub">Par petits groupes jusqu'à la maîtrise</p>
     <div class="mb-section">
-      <p class="section-label" style="margin-bottom:.75rem">📚 Liste de mots</p>
+      <p class="section-label" style="margin-bottom:.75rem"> Liste de mots</p>
       <div class="list-picker" id="learn-list-picker" style="margin-bottom:0">
         <div class="list-card selected" id="learn-builtin-card" onclick="selectBuiltin('learn-list-picker','learn-builtin-card',event)">
-          <span class="list-card-icon">📖</span>
+          <span class="list-card-icon"></span>
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots</p></div>
         </div>
         <div id="learn-github-lists" class="contents"></div>
@@ -1692,11 +1738,11 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
       </div>
     </div>
     <div class="learn-phase-card">
-      <p class="learn-phase-title">🔵 Phase 1 — Mémorisation</p>
+      <p class="learn-phase-title"> Phase 1 — Mémorisation</p>
       <p class="learn-phase-desc">Les mots du groupe s'affichent un par un avec leur traduction. Fais-les défiler jusqu'à être prêt(e).</p>
     </div>
     <div class="learn-phase-card">
-      <p class="learn-phase-title">🟣 Phase 2 — Test</p>
+      <p class="learn-phase-title"> Phase 2 — Test</p>
       <p class="learn-phase-desc">Écris chaque mot espagnol. Les mots révélés repassent en révision jusqu'à ce que tout soit validé.</p>
     </div>
     <button onclick="startLearnMode()" class="btn-start-learn">C'est parti ! →</button>
@@ -1707,16 +1753,16 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
 <!-- HEADER JEU -->
 <header id="game-header" class="hidden">
   <div id="lives-display" class="lives-box hidden">
-    <span id="heart-1" class="heart">❤️</span>
-    <span id="heart-2" class="heart">❤️</span>
-    <span id="heart-3" class="heart">❤️</span>
+    <span id="heart-1" class="heart"></span>
+    <span id="heart-2" class="heart"></span>
+    <span id="heart-3" class="heart"></span>
   </div>
   <div class="score-box">
     <span id="score" class="score-val">0</span>
     <p class="score-label">Puntos</p>
   </div>
   <div class="streak-box">
-    <span id="streak-val" class="streak-val">🔥 Série: 0</span>
+    <span id="streak-val" class="streak-val"> Série: 0</span>
   </div>
   <div id="game-action-buttons" style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;justify-content:flex-end"><button id="btn-restart-game" onclick="restartCurrentGame()" class="btn-quit-game hidden" aria-label="Recommencer la partie">↻ Recommencer</button><button onclick="quitGame()" class="btn-quit-game" aria-label="Quitter la partie">✕ Quitter</button></div>
 </header>
@@ -1726,7 +1772,7 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
   <div id="duel-bar" class="duel-bar hidden">
     <div class="duel-labels">
       <span class="lbl-player" id="duel-lbl-me">Toi</span>
-      <span id="online-badge" class="online-badge hidden">🟢 EN LIGNE</span>
+      <span id="online-badge" class="online-badge hidden"> EN LIGNE</span>
       <span id="duel-lbl-opp" class="lbl-opp">Robot IA</span>
     </div>
     <div class="duel-track"><div id="player-progress" class="duel-fill duel-fill--player" style="width:0%"></div></div>
@@ -1771,7 +1817,7 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
       <div id="letter-inputs" class="letter-inputs"></div>
       <div id="feedback-area" class="feedback-area hidden"><span id="feedback-text"></span></div>
       <div id="reveal-zone" class="reveal-zone hidden">
-        <p class="reveal-label">✨ La réponse était :</p>
+        <p class="reveal-label"> La réponse était :</p>
         <p id="reveal-answer" class="reveal-answer"></p>
         <button onclick="nextAfterReveal()" class="btn-next">Mot suivant →</button>
       </div>
@@ -1816,7 +1862,7 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
 <!-- MODAL FIN -->
 <div id="end-modal" class="screen hidden">
   <div class="modal-inner">
-    <div id="modal-icon" class="modal-icon">🏆</div>
+    <div id="modal-icon" class="modal-icon"></div>
     <h2 id="modal-title" class="modal-title">¡VICTORIA!</h2>
     <p id="modal-desc" class="modal-desc">Tu as terminé la liste !</p>
     <div class="tabs">
@@ -1832,7 +1878,7 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
       </div>
       <p id="r-listname" class="results-list-name"></p>
       <section id="leaderboard-panel" style="margin-top:1rem;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left">
-        <h3 style="font-size:1rem;font-weight:900;margin-bottom:.35rem">🏆 Top 3 — ce mode et cette liste</h3>
+        <h3 style="font-size:1rem;font-weight:900;margin-bottom:.35rem"> Top 3 — ce mode et cette liste</h3>
         <p style="font-size:.75rem;color:#94a3b8;margin-bottom:.75rem">Classement automatique : points, puis temps le plus rapide.</p>
         <p id="leaderboard-status" style="font-size:.75rem;margin-bottom:.5rem;color:#94a3b8" aria-live="polite">Chargement du classement…</p>
         <p id="leaderboard-save-status" style="font-size:.75rem;margin-bottom:.5rem;color:#94a3b8" aria-live="polite"></p>
@@ -1841,9 +1887,9 @@ body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2
     </div>
     <div id="tab-misses-content" class="hidden">
       <div id="missed-words-list" class="miss-list"></div>
-      <p id="no-misses-msg" class="no-miss hidden">🎉 Aucun mot raté — parfait !</p>
+      <p id="no-misses-msg" class="no-miss hidden"> Aucun mot raté — parfait !</p>
     </div>
-    <button onclick="retryMissedWords()" id="btn-retry-missed" class="btn-retry-missed hidden">🔁 Rejouer avec les mots ratés</button>
+    <button onclick="retryMissedWords()" id="btn-retry-missed" class="btn-retry-missed hidden"> Rejouer avec les mots ratés</button>
     <button onclick="replayGame()" id="btn-replay-game" class="btn-check">Rejouer</button>
     <button onclick="location.reload()" class="btn-return">Retour au menu</button>
   </div>
@@ -1896,7 +1942,7 @@ try {
 function makeVocaAccountEmail(pseudo){let h=2166136261;for(const c of String(pseudo).trim().toLowerCase()){h^=c.codePointAt(0);h=Math.imul(h,16777619);}return "u"+(h>>>0).toString(16)+"@accounts.vocarace.invalid";}
 function getVocaLocalName(){try{return localStorage.getItem("vocarace_leaderboard_name")||"";}catch(e){return "";}}
 function setVocaLocalName(n){n=String(n||"").trim().slice(0,20);if(!n)return;try{localStorage.setItem("vocarace_leaderboard_name",n);}catch(e){}setLeaderboardCookie(n);updateVocaAccountButton();}
-function updateVocaAccountButton(){const b=document.getElementById("voca-account-button"),l=document.getElementById("voca-account-label");if(!b||!l)return;const n=vocaProfileName||getVocaLocalName();b.textContent=vocaUser&&!vocaUser.isAnonymous?"●":"♙";b.title=vocaUser&&!vocaUser.isAnonymous?"Compte connecté":"Compte facultatif";l.textContent=n||"Compte facultatif";}
+function updateVocaAccountButton(){const b=document.getElementById("voca-account-button"),l=document.getElementById("voca-account-label");if(!b||!l)return;const n=vocaProfileName||getVocaLocalName();b.textContent="Compte";b.title=vocaUser&&!vocaUser.isAnonymous?"Compte connecté":"Compte facultatif";l.textContent=n||"Compte facultatif";}
 window.openVocaAccount=()=>{const m=document.getElementById("voca-account-modal");m.classList.remove("hidden");m.style.display="flex";const member=!!(vocaUser&&!vocaUser.isAnonymous);document.getElementById("voca-account-guest").classList.toggle("hidden",member);document.getElementById("voca-account-member").classList.toggle("hidden",!member);document.getElementById("voca-account-message").textContent="";if(member){document.getElementById("voca-account-email-label").textContent="Connecté : "+(vocaProfileName||"compte");document.getElementById("voca-account-pseudo-edit").value=vocaProfileName;}else document.getElementById("voca-account-pseudo").value=getVocaLocalName();};
 window.closeVocaAccount=()=>{const m=document.getElementById("voca-account-modal");m.style.display="none";m.classList.add("hidden");};
 function vocaAccountMsg(t){document.getElementById("voca-account-message").textContent=t;}
@@ -2107,7 +2153,7 @@ window.showDifficulty=mode=>{
   document.getElementById('diff-title').textContent=history
     ?(mode==='bot'?'Duel Histoire':timelineMode?'Solo avec frise':'Entraînement Histoire')
     :(mode==='bot'?'Nivel de Duel':'Nivel de Entrenamiento');
-  document.getElementById('dataset-picker-label').textContent=history?'📜 Choisir une chronologie':'📚 Choisir une liste de mots';
+  document.getElementById('dataset-picker-label').textContent=history?' Choisir une chronologie':' Choisir une liste de mots';
   document.getElementById('builtin-card').classList.toggle('hidden',history);
   document.getElementById('difficulty-history-import').classList.toggle('hidden',!history);
   document.getElementById('btn-refresh').textContent=history?'↻ Actualiser les chronologies GitHub':'↻ Actualiser les listes GitHub';
@@ -2164,7 +2210,7 @@ window.showHistoryTimelineChooser=async()=>{
     const files=await fetchJsonFrom([HISTORY_LISTS_JSON,GH_RAW+'histoire_lists.json']);
     const names=Array.isArray(files)?files.filter(n=>typeof n==='string'&&n.toLowerCase().endsWith('.histoire')):[];
     const allButton=document.createElement('button');
-    allButton.className='list-card';allButton.innerHTML='<span class="list-card-icon">🌍</span><div><p class="list-card-name">Toutes les listes</p><p class="list-card-count">Frise globale</p></div>';
+    allButton.className='list-card';allButton.innerHTML='<span class="list-card-icon"></span><div><p class="list-card-name">Toutes les listes</p><p class="list-card-count">Frise globale</p></div>';
     allButton.onclick=()=>{
       historyTimelineChooserFiles=[...names];
       choices.querySelectorAll('.list-card').forEach(card=>card.classList.add('selected'));
@@ -2175,7 +2221,7 @@ window.showHistoryTimelineChooser=async()=>{
       const button=document.createElement('button');button.className='list-card';
       const info=document.createElement('div');const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.split('/').pop().replace(/\.histoire$/i,'');
       const sub=document.createElement('p');sub.className='list-card-count';sub.textContent='Frise de cette liste';info.append(title,sub);
-      const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='📜';button.append(icon,info);
+      const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='';button.append(icon,info);
       button.onclick=event=>{
         const additive=!!(event&&(event.ctrlKey||event.metaKey));
         if(!additive)historyTimelineChooserFiles=[filename];
@@ -2268,7 +2314,7 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
     if(!names.length){cont.innerHTML='<p style="grid-column:1/-1;color:#94a3b8;font-size:.75rem">Aucune chronologie disponible.</p>';return;}
     names.forEach((filename,index)=>{
       const card=document.createElement('div');card.className='list-card';
-      const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='📜';
+      const icon=document.createElement('span');icon.className='list-card-icon';icon.textContent='';
       const info=document.createElement('div');
       const title=document.createElement('p');title.className='list-card-name';title.textContent=filename.split('/').pop().replace(/\.histoire$/i,'');
       const count=document.createElement('p');count.className='list-card-count';count.textContent='...';
@@ -2354,7 +2400,7 @@ async function loadListsInto(containerId,pickerId,builtinId){
       const cid='lc-'+i+'-'+name.replace(/\W/g,'');
       const card=document.createElement('div');
       card.className='list-card';
-      card.innerHTML=`<span class="list-card-icon">🇪🇸</span><div><p class="list-card-name">${name}</p><p class="list-card-count" id="${cid}">...</p></div>`;
+      card.innerHTML=`<span class="list-card-icon"></span><div><p class="list-card-name">${name}</p><p class="list-card-count" id="${cid}">...</p></div>`;
       card._vocaListSource={key:'vocab:'+fname,name,dataset:'vocab',load:async()=>{
         const response=await fetch(url);if(!response.ok)throw new Error('HTTP '+response.status);
         const words=parseEspagnolFile(await response.text());if(!words.length)throw new Error('Aucun mot parsé');return words;
@@ -2393,7 +2439,7 @@ window.fetchGithubLists=async function(){
       const cid='cnt-'+i+'-'+name.replace(/\W/g,'');
       const card=document.createElement('div');
       card.className='list-card';
-      card.innerHTML=`<span class="list-card-icon">🇪🇸</span><div><p class="list-card-name">${name}</p><p class="list-card-count" id="${cid}">...</p></div>`;
+      card.innerHTML=`<span class="list-card-icon"></span><div><p class="list-card-name">${name}</p><p class="list-card-count" id="${cid}">...</p></div>`;
       card._vocaListSource={key:'vocab:'+fname,name,dataset:'vocab',load:async()=>{
         const response=await fetch(url);if(!response.ok)throw new Error('HTTP '+response.status);
         const words=parseEspagnolFile(await response.text());if(!words.length)throw new Error('Aucun mot parsé');return words;
@@ -2405,7 +2451,7 @@ window.fetchGithubLists=async function(){
     paintPickerSelection('list-picker');
     const selected=pickerSelections.get('list-picker');
     if(selected&&selected.length&&await loadPickerSources('list-picker',selected)===false)return;
-  }catch(e){errDiv.textContent='⚠️ '+e.message;errDiv.classList.remove('hidden');}
+  }catch(e){errDiv.textContent=' '+e.message;errDiv.classList.remove('hidden');}
   finally{loader.classList.add('hidden');btn.textContent='↻ Actualiser les listes GitHub';btn.style.opacity='';btn.style.pointerEvents='';}
 };
 
@@ -2531,8 +2577,8 @@ function startWatchingPublicRooms(){
       const ageStr=age<60?age+'s':(Math.floor(age/60))+'min';
       return `<div class="room-item" onclick="joinPublicRoom('${r.id}')">
         <div class="room-item-left">
-          <span class="room-item-host">👤 ${hostName}</span>
-          <span class="room-item-list">📚 ${r.listName||'Liste par défaut'}</span>
+          <span class="room-item-host"> ${hostName}</span>
+          <span class="room-item-list"> ${r.listName||'Liste par défaut'}</span>
         </div>
         <div class="room-item-right">
           <span class="room-item-join">Rejoindre →</span>
@@ -2552,7 +2598,7 @@ function stopWatchingPublicRooms(){
 
 // ── Créer un salon (public ou privé) ──
 window.createRoom=async function(isPublic){
-  if(!db){lobbyErr('⚠️ Firebase non configuré.');return;}
+  if(!db){lobbyErr(' Firebase non configuré.');return;}
   if(await datasetLoadPromise===false)return;
   const name=(document.getElementById('player-name-input').value.trim()||'Joueur1').substring(0,20);
   try{
@@ -2592,7 +2638,7 @@ window.joinPublicRoom=async function(code){
 
 // ── Rejoindre par code privé ──
 window.joinByCode=async function(){
-  if(!db){lobbyErr('⚠️ Firebase non configuré.');return;}
+  if(!db){lobbyErr(' Firebase non configuré.');return;}
   const code=(document.getElementById('join-code-input').value.trim()).toUpperCase();
   const name=(document.getElementById('player-name-input').value.trim()||'Joueur2').substring(0,20);
   if(code.length!==6){lobbyErr('Code invalide — 6 caractères requis.');return;}
@@ -2702,7 +2748,7 @@ function launchOnlineGame(vocab,players){
   showGameUI();
   document.getElementById('duel-bar').classList.remove('hidden');
   document.getElementById('solo-progress-ui').classList.add('hidden');
-  document.getElementById('current-mode-label').textContent='⚔️ DUEL EN LIGNE';
+  document.getElementById('current-mode-label').textContent=' DUEL EN LIGNE';
   document.getElementById('error-indicator').style.display='flex';
   document.getElementById('total-words').textContent=gameQueue.length;
   document.getElementById('list-name-display').textContent=activeListName;
@@ -2774,7 +2820,7 @@ function beginMemorize(){
   const group=learnGroups[learnGroupIndex];
   document.getElementById('learn-phase-label').textContent=`Groupe ${learnGroupIndex+1} / ${learnGroups.length} — Mémorisation`;
   document.getElementById('learn-phase-words-label').textContent=`${group.length} mots`;
-  document.getElementById('current-mode-label').textContent='🔵 MÉMORISATION';
+  document.getElementById('current-mode-label').textContent=' MÉMORISATION';
   document.getElementById('learn-flashcard-zone').classList.remove('hidden');
   document.getElementById('test-zone').classList.add('hidden');
   showFlashcard();
@@ -2825,7 +2871,7 @@ function beginTest(words){
   playerProgress=0; streak=0; missedWords=[];
   document.getElementById('learn-phase-label').textContent=`Groupe ${learnGroupIndex+1} / ${learnGroups.length} — Test`;
   document.getElementById('learn-phase-words-label').textContent=gameQueue.length+' mots';
-  document.getElementById('current-mode-label').textContent='🟣 TEST';
+  document.getElementById('current-mode-label').textContent=' TEST';
   document.getElementById('learn-flashcard-zone').classList.add('hidden');
   document.getElementById('test-zone').classList.remove('hidden');
   document.getElementById('solo-progress-ui').classList.remove('hidden');
@@ -2878,12 +2924,12 @@ function startGame(){
   if(selectedMode==='bot'){
     document.getElementById('duel-bar').classList.remove('hidden');
     document.getElementById('solo-progress-ui').classList.add('hidden');
-    document.getElementById('current-mode-label').textContent='🤖 DUEL '+currentDifficulty.toUpperCase();
+    document.getElementById('current-mode-label').textContent=' DUEL '+currentDifficulty.toUpperCase();
     startBotAI();
   } else {
     document.getElementById('duel-bar').classList.add('hidden');
     document.getElementById('solo-progress-ui').classList.remove('hidden');
-    document.getElementById('current-mode-label').textContent=selectedMode==='dates'?'📅 DATES HISTORIQUES':'👤 SOLO '+currentDifficulty.toUpperCase();
+    document.getElementById('current-mode-label').textContent=selectedMode==='dates'?' DATES HISTORIQUES':' SOLO '+currentDifficulty.toUpperCase();
   }
   document.getElementById('error-indicator').style.display=currentDifficulty!=='hardcore'?'flex':'none';
   document.getElementById('total-words').textContent=gameQueue.length;
@@ -2939,7 +2985,7 @@ window.confirmStartHistoryTimeline=async()=>{
     document.getElementById('history-timeline-practice').classList.remove('hidden');
     document.getElementById('lives-display').classList.add('hidden');
     document.getElementById('score').textContent='0';
-    document.getElementById('streak-val').textContent='🔥 Série: 0';
+    document.getElementById('streak-val').textContent=' Série: 0';
     document.getElementById('history-practice-complete').classList.add('hidden');
     document.getElementById('total-words').textContent=historyTimelineEntries.length;
     document.getElementById('list-name-display').textContent=activeListName;
@@ -3399,7 +3445,7 @@ function handleFailure(){
   document.getElementById('question-card').classList.add('shake');
   setTimeout(()=>document.getElementById('question-card').classList.remove('shake'),400);
   if(currentDifficulty==='hardcore'){
-    lives--;updateLivesUI();showFeedback('❌ Raté ! Réessaie...');
+    lives--;updateLivesUI();showFeedback(' Raté ! Réessaie...');
     if(lives<=0){
       if(!missedWords.find(m=>m.es===gameQueue[playerProgress].es))
         missedWords.push({...gameQueue[playerProgress],reason:'hardcore'});
@@ -3409,7 +3455,7 @@ function handleFailure(){
     return;
   }
   errorCount++;updateErrorDots();
-  errorCount>=2?revealAnswer():showFeedback('❌ Erreur '+errorCount+'/2 — Réessaie !');
+  errorCount>=2?revealAnswer():showFeedback(' Erreur '+errorCount+'/2 — Réessaie !');
 }
 
 function revealAnswer(){
@@ -3465,7 +3511,7 @@ function updateProgressUI(){
   document.getElementById('words-mastered').textContent=playerProgress;
   document.getElementById('progress-bar-fill').style.width=pp+'%';
 }
-function updateStreakUI(){document.getElementById('streak-val').textContent='🔥 Série: '+streak;}
+function updateStreakUI(){document.getElementById('streak-val').textContent=' Série: '+streak;}
 
 let restartCountdownActive=false;
 function restartCurrentGame(){
@@ -3494,22 +3540,22 @@ function showEnd(isVictory){
   const isHistoryRun=activeDatasetType==='history'||selectedMode==='dates'||selectedMode==='historyTimeline';
   const missedNoun=isHistoryRun?'dates ratées':'mots ratés';
   document.getElementById('tab-misses').firstChild.textContent=isHistoryRun?'Dates ratées ':'Mots ratés ';
-  document.getElementById('btn-retry-missed').textContent='🔁 Rejouer avec les '+missedNoun;
+  document.getElementById('btn-retry-missed').textContent=' Rejouer avec les '+missedNoun;
   document.getElementById('no-misses-msg').textContent=isHistoryRun?'Aucune date ratée — parfait !':'Aucun mot raté — parfait !';
   let icon,title,desc;
   if(selectedMode==='learn'){
-    icon='🎓';title='¡LISTA DOMINADA!';desc='Tu as maîtrisé toute la liste !';
+    icon='';title='¡LISTA DOMINADA!';desc='Tu as maîtrisé toute la liste !';
   } else if(selectedMode==='online'){
-    icon=isVictory?'🏆':'🤖';
+    icon=isVictory?'':'';
     title=isVictory?'¡VICTORIA!':'¡DERROTA!';
     desc=isVictory?'Tu as fini avant ton adversaire !':'Ton adversaire a fini en premier...';
   } else {
-    icon=isVictory?(misses.length===0?'🏆':'🎉'):'🤖';
+    icon=isVictory?(misses.length===0?'':''):'';
     title=isVictory?'¡VICTORIA!':(lives<=0?'¡SIN VIDAS!':'¡DERROTA!');
     desc=isVictory?(selectedMode==='bot'?"Tu as écrasé l'IA !":"Tu as terminé la liste !"):(lives<=0?"Tu n'as plus de vies.":"Le robot a fini avant toi...");
   }
   if(activeDatasetType==='history'||selectedMode==='dates'){
-    icon=isVictory?'🏆':'📅';
+    icon=isVictory?'':'';
     title=isVictory?'CHRONOLOGIE TERMINÉE':'RÉVISION TERMINÉE';
     desc='';
   }
@@ -3547,7 +3593,7 @@ function loadDifficultyLeaderboard(){
   if(!panel)return;
   panel.style.display='block';
   const title=document.getElementById('difficulty-leaderboard-title');
-  if(title)title.textContent='🏆 '+modeDisplayName(selectedMode)+' — '+activeListName;
+  if(title)title.textContent=' '+modeDisplayName(selectedMode)+' — '+activeListName;
   const status=document.getElementById('difficulty-leaderboard-status');
   const list=document.getElementById('difficulty-leaderboard-list');
   if(!status||!list)return;
