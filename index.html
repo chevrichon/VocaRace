@@ -288,80 +288,80 @@ body.theme-light .difficulty-leaderboard{background:#fff;color:#1e293b;border-co
 .duel-fill{position:absolute;height:100%;transition:width .5s;border-radius:9999px}
 .duel-fill--player{background:#6366f1}.duel-fill--bot{background:#f43f5e}.duel-fill--online{background:#10b981}
 
-/* ── SOLO AVEC FRISE ── */
-.history-practice{width:100%;display:flex;flex-direction:column;gap:1rem}
-.history-practice-question,.history-practice-timeline-panel{background:rgba(255,255,255,.97);border:1px solid rgba(255,255,255,.85);border-radius:1.5rem;padding:1.1rem;box-shadow:0 4px 24px rgba(0,0,0,.06)}
-@media(min-width:640px){.history-practice-question,.history-practice-timeline-panel{padding:1.75rem;border-radius:1.75rem}}
-.history-practice-counter{font-size:.67rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#6366f1;text-align:center}
-.history-practice-event-prompt{font-size:clamp(1.05rem,4vw,1.7rem);font-weight:900;text-align:center;color:#1e293b;margin:1rem 0 .8rem;line-height:1.25;overflow-wrap:anywhere}
-.history-practice-format{text-align:center;font-size:.78rem;color:#64748b;font-weight:800;margin-bottom:1rem}
-.history-practice-answer-zone{display:grid;grid-template-columns:1fr;gap:.65rem;max-width:28rem;margin:0 auto}
-.history-practice-answer-zone input{width:100%;min-width:0;padding:.9rem 1rem;border:2px solid #c7d2fe;border-radius:.9rem;background:#fff;color:#1e293b;font-size:1.1rem;font-weight:800;text-align:center;outline:none}
-.history-practice-answer-zone input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
-.history-practice-answer-zone input.date-answer-wrong{border-color:#ef4444;background:#fff1f2}
-.history-practice-answer-zone .btn-check{margin:0;width:100%}
-.history-practice-feedback{min-height:1.1rem;text-align:center;font-size:.82rem;font-weight:800;color:#64748b;margin-top:.7rem}
-.history-practice-feedback.is-error{color:#dc2626}
-.history-practice-feedback.is-success{color:#059669}
-.history-practice-complete{text-align:center;margin-top:.85rem;color:#047857;font-weight:900;line-height:1.5}
-.history-practice-complete .btn-back{margin:1rem auto 0}
+/* ── SOLO AVEC FRISE : les cartes contiennent aussi les réponses ── */
+.history-practice{width:100%;display:flex;flex-direction:column;gap:.75rem}
+.history-practice-status{display:flex;align-items:center;justify-content:center;min-height:1.5rem}
+.history-practice-counter{font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#6366f1;text-align:center}
+.history-practice-timeline-panel{width:100%;min-width:0;background:rgba(255,255,255,.97);border:1px solid rgba(255,255,255,.85);border-radius:1.5rem;padding:.85rem;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+@media(min-width:640px){.history-practice-timeline-panel{padding:1.25rem;border-radius:1.75rem}}
 .history-practice-timeline-heading h3{font-size:1rem;font-weight:900;color:#1e293b}
 .history-practice-timeline-heading p{font-size:.75rem;color:#64748b;margin-top:.25rem}
-.history-practice-scroll{width:100%;overflow-x:auto;overflow-y:hidden;padding:1.25rem .1rem .75rem;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.history-practice-track{position:relative;display:flex;align-items:flex-start;gap:.15rem;width:max-content;min-width:100%;padding:.1rem .3rem .25rem}
-.history-practice-track::before{content:"";position:absolute;left:1.45rem;right:1.45rem;top:1.15rem;height:4px;background:#c7d2fe;border-radius:99px;z-index:0}
-.history-practice-event{position:relative;z-index:1;display:flex;flex:0 0 13rem;min-width:0;flex-direction:column;align-items:flex-start;padding:0 .55rem .25rem}
-.history-practice-marker{width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;border:3px solid #c7d2fe;border-radius:50%;background:#fff;color:#64748b;font-size:.72rem;font-weight:900;margin:0 0 .6rem .15rem;transition:background .2s,border-color .2s,color .2s}
-.history-practice-event-name{width:100%;min-height:4.6rem;padding:.65rem;border:1px solid #e2e8f0;border-radius:.85rem;background:#fff;color:#334155;font-size:.78rem;line-height:1.35;font-weight:800;overflow-wrap:anywhere}
-.history-practice-event-date{min-height:1.1rem;margin:.45rem .15rem 0;color:#059669;font-size:.75rem;font-weight:900;line-height:1.3}
+.history-practice-scroll{width:100%;overflow-x:auto;overflow-y:hidden;padding:1.5rem .25rem 1rem;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+.history-practice-track{position:relative;display:flex;align-items:stretch;gap:.65rem;width:max-content;min-width:100%;padding:.25rem max(.25rem,calc((100vw - min(82vw,24rem))/2)) .5rem}
+.history-practice-track::before{content:"";position:absolute;left:1rem;right:1rem;top:1.25rem;height:4px;background:#c7d2fe;border-radius:99px;z-index:0}
+.history-practice-event{position:relative;z-index:1;display:flex;flex:0 0 min(82vw,24rem);width:min(82vw,24rem);min-width:0;flex-direction:column;align-items:stretch;gap:.65rem;padding:.65rem .85rem 1rem;border:1px solid #e2e8f0;border-radius:1rem;background:#fff;color:#334155;box-shadow:0 4px 16px rgba(0,0,0,.06);scroll-snap-align:center;transition:border-color .2s,background .2s,box-shadow .2s,opacity .2s}
+.history-practice-marker{width:2.1rem;height:2.1rem;display:flex;flex-shrink:0;align-items:center;justify-content:center;border:3px solid #c7d2fe;border-radius:50%;background:#fff;color:#64748b;font-size:.72rem;font-weight:900;margin:0 0 .1rem;transition:background .2s,border-color .2s,color .2s}
+.history-practice-event-name{width:100%;min-height:4rem;padding:.65rem;border:1px solid #e2e8f0;border-radius:.85rem;background:#f8fafc;color:#334155;font-size:.9rem;line-height:1.4;font-weight:850;overflow-wrap:anywhere}
+.history-practice-format{font-size:.75rem;color:#64748b;font-weight:800;margin:0}
+.history-practice-card-input{width:100%;min-width:0;padding:.85rem .75rem;border:2px solid #c7d2fe;border-radius:.85rem;background:#fff;color:#1e293b;font-size:1.05rem;font-weight:800;text-align:center;outline:none}
+.history-practice-card-input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.history-practice-card-input:disabled{opacity:.75;cursor:not-allowed}
+.history-practice-card-input.date-answer-wrong{border-color:#ef4444;background:#fff1f2}
+.history-practice-event .btn-check{margin:0;width:100%;padding:.75rem;font-size:.8rem}
+.history-practice-event-feedback{min-height:1.1rem;text-align:center;font-size:.78rem;font-weight:800;color:#64748b;margin:0}
+.history-practice-event-feedback.is-error{color:#dc2626}
+.history-practice-event-feedback.is-success{color:#059669}
+.history-practice-event.is-active{border-color:#818cf8;background:#eef2ff;box-shadow:0 8px 28px rgba(99,102,241,.18);opacity:1}
 .history-practice-event.is-active .history-practice-marker{background:#6366f1;border-color:#6366f1;color:#fff;box-shadow:0 0 0 4px #e0e7ff}
-.history-practice-event.is-active .history-practice-event-name{background:#eef2ff;border-color:#818cf8;color:#3730a3}
+.history-practice-event.is-active .history-practice-event-name{background:#fff;border-color:#818cf8;color:#3730a3}
+.history-practice-event.is-done{border-color:#a7f3d0;background:#ecfdf5}
 .history-practice-event.is-done .history-practice-marker{background:#10b981;border-color:#10b981;color:#fff}
 .history-practice-event.is-done .history-practice-event-name{border-color:#a7f3d0;background:#ecfdf5;color:#065f46}
-.history-practice-event.is-done .history-practice-event-date{color:#047857}
+.history-practice-event-date{min-height:1.1rem;margin:0;color:#047857;font-size:.75rem;font-weight:900;line-height:1.3}
+.history-practice-complete{text-align:center;margin-top:.85rem;color:#047857;font-weight:900;line-height:1.5}
+.history-practice-complete .btn-back{margin:1rem auto 0}
 
-/* La frise suit bien le thème global : le thème sombre est le style par défaut. */
-body:not(.theme-light) .history-practice-question,
+/* Thème sombre */
 body:not(.theme-light) .history-practice-timeline-panel{background:rgba(30,41,59,.98);border-color:#475569;color:#e2e8f0;box-shadow:0 4px 24px rgba(0,0,0,.25)}
 body:not(.theme-light) .history-practice-counter{color:#a5b4fc}
-body:not(.theme-light) .history-practice-event-prompt,
 body:not(.theme-light) .history-practice-timeline-heading h3{color:#f8fafc}
-body:not(.theme-light) .history-practice-format,
-body:not(.theme-light) .history-practice-timeline-heading p{color:#94a3b8}
-body:not(.theme-light) .history-practice-answer-zone input{background:#0f172a;color:#f8fafc;border-color:#475569}
-body:not(.theme-light) .history-practice-answer-zone input::placeholder{color:#94a3b8}
-body:not(.theme-light) .history-practice-answer-zone input.date-answer-wrong{background:#450a0a;color:#fee2e2;border-color:#f87171}
-body:not(.theme-light) .history-practice-feedback{color:#cbd5e1}
-body:not(.theme-light) .history-practice-feedback.is-error{color:#fca5a5}
-body:not(.theme-light) .history-practice-feedback.is-success,
-body:not(.theme-light) .history-practice-complete{color:#6ee7b7}
+body:not(.theme-light) .history-practice-timeline-heading p,
+body:not(.theme-light) .history-practice-format{color:#94a3b8}
 body:not(.theme-light) .history-practice-track::before{background:#475569}
+body:not(.theme-light) .history-practice-event{background:#0f172a;color:#e2e8f0;border-color:#475569}
 body:not(.theme-light) .history-practice-marker{background:#1e293b;border-color:#64748b;color:#cbd5e1}
-body:not(.theme-light) .history-practice-event-name{background:#0f172a;color:#e2e8f0;border-color:#475569}
+body:not(.theme-light) .history-practice-event-name{background:#1e293b;color:#e2e8f0;border-color:#475569}
+body:not(.theme-light) .history-practice-card-input{background:#020617;color:#f8fafc;border-color:#475569}
+body:not(.theme-light) .history-practice-card-input::placeholder{color:#94a3b8}
+body:not(.theme-light) .history-practice-card-input.date-answer-wrong{background:#450a0a;color:#fee2e2;border-color:#f87171}
+body:not(.theme-light) .history-practice-event-feedback{color:#cbd5e1}
+body:not(.theme-light) .history-practice-event-feedback.is-error{color:#fca5a5}
+body:not(.theme-light) .history-practice-event-feedback.is-success,
+body:not(.theme-light) .history-practice-complete{color:#6ee7b7}
 body:not(.theme-light) .history-practice-event-date{color:#6ee7b7}
-body:not(.theme-light) .history-practice-event.is-active .history-practice-marker{background:#6366f1;border-color:#818cf8;color:#fff}
+body:not(.theme-light) .history-practice-event.is-active{background:#312e81;border-color:#818cf8}
 body:not(.theme-light) .history-practice-event.is-active .history-practice-event-name{background:#312e81;color:#e0e7ff;border-color:#818cf8}
-body:not(.theme-light) .history-practice-event.is-done .history-practice-marker{background:#047857;border-color:#34d399;color:#ecfdf5}
+body:not(.theme-light) .history-practice-event.is-done{background:#064e3b;border-color:#059669}
 body:not(.theme-light) .history-practice-event.is-done .history-practice-event-name{background:#064e3b;color:#d1fae5;border-color:#059669}
-body:not(.theme-light) .history-practice-event.is-done .history-practice-event-date{color:#6ee7b7}
 
-/* Règles explicites pour que le thème clair reste lisible après l'ajout du thème sombre. */
-body.theme-light .history-practice-question,
+/* Thème clair */
 body.theme-light .history-practice-timeline-panel{background:rgba(255,255,255,.98);border-color:#e2e8f0;color:#1e293b}
-body.theme-light .history-practice-event-prompt,
+body.theme-light .history-practice-counter{color:#6366f1}
 body.theme-light .history-practice-timeline-heading h3{color:#1e293b}
-body.theme-light .history-practice-format,
-body.theme-light .history-practice-timeline-heading p{color:#64748b}
-body.theme-light .history-practice-answer-zone input{background:#fff;color:#1e293b;border-color:#c7d2fe}
-body.theme-light .history-practice-answer-zone input.date-answer-wrong{background:#fff1f2;color:#7f1d1d;border-color:#ef4444}
+body.theme-light .history-practice-timeline-heading p,
+body.theme-light .history-practice-format{color:#64748b}
 body.theme-light .history-practice-track::before{background:#c7d2fe}
+body.theme-light .history-practice-event{background:#fff;color:#334155;border-color:#e2e8f0}
 body.theme-light .history-practice-marker{background:#fff;border-color:#c7d2fe;color:#64748b}
-body.theme-light .history-practice-event-name{background:#fff;color:#334155;border-color:#e2e8f0}
+body.theme-light .history-practice-event-name{background:#f8fafc;color:#334155;border-color:#e2e8f0}
+body.theme-light .history-practice-card-input{background:#fff;color:#1e293b;border-color:#c7d2fe}
+body.theme-light .history-practice-card-input.date-answer-wrong{background:#fff1f2;color:#7f1d1d;border-color:#ef4444}
 body.theme-light .history-practice-event-date{color:#059669}
-body.theme-light .history-practice-event.is-active .history-practice-event-name{background:#eef2ff;color:#3730a3;border-color:#818cf8}
+body.theme-light .history-practice-event.is-active{background:#eef2ff;border-color:#818cf8}
+body.theme-light .history-practice-event.is-active .history-practice-event-name{background:#fff;color:#3730a3;border-color:#818cf8}
+body.theme-light .history-practice-event.is-done{background:#ecfdf5;border-color:#a7f3d0}
 body.theme-light .history-practice-event.is-done .history-practice-event-name{background:#ecfdf5;color:#065f46;border-color:#a7f3d0}
-
-@media(max-width:420px){.history-practice-event{flex-basis:11.5rem}.history-practice-question,.history-practice-timeline-panel{padding:1rem}}
+@media(max-width:420px){.history-practice-timeline-panel{padding:.75rem}.history-practice-event{flex-basis:82vw;width:82vw;padding:.55rem .7rem .85rem}}
 
 /* ── QUESTION CARD ── */
 #question-card{background:rgba(255,255,255,.97);backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,.06);border-radius:1.75rem;padding:1.25rem;border:1px solid rgba(255,255,255,.8)}
@@ -1337,27 +1337,20 @@ body.theme-light .miss-es{
     </div>
   </div>
   <section id="history-timeline-practice" class="history-practice hidden" aria-label="Mode solo avec frise chronologique">
-    <div class="history-practice-question">
+    <div class="history-practice-status">
       <p id="history-practice-counter" class="history-practice-counter">Événement 1 sur 1</p>
-      <h2 id="history-practice-event-name" class="history-practice-event-prompt"></h2>
-      <p id="history-practice-date-format" class="history-practice-format"></p>
-      <div id="history-practice-answer-zone" class="history-practice-answer-zone">
-        <input id="history-practice-date-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Saisis la date ou la période">
-        <button id="history-practice-submit" onclick="checkHistoryTimelineDate()" class="btn-check">Valider la date →</button>
-      </div>
-      <p id="history-practice-feedback" class="history-practice-feedback" aria-live="polite"></p>
-      <div id="history-practice-complete" class="history-practice-complete hidden">
-        <p>Frise terminée : toutes les dates ont été retrouvées dans l'ordre chronologique.</p>
-        <button onclick="backToModeSelection()" class="btn-back">← Retour aux modes d'histoire</button>
-      </div>
     </div>
     <div class="history-practice-timeline-panel">
       <div class="history-practice-timeline-heading">
-        <h3>Frise chronologique</h3>
-        <p>Les dates apparaissent quand tu trouves la bonne réponse.</p>
+        <h3>Complète chaque date directement dans sa carte</h3>
+        <p>Seule la carte active accepte une réponse. Tu peux parcourir la frise ; elle revient à la carte active quand tu écris ou après 2 secondes d'inactivité.</p>
       </div>
-      <div id="history-practice-scroll" class="history-practice-scroll" aria-label="Frise horizontale, défilement automatique">
+      <div id="history-practice-scroll" class="history-practice-scroll" aria-label="Frise horizontale de cartes à compléter">
         <div id="history-practice-track" class="history-practice-track"></div>
+      </div>
+      <div id="history-practice-complete" class="history-practice-complete hidden">
+        <p>Frise terminée : toutes les dates ont été retrouvées dans l'ordre chronologique.</p>
+        <button onclick="backToModeSelection()" class="btn-back">← Retour aux modes d'histoire</button>
       </div>
     </div>
   </section>
@@ -2456,6 +2449,24 @@ function startGame(){
 // SOLO AVEC FRISE CHRONOLOGIQUE
 // ════════════════════════════════════════════════════
 let historyTimelineEntries=[], historyTimelineIndex=0;
+let historyPracticeIdleTimer=null,historyPracticeScrollBound=false;
+function centerHistoryPracticeCard(index=historyTimelineIndex,behavior='smooth'){
+  const scroller=document.getElementById('history-practice-scroll');
+  const target=document.querySelector('#history-practice-track .history-practice-event[data-index="'+index+'"]');
+  if(!scroller||!target)return;
+  const left=Math.max(0,target.offsetLeft-Math.max(0,(scroller.clientWidth-target.offsetWidth)/2));
+  if(Math.abs(scroller.scrollLeft-left)>8)scroller.scrollTo({left,behavior});
+}
+function scheduleHistoryPracticeRecenter(){
+  if(historyPracticeIdleTimer)clearTimeout(historyPracticeIdleTimer);
+  historyPracticeIdleTimer=setTimeout(()=>centerHistoryPracticeCard(historyTimelineIndex,'smooth'),2000);
+}
+function bindHistoryPracticeScroll(){
+  const scroller=document.getElementById('history-practice-scroll');
+  if(!scroller||historyPracticeScrollBound)return;
+  historyPracticeScrollBound=true;
+  scroller.addEventListener('scroll',scheduleHistoryPracticeRecenter,{passive:true});
+}
 
 window.confirmStartHistoryTimeline=async()=>{
   try{
@@ -2483,16 +2494,11 @@ window.confirmStartHistoryTimeline=async()=>{
     document.getElementById('score').textContent='0';
     document.getElementById('streak-val').textContent='🔥 Série: 0';
     document.getElementById('history-practice-complete').classList.add('hidden');
-    document.getElementById('history-practice-answer-zone').classList.remove('hidden');
-    document.getElementById('history-practice-date-input').onkeydown=event=>{
-      if(event.key==='Enter'){event.preventDefault();checkHistoryTimelineDate();}
-    };
     document.getElementById('total-words').textContent=historyTimelineEntries.length;
     document.getElementById('list-name-display').textContent=activeListName;
     renderHistoryPracticeTimeline();
+    bindHistoryPracticeScroll();
     updateHistoryPracticeStep(false);
-    // Certains navigateurs conservent la position de défilement entre deux sessions.
-    document.getElementById('history-practice-scroll').scrollTo({left:0,behavior:'auto'});
   }catch(error){
     console.error('Erreur du mode frise :',error);
     alert('Impossible de démarrer cette frise. Vérifie que la liste contient des événements avec le format date::événement.');
@@ -2501,9 +2507,6 @@ window.confirmStartHistoryTimeline=async()=>{
 
 function renderHistoryPracticeTimeline(){
   const track=document.getElementById('history-practice-track');
-  const scroller=document.getElementById('history-practice-scroll');
-  // Réinitialise le défilement avant et après la reconstruction de la frise.
-  scroller.scrollLeft=0;
   track.textContent='';
   historyTimelineEntries.forEach((entry,index)=>{
     const card=document.createElement('article');
@@ -2515,77 +2518,108 @@ function renderHistoryPracticeTimeline(){
     const name=document.createElement('div');
     name.className='history-practice-event-name';
     name.textContent=entry.fr;
+    const format=document.createElement('p');
+    format.className='history-practice-format';
+    format.textContent=getDateAnswerFormat(entry.es);
+    const input=document.createElement('input');
+    input.type='text';input.id='history-practice-date-input-'+index;
+    input.className='history-practice-card-input';
+    input.dataset.index=String(index);
+    input.inputMode='text';input.autocomplete='off';input.spellcheck=false;
+    input.placeholder='Saisis la date ou la période';
+    input.disabled=true;
+    const feedback=document.createElement('p');
+    feedback.id='history-practice-feedback-'+index;
+    feedback.className='history-practice-event-feedback';
+    feedback.setAttribute('aria-live','polite');
+    const button=document.createElement('button');
+    button.type='button';button.id='history-practice-submit-'+index;
+    button.className='btn-check';button.textContent='Valider la date →';
+    button.disabled=true;
+    button.addEventListener('click',()=>window.checkHistoryTimelineDate(index));
+    input.addEventListener('keydown',event=>{
+      if(event.key==='Enter'&&!event.isComposing){event.preventDefault();window.checkHistoryTimelineDate(index);}
+    });
+    input.addEventListener('input',()=>{
+      if(index!==historyTimelineIndex)return;
+      centerHistoryPracticeCard(index,'smooth');
+      scheduleHistoryPracticeRecenter();
+    });
+    input.addEventListener('focus',()=>{
+      if(index===historyTimelineIndex){centerHistoryPracticeCard(index,'smooth');scheduleHistoryPracticeRecenter();}
+    });
+    card.append(marker,name,format,input,button,feedback);
     const date=document.createElement('div');
     date.className='history-practice-event-date';
     date.id='history-practice-date-'+index;
     date.textContent='';
-    card.append(marker,name,date);
+    card.appendChild(date);
     track.appendChild(card);
   });
-  scroller.scrollTo({left:0,behavior:'auto'});
-  requestAnimationFrame(()=>{scroller.scrollLeft=0;});
+  const scroller=document.getElementById('history-practice-scroll');
+  scroller.scrollLeft=0;
 }
 
 function updateHistoryPracticeStep(shouldScroll){
+  const cards=document.querySelectorAll('#history-practice-track .history-practice-event');
   if(historyTimelineIndex>=historyTimelineEntries.length){
-    const complete=document.getElementById('history-practice-complete');
-    complete.classList.remove('hidden');
-    document.getElementById('history-practice-answer-zone').classList.add('hidden');
+    document.getElementById('history-practice-complete').classList.remove('hidden');
     document.getElementById('history-practice-counter').textContent=historyTimelineEntries.length+' / '+historyTimelineEntries.length+' événements';
-    document.getElementById('history-practice-event-name').textContent='Frise terminée !';
-    document.getElementById('history-practice-date-format').textContent='';
-    const feedback=document.getElementById('history-practice-feedback');
-    feedback.textContent='Toutes les dates sont correctes.';
-    feedback.className='history-practice-feedback is-success';
-    // Affiche le même écran de fin que les autres modes solo.
+    cards.forEach(card=>{
+      const input=card.querySelector('.history-practice-card-input');
+      const button=card.querySelector('.btn-check');
+      if(input)input.disabled=true;
+      if(button)button.disabled=true;
+      card.classList.remove('is-active');
+      card.removeAttribute('aria-current');
+    });
+    if(historyPracticeIdleTimer)clearTimeout(historyPracticeIdleTimer);
     showEnd(true);
     return;
   }
-  const entry=historyTimelineEntries[historyTimelineIndex];
+  document.getElementById('history-practice-complete').classList.add('hidden');
   document.getElementById('history-practice-counter').textContent='Événement '+(historyTimelineIndex+1)+' sur '+historyTimelineEntries.length;
-  document.getElementById('history-practice-event-name').textContent=entry.fr;
-  document.getElementById('history-practice-date-format').textContent=getDateAnswerFormat(entry.es);
-  const input=document.getElementById('history-practice-date-input');
-  input.value='';input.disabled=false;input.classList.remove('date-answer-wrong');
-  document.getElementById('history-practice-submit').disabled=false;
-  const feedback=document.getElementById('history-practice-feedback');
-  feedback.textContent='';feedback.className='history-practice-feedback';
-  const cards=document.querySelectorAll('#history-practice-track .history-practice-event');
   cards.forEach((card,index)=>{
-    card.classList.toggle('is-active',index===historyTimelineIndex);
-    if(index===historyTimelineIndex)card.setAttribute('aria-current','step');
-    else card.removeAttribute('aria-current');
-  });
-  if(shouldScroll){
-    const scroller=document.getElementById('history-practice-scroll');
-    const target=cards[historyTimelineIndex];
-    if(target){
-      const left=target.offsetLeft-Math.max(0,(scroller.clientWidth-target.offsetWidth)/2);
-      scroller.scrollTo({left,behavior:'smooth'});
+    const active=index===historyTimelineIndex;
+    card.classList.toggle('is-active',active);
+    if(active)card.setAttribute('aria-current','step');else card.removeAttribute('aria-current');
+    const input=card.querySelector('.history-practice-card-input');
+    const button=card.querySelector('.btn-check');
+    if(input)input.disabled=!active;
+    if(button)button.disabled=!active;
+    if(active){
+      input.classList.remove('date-answer-wrong','date-answer-correct');
+      const feedback=card.querySelector('.history-practice-event-feedback');
+      feedback.textContent='';feedback.className='history-practice-event-feedback';
     }
-  }
-  input.focus();
+  });
+  const input=document.getElementById('history-practice-date-input-'+historyTimelineIndex);
+  centerHistoryPracticeCard(historyTimelineIndex,'smooth');
+  if(input)input.focus({preventScroll:true});
+  scheduleHistoryPracticeRecenter();
 }
 
-window.checkHistoryTimelineDate=()=>{
-  if(historyTimelineIndex>=historyTimelineEntries.length)return;
-  const input=document.getElementById('history-practice-date-input');
+window.checkHistoryTimelineDate=(index=historyTimelineIndex)=>{
+  if(index!==historyTimelineIndex||historyTimelineIndex>=historyTimelineEntries.length)return;
+  const input=document.getElementById('history-practice-date-input-'+index);
+  if(!input||input.disabled)return;
   const typed=normalizeDate(input.value);
-  const feedback=document.getElementById('history-practice-feedback');
+  const card=document.querySelector('#history-practice-track .history-practice-event[data-index="'+index+'"]');
+  const feedback=document.getElementById('history-practice-feedback-'+index);
   if(!typed){
     feedback.textContent='Saisis une date avant de valider.';
-    feedback.className='history-practice-feedback is-error';
-    input.focus();return;
+    feedback.className='history-practice-event-feedback is-error';
+    centerHistoryPracticeCard(index,'smooth');input.focus({preventScroll:true});return;
   }
-  const entry=historyTimelineEntries[historyTimelineIndex];
+  const entry=historyTimelineEntries[index];
   if(typed===normalizeDate(entry.es)){
-    const card=document.querySelector('#history-practice-track .history-practice-event[data-index="'+historyTimelineIndex+'"]');
-    if(card){
-      card.classList.remove('is-active');card.classList.add('is-done');
-      card.removeAttribute('aria-current');
-      const date=card.querySelector('.history-practice-event-date');
-      if(date)date.textContent=formatHistoryDate(entry.es);
-    }
+    card.classList.remove('is-active');card.classList.add('is-done');
+    card.removeAttribute('aria-current');
+    input.classList.remove('date-answer-wrong');input.classList.add('date-answer-correct');input.disabled=true;
+    const button=document.getElementById('history-practice-submit-'+index);if(button)button.disabled=true;
+    const date=card.querySelector('.history-practice-event-date');
+    if(date)date.textContent=formatHistoryDate(entry.es);
+    feedback.textContent='✓ Date correcte';feedback.className='history-practice-event-feedback is-success';
     score+=pointsForCorrectAnswer();streak++;playerProgress++;
     document.getElementById('score').textContent=String(score);
     updateStreakUI();
@@ -2597,9 +2631,9 @@ window.checkHistoryTimelineDate=()=>{
     if(!missedWords.some(m=>m.es===entry.es&&m.fr===entry.fr))missedWords.push({...entry,reason:'erreur'});
     streak=0;updateStreakUI();
     input.classList.add('date-answer-wrong');
-    feedback.textContent='Date incorrecte. Réessaie pour cet événement.'
-    feedback.className='history-practice-feedback is-error';
-    input.focus();input.select();
+    feedback.textContent='Date incorrecte. Réessaie pour cet événement.';
+    feedback.className='history-practice-event-feedback is-error';
+    centerHistoryPracticeCard(index,'smooth');input.focus({preventScroll:true});input.select();
   }
 };
 
