@@ -2355,6 +2355,7 @@ window.confirmStartHistoryTimeline=async()=>{
       .sort((a,b)=>historyDateSortValue(a.es)-historyDateSortValue(b.es)||a._timelineOriginalIndex-b._timelineOriginalIndex);
     historyTimelineIndex=0;
     selectedMode='historyTimeline';
+    const restartBtn=document.getElementById('btn-restart-game');if(restartBtn){restartBtn.classList.remove('hidden');restartBtn.disabled=false;restartBtn.textContent='↻ Recommencer';}
     currentDifficulty='debutant';
     lives=3;score=0;streak=0;playerProgress=0;botProgress=0;
     gameStartedAt=Date.now();leaderboardSubmittedForRun=false;
