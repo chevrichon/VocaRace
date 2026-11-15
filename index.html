@@ -161,6 +161,7 @@ body.theme-light .difficulty-leaderboard{background:#fff;color:#1e293b;border-co
 .list-card{background:#fff;border-radius:.875rem;padding:.75rem;cursor:pointer;border:2px solid transparent;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:.625rem}
 @media(hover:hover){.list-card:hover{border-color:#6366f1}}
 .list-card.selected{border-color:#6366f1;background:#eef2ff}
+.list-select-hint{font-size:.68rem;color:#94a3b8;margin:-.35rem 0 .65rem;line-height:1.4}
 .list-card.loading{opacity:.6;pointer-events:none}
 .list-card--dark{background:#1e293b}
 .list-card-icon{font-size:1.25rem;flex-shrink:0}
@@ -1105,11 +1106,12 @@ body.theme-light .miss-es{
     <div class="mb-section">
       <p id="dataset-picker-label" class="section-label">📚 Choisir une liste de mots</p>
       <div class="list-picker" id="list-picker">
-        <div class="list-card selected" id="builtin-card" onclick="selectBuiltin('list-picker','builtin-card')">
+        <div class="list-card selected" id="builtin-card" onclick="selectBuiltin('list-picker','builtin-card',event)">
           <span class="list-card-icon">📖</span>
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots · Environnement</p></div>
         </div>
         <div id="github-lists-container" class="contents"></div>
+       <p class="list-select-hint">Ctrl + clic (ou Cmd + clic sur Mac) pour ajouter ou retirer une liste.</p>
         <div id="lists-loader" class="list-card list-card--dark hidden" style="pointer-events:none">
           <div class="spinner"></div><p class="list-card-count">Chargement...</p>
         </div>
@@ -1144,11 +1146,12 @@ body.theme-light .miss-es{
     <div id="lobby-step1">
       <p class="section-label" style="margin-bottom:.75rem">📚 Liste de mots</p>
       <div class="list-picker" id="lobby-list-picker" style="margin-bottom:1.25rem">
-        <div class="list-card selected" id="lobby-builtin-card" onclick="selectBuiltin('lobby-list-picker','lobby-builtin-card')">
+        <div class="list-card selected" id="lobby-builtin-card" onclick="selectBuiltin('lobby-list-picker','lobby-builtin-card',event)">
           <span class="list-card-icon">📖</span>
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots</p></div>
         </div>
         <div id="lobby-github-lists" class="contents"></div>
+         <p class="list-select-hint">Ctrl + clic (ou Cmd + clic sur Mac) pour combiner plusieurs listes.</p>
       </div>
       <div id="lobby-history-import" class="history-import-card hidden">
         <p class="history-import-title">Importer un fichier personnel</p>
@@ -1210,11 +1213,12 @@ body.theme-light .miss-es{
     <div class="mb-section">
       <p class="section-label" style="margin-bottom:.75rem">📚 Liste de mots</p>
       <div class="list-picker" id="learn-list-picker" style="margin-bottom:0">
-        <div class="list-card selected" id="learn-builtin-card" onclick="selectBuiltin('learn-list-picker','learn-builtin-card')">
+        <div class="list-card selected" id="learn-builtin-card" onclick="selectBuiltin('learn-list-picker','learn-builtin-card',event)">
           <span class="list-card-icon">📖</span>
           <div><p class="list-card-name">Liste par défaut</p><p class="list-card-count">41 mots</p></div>
         </div>
         <div id="learn-github-lists" class="contents"></div>
+         <p class="list-select-hint">Ctrl + clic (ou Cmd + clic sur Mac) pour combiner plusieurs listes.</p>
       </div>
       <div id="learn-history-import" class="history-import-card hidden">
         <p class="history-import-title">Importer un fichier personnel</p>
@@ -1793,6 +1797,7 @@ async function renderHistoryTimeline(files,selectedFile){
 }
 
 async function loadHistoryListsInto(containerId,pickerId,builtinId){
+  pickerSelections.delete(pickerId);
   const cont=document.getElementById(containerId);
   const builtin=builtinId?document.getElementById(builtinId):null;
   if(builtin)builtin.classList.add('hidden');
@@ -1812,21 +1817,17 @@ async function loadHistoryListsInto(containerId,pickerId,builtinId){
       info.append(title,count);card.append(icon,info);cont.appendChild(card);
       fetch(rawFile(filename)).then(r=>r.ok?r.text():Promise.reject())
         .then(t=>count.textContent=parseHistoryFile(t).length+' événements').catch(()=>count.textContent='Indisponible');
-      card.addEventListener('click',()=>{
-        deselectIn(pickerId);card.classList.add('selected','loading');
-        datasetLoadPromise=(async()=>{
-          try{
-            const response=await fetch(rawFile(filename));
-            if(!response.ok)throw new Error('HTTP '+response.status);
-            const entries=parseHistoryFile(await response.text());
-            if(!entries.length)throw new Error('Aucun événement valide');
-            activeVocabulary=entries;activeListName=filename.split('/').pop().replace(/\.histoire$/i,'');activeDatasetType='history';loadDifficultyLeaderboard();
-          }catch(e){alert('Impossible de charger la chronologie '+filename+'.');card.classList.remove('selected');}
-          finally{card.classList.remove('loading');}
-        })();
-      });
+      card._vocaListSource={
+        key:'history:'+filename,name:filename.split('/').pop().replace(/\.histoire$/i,''),
+        dataset:'history',load:async()=>{
+          const response=await fetch(rawFile(filename));if(!response.ok)throw new Error('HTTP '+response.status);
+          const entries=parseHistoryFile(await response.text());if(!entries.length)throw new Error('Aucun événement valide');return entries;
+        }
+      };
+      card.addEventListener('click',event=>selectPickerCard(card,pickerId,event));
       if(index===0)card.click();
     });
+    paintPickerSelection(pickerId);
   }catch(e){cont.innerHTML='<p style="grid-column:1/-1;color:#fda4af;font-size:.72rem">Impossible de charger histoire_lists.json depuis GitHub.</p>';}
 }
 window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId)=>{
@@ -1836,13 +1837,12 @@ window.importHistoryFile=async(inputId,statusId,pickerId,wrapperId)=>{
   try{
     const entries=parseHistoryFile(await file.text());
     if(!entries.length)throw new Error('Aucune ligne valide. Format attendu : date::événement.');
-    activeVocabulary=entries;activeListName=file.name;activeDatasetType='history';loadDifficultyLeaderboard();
-    deselectIn(pickerId);wrapper.classList.add('selected');
+    const source={key:'history-import:'+file.name+':'+file.lastModified,name:file.name,dataset:'history',element:wrapper,load:async()=>entries};
+    await selectPickerSource(pickerId,source,null);
     status.textContent=entries.length+' événements chargés depuis '+file.name+'.';
-    datasetLoadPromise=Promise.resolve();
   }catch(e){status.textContent=e.message||'Impossible de lire ce fichier.';}
 };
-window.confirmStart=async diff=>{currentDifficulty=diff;await datasetLoadPromise;startGame();};
+window.confirmStart=async diff=>{currentDifficulty=diff;if(await datasetLoadPromise===false)return;startGame();};
 
 window.showLobby=async()=>{
   hideAll();
@@ -1880,6 +1880,7 @@ async function loadListsInto(containerId,pickerId,builtinId){
     if(importId)document.getElementById(importId).classList.remove('hidden');
     return;
   }
+  ensurePickerDataset(pickerId,'vocab');
   const cont=document.getElementById(containerId);
   cont.innerHTML='';
   const importId=containerId==='lobby-github-lists'?'lobby-history-import':
@@ -1895,10 +1896,15 @@ async function loadListsInto(containerId,pickerId,builtinId){
       const card=document.createElement('div');
       card.className='list-card';
       card.innerHTML=`<span class="list-card-icon">🇪🇸</span><div><p class="list-card-name">${name}</p><p class="list-card-count" id="${cid}">...</p></div>`;
-      card.onclick=()=>pickGithubList(card,url,name,pickerId,builtinId);
+      card._vocaListSource={key:'vocab:'+fname,name,dataset:'vocab',load:async()=>{
+        const response=await fetch(url);if(!response.ok)throw new Error('HTTP '+response.status);
+        const words=parseEspagnolFile(await response.text());if(!words.length)throw new Error('Aucun mot parsé');return words;
+      }};
+      card.onclick=event=>pickGithubList(card,url,name,pickerId,builtinId,event);
       cont.appendChild(card);
       fetch(url).then(r=>r.text()).then(t=>{const el=document.getElementById(cid);if(el)el.textContent=parseEspagnolFile(t).length+' mots';}).catch(()=>{});
     });
+    paintPickerSelection(pickerId);
   }catch(e){}
 }
 
@@ -1926,37 +1932,76 @@ window.fetchGithubLists=async function(){
       const card=document.createElement('div');
       card.className='list-card';
       card.innerHTML=`<span class="list-card-icon">🇪🇸</span><div><p class="list-card-name">${name}</p><p class="list-card-count" id="${cid}">...</p></div>`;
-      card.onclick=()=>pickGithubList(card,url,name,'list-picker','builtin-card');
+      card._vocaListSource={key:'vocab:'+fname,name,dataset:'vocab',load:async()=>{
+        const response=await fetch(url);if(!response.ok)throw new Error('HTTP '+response.status);
+        const words=parseEspagnolFile(await response.text());if(!words.length)throw new Error('Aucun mot parsé');return words;
+      }};
+      card.onclick=event=>pickGithubList(card,url,name,'list-picker','builtin-card',event);
       cont.appendChild(card);
       fetch(url).then(r=>r.text()).then(t=>{const el=document.getElementById(cid);if(el)el.textContent=parseEspagnolFile(t).length+' mots';}).catch(()=>{});
     });
+    paintPickerSelection('list-picker');
   }catch(e){errDiv.textContent='⚠️ '+e.message;errDiv.classList.remove('hidden');}
   finally{loader.classList.add('hidden');btn.textContent='↻ Actualiser les listes GitHub';btn.style.opacity='';btn.style.pointerEvents='';}
 };
 
-function deselectIn(pickerId){document.querySelectorAll('#'+pickerId+' .list-card').forEach(c=>c.classList.remove('selected'));}
-
-window.selectBuiltin=function(pickerId,builtinId){
-  deselectIn(pickerId);document.getElementById(builtinId).classList.add('selected');
-  activeVocabulary=[...defaultVocabulary];activeListName='Liste par défaut';
-  if(pickerId==='list-picker')loadDifficultyLeaderboard();
-};
-async function pickGithubList(card,url,name,pickerId,builtinId){
-  deselectIn(pickerId);card.classList.add('selected','loading');
-  const sp=document.createElement('div');sp.className='spinner';card.appendChild(sp);
-  try{
-    const res=await fetch(url);if(!res.ok)throw new Error('HTTP '+res.status);
-    const words=parseEspagnolFile(await res.text());
-    if(!words.length)throw new Error('Aucun mot parsé');
-    activeVocabulary=words;activeListName=name;
-    if(pickerId==='list-picker')loadDifficultyLeaderboard();
-  }catch(e){
-    alert('Impossible de charger "'+name+'".\nListe par défaut utilisée.');
-    deselectIn(pickerId);document.getElementById(builtinId).classList.add('selected');
-    activeVocabulary=[...defaultVocabulary];activeListName='Liste par défaut';
-    if(pickerId==='list-picker')loadDifficultyLeaderboard();
-  }finally{card.classList.remove('loading');if(sp.parentNode)sp.removeChild(sp);}
+const pickerSelections=new Map();
+const pickerLoadVersions=new Map();
+function makeBuiltinListSource(){return {key:'vocab:builtin',name:'Liste par défaut',dataset:'vocab',load:async()=>[...defaultVocabulary]};}
+function sourceForPickerCard(card){
+  if(!card)return null;if(card._vocaListSource)return card._vocaListSource;
+  if(/builtin-card$/.test(card.id||'')){card._vocaListSource=makeBuiltinListSource();return card._vocaListSource;}return null;
 }
+function currentPickerSources(pickerId){
+  const saved=pickerSelections.get(pickerId);if(saved&&saved.length)return [...saved];
+  const root=document.getElementById(pickerId);if(!root)return [];
+  return [...root.querySelectorAll('.list-card.selected')].map(sourceForPickerCard).filter(Boolean);
+}
+function paintPickerSelection(pickerId){
+  const selected=pickerSelections.get(pickerId)||[],keys=new Set(selected.map(source=>source.key));
+  const root=document.getElementById(pickerId);
+  if(root)root.querySelectorAll('.list-card').forEach(card=>{
+    const source=sourceForPickerCard(card);if(source)card.classList.toggle('selected',keys.has(source.key));card.classList.remove('loading');
+  });
+  document.querySelectorAll('.history-import-card').forEach(wrapper=>wrapper.classList.toggle('selected',selected.some(source=>source.element===wrapper)));
+}
+function ensurePickerDataset(pickerId,dataset){
+  const current=pickerSelections.get(pickerId);if(current&&current.length&&current.every(source=>source.dataset===dataset))return;
+  if(dataset==='vocab'){
+    const root=document.getElementById(pickerId),builtin=root&&root.querySelector('.list-card[id$="builtin-card"]'),source=makeBuiltinListSource();
+    if(builtin)builtin._vocaListSource=source;pickerSelections.set(pickerId,[source]);paintPickerSelection(pickerId);
+  }else pickerSelections.delete(pickerId);
+}
+function selectPickerSource(pickerId,source,event){
+  if(!source)return Promise.resolve(false);
+  const additive=!!(event&&(event.ctrlKey||event.metaKey));let current=currentPickerSources(pickerId);
+  if(current.some(item=>item.dataset!==source.dataset))current=[];
+  let next;
+  if(additive&&current.some(item=>item.key===source.key))next=current.length>1?current.filter(item=>item.key!==source.key):current;
+  else if(additive)next=[...current,source];else next=[source];
+  if(!next.length)next=[source];
+  next=next.filter((item,index,array)=>array.findIndex(other=>other.key===item.key)===index);
+  pickerSelections.set(pickerId,next);paintPickerSelection(pickerId);
+  const version=(pickerLoadVersions.get(pickerId)||0)+1;pickerLoadVersions.set(pickerId,version);
+  const names=next.map(item=>item.name);
+  datasetLoadPromise=(async()=>{
+    try{
+      const loaded=await Promise.all(next.map(item=>item.load()));if(pickerLoadVersions.get(pickerId)!==version)return true;
+      const combined=[],seen=new Set();
+      loaded.flat().forEach(entry=>{const key=normalize(String(entry.es??''))+'\u0000'+normalize(String(entry.fr??''));if(seen.has(key))return;seen.add(key);combined.push({...entry});});
+      if(!combined.length)throw new Error('Aucune entrée dans les listes sélectionnées.');
+      activeVocabulary=combined;activeListName=names.join(' + ');activeDatasetType=next[0].dataset;
+      if(pickerId==='list-picker')loadDifficultyLeaderboard();return true;
+    }catch(error){if(pickerLoadVersions.get(pickerId)===version){console.error('Erreur de chargement des listes :',error);alert('Impossible de charger toutes les listes sélectionnées. Vérifie les fichiers GitHub.');}return false;}
+  })();return datasetLoadPromise;
+}
+function selectPickerCard(card,pickerId,event){return selectPickerSource(pickerId,sourceForPickerCard(card),event);}
+function deselectIn(pickerId){document.querySelectorAll('#'+pickerId+' .list-card').forEach(card=>card.classList.remove('selected'));pickerSelections.delete(pickerId);}
+window.selectBuiltin=function(pickerId,builtinId,event){
+  const card=document.getElementById(builtinId);if(!card)return Promise.resolve(false);
+  card._vocaListSource=makeBuiltinListSource();return selectPickerCard(card,pickerId,event);
+};
+async function pickGithubList(card,url,name,pickerId,builtinId,event){return selectPickerCard(card,pickerId,event);}
 
 // ════════════════════════════════════════════════════
 // DUEL EN LIGNE — REALTIME DATABASE
@@ -2031,6 +2076,7 @@ function stopWatchingPublicRooms(){
 // ── Créer un salon (public ou privé) ──
 window.createRoom=async function(isPublic){
   if(!db){lobbyErr('⚠️ Firebase non configuré.');return;}
+  if(await datasetLoadPromise===false)return;
   const name=(document.getElementById('player-name-input').value.trim()||'Joueur1').substring(0,20);
   try{
     const user=await ensureFirebaseAuth();
@@ -2216,7 +2262,8 @@ window.setLearnSize=function(n,btn){
   btn.classList.add('sel');
 };
 
-window.startLearnMode=function(){
+window.startLearnMode=async function(){
+  if(await datasetLoadPromise===false)return;
   hideAll();
   const shuffled=[...activeVocabulary].sort(()=>Math.random()-.5);
   learnGroups=[];
@@ -2374,7 +2421,7 @@ let historyTimelineEntries=[], historyTimelineIndex=0;
 
 window.confirmStartHistoryTimeline=async()=>{
   try{
-    await datasetLoadPromise;
+    if(await datasetLoadPromise===false)return;
     if(activeDatasetType!=='history'||!Array.isArray(activeVocabulary)||!activeVocabulary.length){
       alert('Choisis une chronologie avant de commencer.');
       return;
