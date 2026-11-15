@@ -1390,7 +1390,6 @@ body.theme-light .miss-es{
       <section id="leaderboard-panel" style="margin-top:1rem;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left">
         <h3 style="font-size:1rem;font-weight:900;margin-bottom:.35rem">🏆 Top 3 — ce mode et cette liste</h3>
         <p style="font-size:.75rem;color:#94a3b8;margin-bottom:.75rem">Classement automatique : points, puis temps le plus rapide.</p>
-        <input id="leaderboard-name" type="text" maxlength="20" placeholder="Ton pseudo (facultatif)" autocomplete="nickname" style="width:100%;box-sizing:border-box;margin-bottom:.75rem;padding:.7rem;border:1px solid #94a3b8;border-radius:.65rem;font:inherit">
         <p id="leaderboard-status" style="font-size:.75rem;margin-bottom:.5rem;color:#94a3b8" aria-live="polite">Chargement du classement…</p>
         <ol id="leaderboard-list" style="padding-left:1.5rem;font-size:.85rem;display:grid;gap:.35rem"></ol>
       </section>
@@ -2955,21 +2954,6 @@ function showEnd(isVictory){
   const isTimelineMode=selectedMode==='historyTimeline';
   retryBtn.classList.toggle('hidden',isTimelineMode||selectedMode==='learn'||misses.length===0);
   document.getElementById('btn-replay-game').classList.toggle('hidden',selectedMode==='online'||isTimelineMode);
-  const nameInput=document.getElementById('leaderboard-name');
-  const savedName=vocaProfileName||getVocaLocalName()||getLeaderboardCookie();
-  if(nameInput){
-    nameInput.value=savedName||'';
-    nameInput.readOnly=!!savedName;
-    nameInput.placeholder=savedName?'Pseudo du compte':'Choisis un pseudo pour le classement';
-    nameInput.onchange=()=>{
-      if(getLeaderboardCookie())return;
-      const name=String(nameInput.value||'').trim().slice(0,20);
-      if(!name)return;
-      setVocaLocalName(name);
-      nameInput.value=name;nameInput.readOnly=true;nameInput.placeholder='Pseudo enregistré';
-      saveLeaderboardScore();
-    };
-  }
   loadLeaderboard();
   saveLeaderboardScore();
 }
@@ -3042,29 +3026,33 @@ async function loadLeaderboard(){
 }
 
 async function saveLeaderboardScore(){
-  const nameInput=document.getElementById('leaderboard-name');
   const status=document.getElementById('leaderboard-status');
   if(leaderboardSubmittedForRun)return;
-  const name=(vocaProfileName||getVocaLocalName()||getLeaderboardCookie()||String(nameInput?.value||'').trim()).slice(0,20);
-  if(!name){
-    status.textContent='Choisis ton pseudo une seule fois pour enregistrer ton score.';
+  if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
+  const user=auth&&auth.currentUser;
+  if(!user||user.isAnonymous){
+    status.textContent='Connecte-toi ou crée un compte via le bouton Compte pour enregistrer ton score.';
     return;
   }
-  if(!getLeaderboardCookie())setLeaderboardCookie(name);
-  setVocaLocalName(name);
-  leaderboardSubmittedForRun=true;
-  if(!db){status.textContent='Classement indisponible : Firebase non connecté.';return;}
-  status.textContent='Enregistrement automatique du score…';
+  status.textContent='Enregistrement du score…';
   try{
-    const user=await ensureFirebaseAuth();
+    let name=String(vocaProfileName||'').trim().slice(0,20);
+    if(!name){
+      const profile=await db.ref('profiles/'+user.uid).once('value');
+      name=String((profile.val()||{}).pseudo||'').trim().slice(0,20);
+    }
+    if(!name){
+      status.textContent='Ton compte n’a pas de pseudo enregistré. Ouvre Compte pour le configurer.';
+      return;
+    }
+    leaderboardSubmittedForRun=true;
     const timeMs=Math.max(0,Date.now()-(gameStartedAt||Date.now()));
     await db.ref('leaderboard').push({
       uid:user.uid,name,score:Number(score)||0,timeMs,mode:String(selectedMode||'solo'),
       dataset:String(activeDatasetType||'vocab'),list:String(activeListName||'Liste'),difficulty:String(currentDifficulty||'debutant'),
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
-    if(nameInput){nameInput.value=name;nameInput.readOnly=true;}
-    status.textContent='Score enregistré automatiquement.';
+    status.textContent='Score enregistré avec ton compte.';
     await loadLeaderboard();
   }catch(error){
     leaderboardSubmittedForRun=false;
