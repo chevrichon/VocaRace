@@ -1541,7 +1541,7 @@ button,input,select,textarea{border-radius:.7rem!important}
 <!-- MENU DES MODES -->
 <div id="mode-selection-screen" class="screen hidden">
   <div class="menu-inner" style="position:relative">
-    <button id="voca-account-button" onclick="openVocaAccount()" aria-label="Compte facultatif" title="Compte" style="position:fixed;right:3.8rem;top:.25rem;width:30px;height:30px;border-radius:50%;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer;z-index:201">Compte</button>
+    <button id="voca-account-button" onclick="openVocaAccount()" aria-label="Compte" title="Compte" style="position:fixed;right:3.8rem;top:.25rem;height:30px;padding:0 .65rem;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer;z-index:201">Compte</button>
     <span id="voca-account-label" style="position:fixed;right:3.8rem;top:2.05rem;font-size:.55rem;color:#94a3b8;max-width:90px;text-align:right;z-index:201">Compte facultatif</span>
     <h2 class="menu-title">VocaRace</h2>
     <p id="mode-menu-subtitle" class="menu-sub">Maîtrisez l'orthographe espagnole</p>
@@ -1550,37 +1550,37 @@ button,input,select,textarea{border-radius:.7rem!important}
         <div class="mode-icon mode-icon--solo"></div>
         <h3 class="mode-card-title mode-card-title--solo">Réviser seul</h3>
         <p class="mode-card-desc mode-card-desc--solo">Révise le vocabulaire ou les dates à ton rythme.</p>
-        <div class="mode-cta mode-cta--solo">Choisir le niveau →</div>
+        <div class="mode-cta mode-cta--solo">Choisir le niveau</div>
       </div>
       <div onclick="showDifficulty('bot')" class="mode-card mode-card--bot">
         <div class="mode-icon mode-icon--bot"></div>
         <h3 class="mode-card-title mode-card-title--bot">Duel contre l’ordinateur</h3>
-        <p class="mode-card-desc mode-card-desc--bot">Soyez plus rapide que l'IA !</p>
-        <div class="mode-cta mode-cta--bot">Défier le Bot →</div>
+        <p class="mode-card-desc mode-card-desc--bot">Affronte l’ordinateur et compare ton score.</p>
+        <div class="mode-cta mode-cta--bot">Choisir le niveau du duel</div>
       </div>
       <div onclick="showLobby()" class="mode-card mode-card--duel">
         <div class="mode-icon mode-icon--duel"></div>
         <h3 class="mode-card-title mode-card-title--duel">Duel en ligne</h3>
-        <p class="mode-card-desc mode-card-desc--duel">Créez un salon et affrontez un ami en temps réel !</p>
-        <div class="mode-cta mode-cta--duel">Créer un salon →</div>
+        <p class="mode-card-desc mode-card-desc--duel">Crée un salon pour jouer avec un ami en temps réel.</p>
+        <div class="mode-cta mode-cta--duel">Créer un salon de duel</div>
       </div>
       <div onclick="showLearnIntro()" class="mode-card mode-card--learn">
         <div class="mode-icon mode-icon--learn"></div>
         <h3 class="mode-card-title mode-card-title--learn">Mémoriser puis tester</h3>
         <p class="mode-card-desc mode-card-desc--learn">Mémorise des groupes de mots, puis vérifie tes réponses.</p>
-        <div class="mode-cta mode-cta--learn">Commencer →</div>
+        <div class="mode-cta mode-cta--learn">Choisir une liste</div>
       </div>
       <div id="history-timeline-mode" onclick="showHistoryTimelineChooser()" class="mode-card mode-card--dates hidden">
         <div class="mode-icon mode-icon--dates"></div>
         <h3 class="mode-card-title mode-card-title--dates">Frise chronologique</h3>
         <p class="mode-card-desc mode-card-desc--dates">Toutes les dates d'une liste ou de toutes les listes d'histoire.</p>
-        <div class="mode-cta mode-cta--dates">Voir les frises →</div>
+        <div class="mode-cta mode-cta--dates">Ouvrir les frises</div>
       </div>
       <div id="history-timeline-practice-mode" onclick="showDifficulty('timeline')" class="mode-card mode-card--dates hidden">
         <div class="mode-icon mode-icon--dates"></div>
         <h3 class="mode-card-title mode-card-title--dates">Solo avec frise</h3>
         <p class="mode-card-desc mode-card-desc--dates">Retrouve les dates dans l'ordre et complète la frise en avançant.</p>
-        <div class="mode-cta mode-cta--dates">Compléter la frise →</div>
+        <div class="mode-cta mode-cta--dates">Commencer la frise</div>
       </div>
 
     </div>
