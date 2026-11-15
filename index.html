@@ -1368,21 +1368,12 @@ body.theme-light .miss-es{
     </div>
   </div>
   <section id="history-timeline-practice" class="history-practice hidden" aria-label="Mode solo avec frise chronologique">
-    <div class="history-practice-status">
-      <p id="history-practice-counter" class="history-practice-counter">Événement 1 sur 1</p>
+    <div id="history-practice-scroll" class="history-practice-scroll" aria-label="Frise horizontale de cartes à compléter">
+      <div id="history-practice-track" class="history-practice-track"></div>
     </div>
-    <div class="history-practice-timeline-panel">
-      <div class="history-practice-timeline-heading">
-        <h3>Complète chaque date directement dans sa carte</h3>
-        <p>Seule la carte active accepte une réponse. Tu peux parcourir la frise ; elle revient à la carte active quand tu écris ou après 2 secondes d'inactivité.</p>
-      </div>
-      <div id="history-practice-scroll" class="history-practice-scroll" aria-label="Frise horizontale de cartes à compléter">
-        <div id="history-practice-track" class="history-practice-track"></div>
-      </div>
-      <div id="history-practice-complete" class="history-practice-complete hidden">
-        <p>Frise terminée : toutes les dates ont été retrouvées dans l'ordre chronologique.</p>
-        <button onclick="backToModeSelection()" class="btn-back">← Retour aux modes d'histoire</button>
-      </div>
+    <div id="history-practice-complete" class="history-practice-complete hidden">
+      <p>Frise terminée : toutes les dates ont été retrouvées dans l'ordre chronologique.</p>
+      <button onclick="backToModeSelection()" class="btn-back">← Retour aux modes d'histoire</button>
     </div>
   </section>
 </main>
@@ -2596,7 +2587,6 @@ function updateHistoryPracticeStep(shouldScroll){
   const cards=document.querySelectorAll('#history-practice-track .history-practice-event');
   if(historyTimelineIndex>=historyTimelineEntries.length){
     document.getElementById('history-practice-complete').classList.remove('hidden');
-    document.getElementById('history-practice-counter').textContent=historyTimelineEntries.length+' / '+historyTimelineEntries.length+' événements';
     cards.forEach(card=>{
       const input=card.querySelector('.history-practice-card-input');
       const button=card.querySelector('.btn-check');
@@ -2610,7 +2600,6 @@ function updateHistoryPracticeStep(shouldScroll){
     return;
   }
   document.getElementById('history-practice-complete').classList.add('hidden');
-  document.getElementById('history-practice-counter').textContent='Événement '+(historyTimelineIndex+1)+' sur '+historyTimelineEntries.length;
   cards.forEach((card,index)=>{
     const active=index===historyTimelineIndex;
     card.classList.toggle('is-active',active);
