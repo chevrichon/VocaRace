@@ -2471,6 +2471,7 @@ function bindHistoryPracticeScroll(){
 window.confirmStartHistoryTimeline=async()=>{
   try{
     if(await datasetLoadPromise===false)return;
+    if(historyPracticeIdleTimer)clearTimeout(historyPracticeIdleTimer);
     if(activeDatasetType!=='history'||!Array.isArray(activeVocabulary)||!activeVocabulary.length){
       alert('Choisis une chronologie avant de commencer.');
       return;
