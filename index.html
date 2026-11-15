@@ -446,7 +446,7 @@ body.theme-light .history-practice-event.is-done .history-practice-event-name{ba
 .miss-arrow{color:#fca5a5;flex-shrink:0}
 .miss-es{font-weight:900;color:#991b1b;font-style:italic;word-break:break-word}
 .no-miss{color:#94a3b8;font-style:italic;font-size:.85rem}
-.btn-retry-missed{width:100%;background:#e11d48;color:#fff;font-weight:900;padding:1rem;border-radius:.875rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;margin-top:.875rem;min-height:3rem;transition:background .2s}
+.btn-retry-missed{width:100%;background:#e11d48;color:#fff;font-weight:900;padding:1rem;border-radius:.875rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;margin:1.25rem 0 1rem;min-height:3rem;display:block;transition:background .2s}
 .btn-retry-missed:hover{background:#be123c}
 .btn-return{width:100%;background:#4f46e5;color:#fff;font-weight:900;padding:1rem;border-radius:.875rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;margin-top:.875rem;min-height:3rem;transition:background .2s}
 .btn-return:hover{background:#4338ca}
@@ -2921,6 +2921,11 @@ function showEnd(isVictory){
   document.getElementById('end-modal').classList.remove('hidden');
   // Affiche tous les éléments réellement ratés, y compris ceux du mode hardcore.
   const misses=missedWords;
+  const isHistoryRun=activeDatasetType==='history'||selectedMode==='dates'||selectedMode==='historyTimeline';
+  const missedNoun=isHistoryRun?'dates ratées':'mots ratés';
+  document.getElementById('tab-misses').firstChild.textContent=isHistoryRun?'Dates ratées ':'Mots ratés ';
+  document.getElementById('btn-retry-missed').textContent='🔁 Rejouer avec les '+missedNoun;
+  document.getElementById('no-misses-msg').textContent=isHistoryRun?'Aucune date ratée — parfait !':'Aucun mot raté — parfait !';
   let icon,title,desc;
   if(selectedMode==='learn'){
     icon='🎓';title='¡LISTA DOMINADA!';desc='Tu as maîtrisé toute la liste !';
