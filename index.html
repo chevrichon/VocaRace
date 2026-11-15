@@ -1273,6 +1273,154 @@ body:not(.theme-light) .history-practice-event .btn-check:hover{background:#416F
 body.theme-light .history-practice-card-input.date-answer-correct{border-color:var(--vr-forest);background:#E5EEE5;color:var(--vr-forest);box-shadow:none}
 body:not(.theme-light) .history-practice-card-input.date-answer-correct{border-color:#8FB39B;background:#2D3D31;color:#D4E0D4;box-shadow:none}
 
+
+/* Palette VocaRace : bleu ardoise et framboise */
+:root{
+ --vr-paper:#F0F3F5;--vr-surface:#FAFBFC;--vr-ink:#202A33;
+ --vr-blue:#315B78;--vr-raspberry:#B85C68;--vr-border:#D3DCE2;--vr-muted:#5E6D79;
+ --vr-blue-soft:#E2EBF2;--vr-raspberry-soft:#F4E5E8;
+ --vr-night:#171D24;--vr-night-surface:#242C35;--vr-night-border:#3D4854;--vr-night-text:#E9EEF2;
+ --vr-blue-dark:#7FA8C8;--vr-raspberry-dark:#D58A96;
+}
+.menu-title,.diff-title,.lobby-title,.learn-title,.modal-title{font-family:Georgia,"Times New Roman",serif;font-style:normal;text-transform:none;letter-spacing:-.025em;font-weight:700}
+.menu-sub,.section-label,.learn-size-label{text-transform:none;letter-spacing:.035em;font-weight:650}
+.mode-card,.category-card,.list-card,.diff-btn,.history-import-card,.lobby-name-input,.lobby-code-input,.room-item,.lobby-player,.learn-phase-card,.learn-size-btn,.flashcard,#question-card,.history-practice-event,.modal-inner,.results-score,.tabs,.lobby-tabs,.btn-check,.btn-next,.btn-return,.btn-retry-missed,.btn-create,.btn-join,.btn-start-duel,.btn-start-learn,.btn-fc{border-radius:.7rem!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.mode-card{border-width:1px;transition:border-color .18s,background-color .18s}
+@media(hover:hover){.mode-card:hover,.diff-btn:hover{transform:none}}
+.diff-btn{font-style:normal}
+.btn-check,.btn-next,.btn-return,.btn-retry-missed,.btn-create,.btn-join,.btn-start-duel,.btn-start-learn,.tab-btn,.lobby-tab{text-transform:none;letter-spacing:.015em;font-weight:750;box-shadow:none!important}
+#question-card,.flashcard,.history-practice-event,.modal-inner{border-width:1px}
+.mode-icon{border-radius:.55rem!important}.progress-bar,.progress-fill{border-radius:2px}
+#game-header{backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}
+
+/* Thème clair */
+body.theme-light{background:var(--vr-paper);color:var(--vr-ink)}
+body.theme-light .screen{background:var(--vr-paper);color:var(--vr-ink)}
+body.theme-light #end-modal{background:rgba(32,42,51,.48)}
+body.theme-light .menu-title,body.theme-light .diff-title,body.theme-light .lobby-title,body.theme-light .learn-title,body.theme-light .modal-title{color:var(--vr-ink)}
+body.theme-light .menu-sub,body.theme-light .section-label,body.theme-light .learn-size-label,body.theme-light .list-select-hint{color:var(--vr-muted)}
+body.theme-light #game-header{background:rgba(250,251,252,.97);border-bottom-color:var(--vr-border);color:var(--vr-ink)}
+body.theme-light .mode-card,body.theme-light .category-card,body.theme-light .list-card,body.theme-light .room-item,body.theme-light .history-import-card,body.theme-light .lobby-tabs,body.theme-light .lobby-name-input,body.theme-light .lobby-code-input,body.theme-light .lobby-player,body.theme-light .learn-phase-card,body.theme-light .learn-size-btn,body.theme-light .flashcard,body.theme-light #question-card,body.theme-light .duel-bar,body.theme-light .modal-inner,body.theme-light .tabs,body.theme-light .difficulty-leaderboard{background:var(--vr-surface);color:var(--vr-ink);border-color:var(--vr-border)}
+body.theme-light .mode-card--solo,body.theme-light .mode-card--bot,body.theme-light .mode-card--learn,body.theme-light .mode-card--duel{background:var(--vr-surface);border-color:var(--vr-border)}
+body.theme-light .mode-card--dates,body.theme-light .category-card--history{background:var(--vr-blue);border-color:var(--vr-blue)}
+body.theme-light .mode-card-title--solo,body.theme-light .mode-card-title--bot,body.theme-light .mode-card-title--learn,body.theme-light .mode-card-title--duel{color:var(--vr-ink)}
+body.theme-light .mode-card-title--dates,body.theme-light .category-card--history .category-title-light{color:#fff}
+body.theme-light .mode-card-desc--solo,body.theme-light .mode-card-desc--bot,body.theme-light .mode-card-desc--learn,body.theme-light .mode-card-desc--duel{color:var(--vr-muted)}
+body.theme-light .mode-card-desc--dates,body.theme-light .category-card--history .category-desc-light{color:#E0EAF1}
+body.theme-light .mode-icon--solo,body.theme-light .mode-icon--duel{background:var(--vr-blue-soft);color:var(--vr-blue)}
+body.theme-light .mode-icon--bot{background:var(--vr-raspberry-soft);color:#914653}
+body.theme-light .mode-icon--learn{background:#E7E9EF;color:#4D5D7A}
+body.theme-light .mode-icon--dates{background:#416D8D;color:#fff}
+body.theme-light .mode-cta--solo,body.theme-light .mode-cta--duel,body.theme-light .mode-cta--learn{color:var(--vr-blue)}
+body.theme-light .mode-cta--bot{color:#914653}body.theme-light .mode-cta--dates{color:#F4DDE1}
+body.theme-light .mode-card:hover{border-color:var(--vr-blue)}
+body.theme-light .mode-card--bot:hover,body.theme-light .mode-card--dates:hover,body.theme-light .category-card--history:hover{border-color:var(--vr-raspberry)}
+body.theme-light .list-card.selected,body.theme-light .history-import-card.selected,body.theme-light .learn-size-btn:hover,body.theme-light .learn-size-btn.sel{background:var(--vr-blue-soft);border-color:var(--vr-blue);color:var(--vr-ink)}
+body.theme-light .list-card-name,body.theme-light .history-import-title,body.theme-light .room-item-host,body.theme-light .lobby-player-name{color:var(--vr-ink)}
+body.theme-light .list-card-count,body.theme-light .history-import-status,body.theme-light .rooms-empty,body.theme-light .rooms-loading,body.theme-light .room-item-time,body.theme-light .lobby-player-status{color:var(--vr-muted)}
+body.theme-light .history-import-card button,body.theme-light .btn-create,body.theme-light .btn-start-duel,body.theme-light .btn-start-learn,body.theme-light .btn-check,body.theme-light .btn-return,body.theme-light .btn-fc-done,body.theme-light .btn-next{background:var(--vr-blue);color:#fff}
+body.theme-light .btn-create:hover,body.theme-light .btn-start-duel:hover:not(:disabled),body.theme-light .btn-start-learn:hover,body.theme-light .btn-check:hover,body.theme-light .btn-return:hover,body.theme-light .btn-fc-done:hover,body.theme-light .btn-next:hover{background:#274A63}
+body.theme-light .btn-join,body.theme-light .room-item-join{background:var(--vr-blue-soft);color:var(--vr-blue);border-color:#B7C9D7}
+body.theme-light .btn-join:hover,body.theme-light .room-item:hover .room-item-join{background:var(--vr-blue);color:#fff}
+body.theme-light .diff-btn--deb{background:var(--vr-blue)}body.theme-light .diff-btn--int{background:#536D8C}body.theme-light .diff-btn--exp{background:var(--vr-raspberry)}body.theme-light .diff-btn--hc{background:var(--vr-ink);border:1px solid var(--vr-raspberry)}
+body.theme-light .btn-back{color:var(--vr-muted)}body.theme-light .btn-back:hover,body.theme-light .btn-refresh{color:var(--vr-blue)}body.theme-light .btn-refresh:hover{color:var(--vr-raspberry)}
+body.theme-light .learn-phase-card,body.theme-light .lobby-waiting{background:var(--vr-blue-soft);border-color:#C1D2DF}
+body.theme-light .learn-phase-title,body.theme-light .lobby-waiting-label,body.theme-light .lobby-waiting-code,body.theme-light .lobby-sub{color:var(--vr-blue)}
+body.theme-light .learn-phase-desc{color:#3D5365}body.theme-light .lobby-waiting-hint{color:var(--vr-muted)}
+body.theme-light .lobby-name-input:focus,body.theme-light .lobby-code-input:focus{border-color:var(--vr-blue)}
+body.theme-light .lobby-tab:not(.active){color:var(--vr-muted)}
+body.theme-light .lobby-tab.active,body.theme-light .tab-btn.active{background:var(--vr-blue);color:#fff}
+body.theme-light .lobby-tab:not(.active):hover,body.theme-light .tab-btn:not(.active):hover,body.theme-light .room-item:hover{background:var(--vr-blue-soft);color:var(--vr-ink)}
+body.theme-light .solo-progress{border-top-color:var(--vr-border)}body.theme-light .progress-bar{background:#DCE4EA}body.theme-light .progress-fill{background:var(--vr-blue)}
+body.theme-light .prog-cur,body.theme-light .fr-word,body.theme-light .static-char{color:var(--vr-ink)}
+body.theme-light .mode-label{background:var(--vr-blue-soft);color:var(--vr-blue)}
+body.theme-light .reveal-zone{background:var(--vr-raspberry-soft);border-color:#E5C1C8}
+body.theme-light .reveal-label,body.theme-light .reveal-answer{color:#8F4652}body.theme-light .btn-timer{color:var(--vr-raspberry)}
+body.theme-light .results-score{background:var(--vr-blue-soft)}body.theme-light .results-score-val{color:var(--vr-blue)}body.theme-light .results-score-label{color:#536D8C}
+body.theme-light .results-cell--amber{background:var(--vr-raspberry-soft)}body.theme-light .results-cell--amber .results-cell-label{color:#713B45}
+body.theme-light .history-practice-timeline-panel{background:var(--vr-surface);border-color:var(--vr-border);color:var(--vr-ink);box-shadow:none}
+body.theme-light .history-practice-counter{background:var(--vr-blue-soft);border-color:#C1D2DF;color:var(--vr-blue)}
+body.theme-light .history-practice-timeline-heading h3{color:var(--vr-ink)}
+body.theme-light .history-practice-timeline-heading p,body.theme-light .history-practice-format{color:var(--vr-muted)}
+body.theme-light .history-practice-track::before{background:#C8D6E0}
+body.theme-light .history-practice-event{background:var(--vr-surface);color:var(--vr-ink);border-color:var(--vr-border)}
+body.theme-light .history-practice-marker{background:var(--vr-surface);border-color:#B7C9D7;color:var(--vr-blue)}
+body.theme-light .history-practice-event-name{background:var(--vr-paper);color:var(--vr-ink);border-color:var(--vr-border)}
+body.theme-light .history-practice-card-input{background:#fff;color:var(--vr-ink);border-color:#B7C9D7}
+body.theme-light .history-practice-card-input.date-answer-wrong{background:var(--vr-raspberry-soft);color:#713B45;border-color:var(--vr-raspberry)}
+body.theme-light .history-practice-event-date,body.theme-light .history-practice-event-feedback.is-success,body.theme-light .history-practice-complete{color:var(--vr-blue)}
+body.theme-light .history-practice-event-feedback.is-error{color:#A33E4D}
+body.theme-light .history-practice-event.is-active{background:var(--vr-blue-soft);border-color:var(--vr-blue)}
+body.theme-light .history-practice-event.is-active .history-practice-event-name{background:#D4E2EC;color:#24475F;border-color:var(--vr-blue)}
+body.theme-light .history-practice-event.is-done{background:#E2EBF2;border-color:#9BB7CC}
+body.theme-light .history-practice-event.is-done .history-practice-event-name{background:#D2E0EA;color:#24475F;border-color:#9BB7CC}
+
+/* Thème sombre */
+body:not(.theme-light){background:var(--vr-night);color:var(--vr-night-text)}
+body:not(.theme-light) .screen{background:var(--vr-night);color:var(--vr-night-text)}
+body:not(.theme-light) #end-modal{background:rgba(15,19,25,.9)}
+body:not(.theme-light) .menu-title,body:not(.theme-light) .diff-title,body:not(.theme-light) .lobby-title,body:not(.theme-light) .learn-title,body:not(.theme-light) .modal-title{color:var(--vr-night-text)}
+body:not(.theme-light) .menu-sub,body:not(.theme-light) .section-label,body:not(.theme-light) .learn-size-label{color:#AAB5BF}
+body:not(.theme-light) #game-header{background:var(--vr-night);border-bottom-color:var(--vr-night-border);color:var(--vr-night-text)}
+body:not(.theme-light) .mode-card,body:not(.theme-light) .category-card,body:not(.theme-light) .list-card,body:not(.theme-light) .room-item,body:not(.theme-light) .history-import-card,body:not(.theme-light) .lobby-tabs,body:not(.theme-light) .lobby-name-input,body:not(.theme-light) .lobby-code-input,body:not(.theme-light) .lobby-player,body:not(.theme-light) .learn-phase-card,body:not(.theme-light) .learn-size-btn,body:not(.theme-light) .flashcard,body:not(.theme-light) #question-card,body:not(.theme-light) .duel-bar,body:not(.theme-light) .modal-inner,body:not(.theme-light) .tabs,body:not(.theme-light) .difficulty-leaderboard{background:var(--vr-night-surface);color:var(--vr-night-text);border-color:var(--vr-night-border)}
+body:not(.theme-light) .mode-card--dates,body:not(.theme-light) .category-card--history{background:var(--vr-blue);border-color:var(--vr-blue)}
+body:not(.theme-light) .mode-card-title--solo,body:not(.theme-light) .mode-card-title--bot,body:not(.theme-light) .mode-card-title--duel,body:not(.theme-light) .mode-card-title--learn,body:not(.theme-light) .mode-card-title--dates,body:not(.theme-light) .category-title-light{color:var(--vr-night-text)}
+body:not(.theme-light) .mode-card-desc--solo,body:not(.theme-light) .mode-card-desc--bot,body:not(.theme-light) .mode-card-desc--duel,body:not(.theme-light) .mode-card-desc--learn{color:#AAB5BF}
+body:not(.theme-light) .mode-card-desc--dates,body:not(.theme-light) .category-card--history .category-desc-light{color:#E0EAF1}
+body:not(.theme-light) .mode-icon--solo,body:not(.theme-light) .mode-icon--duel{background:#31424F;color:#B7D0E2}
+body:not(.theme-light) .mode-icon--bot{background:#4A3038;color:#E4AAB4}
+body:not(.theme-light) .mode-icon--learn{background:#343A49;color:#C5CCDE}
+body:not(.theme-light) .mode-icon--dates{background:#416D8D;color:#fff}
+body:not(.theme-light) .mode-cta--solo,body:not(.theme-light) .mode-cta--duel,body:not(.theme-light) .mode-cta--learn{color:var(--vr-blue-dark)}
+body:not(.theme-light) .mode-cta--bot{color:var(--vr-raspberry-dark)}body:not(.theme-light) .mode-cta--dates{color:#F0DDE1}
+body:not(.theme-light) .mode-card:hover{border-color:var(--vr-blue-dark)}
+body:not(.theme-light) .mode-card--bot:hover,body:not(.theme-light) .mode-card--dates:hover,body:not(.theme-light) .category-card--history:hover{border-color:var(--vr-raspberry-dark)}
+body:not(.theme-light) .list-card.selected,body:not(.theme-light) .history-import-card.selected,body:not(.theme-light) .learn-size-btn:hover,body:not(.theme-light) .learn-size-btn.sel{background:#31424F;border-color:var(--vr-blue-dark);color:var(--vr-night-text)}
+body:not(.theme-light) .list-card-name,body:not(.theme-light) .history-import-title,body:not(.theme-light) .room-item-host,body:not(.theme-light) .lobby-player-name{color:var(--vr-night-text)}
+body:not(.theme-light) .list-card-count,body:not(.theme-light) .history-import-status,body:not(.theme-light) .rooms-empty,body:not(.theme-light) .rooms-loading,body:not(.theme-light) .room-item-time,body:not(.theme-light) .lobby-player-status{color:#AAB5BF}
+body:not(.theme-light) .history-import-card button,body:not(.theme-light) .btn-create,body:not(.theme-light) .btn-start-duel,body:not(.theme-light) .btn-start-learn,body:not(.theme-light) .btn-check,body:not(.theme-light) .btn-return,body:not(.theme-light) .btn-fc-done,body:not(.theme-light) .btn-next{background:var(--vr-blue);color:#fff}
+body:not(.theme-light) .btn-create:hover,body:not(.theme-light) .btn-start-duel:hover:not(:disabled),body:not(.theme-light) .btn-start-learn:hover,body:not(.theme-light) .btn-check:hover,body:not(.theme-light) .btn-return:hover,body:not(.theme-light) .btn-fc-done:hover,body:not(.theme-light) .btn-next:hover{background:#274A63}
+body:not(.theme-light) .btn-join,body:not(.theme-light) .room-item-join{background:#31424F;color:var(--vr-blue-dark);border-color:#526A7D}
+body:not(.theme-light) .btn-join:hover,body:not(.theme-light) .room-item:hover .room-item-join{background:var(--vr-blue);color:#fff}
+body:not(.theme-light) .diff-btn--deb{background:var(--vr-blue)}body:not(.theme-light) .diff-btn--int{background:#536D8C}body:not(.theme-light) .diff-btn--exp{background:var(--vr-raspberry)}body:not(.theme-light) .diff-btn--hc{background:#202A33;border:1px solid var(--vr-raspberry-dark)}
+body:not(.theme-light) .btn-back{color:#AAB5BF}body:not(.theme-light) .btn-back:hover,body:not(.theme-light) .btn-refresh{color:var(--vr-blue-dark)}body:not(.theme-light) .btn-refresh:hover{color:var(--vr-raspberry-dark)}
+body:not(.theme-light) .learn-phase-card,body:not(.theme-light) .lobby-waiting{background:#293642;border-color:#435565}
+body:not(.theme-light) .learn-phase-title,body:not(.theme-light) .lobby-waiting-label,body:not(.theme-light) .lobby-waiting-code,body:not(.theme-light) .lobby-sub{color:var(--vr-blue-dark)}
+body:not(.theme-light) .learn-phase-desc{color:#D1DCE5}body:not(.theme-light) .lobby-waiting-hint{color:#AAB5BF}
+body:not(.theme-light) .lobby-name-input:focus,body:not(.theme-light) .lobby-code-input:focus{border-color:var(--vr-blue-dark)}
+body:not(.theme-light) .lobby-tab:not(.active){color:#AAB5BF}
+body:not(.theme-light) .lobby-tab.active,body:not(.theme-light) .tab-btn.active{background:var(--vr-blue);color:#fff}
+body:not(.theme-light) .lobby-tab:not(.active):hover,body:not(.theme-light) .tab-btn:not(.active):hover,body:not(.theme-light) .room-item:hover{background:#3D4854;color:var(--vr-night-text)}
+body:not(.theme-light) .lobby-waiting-hint{color:#AAB5BF}
+body:not(.theme-light) .solo-progress{border-top-color:var(--vr-night-border)}body:not(.theme-light) .progress-bar{background:var(--vr-night-border)}body:not(.theme-light) .progress-fill{background:var(--vr-blue-dark)}
+body:not(.theme-light) .prog-cur,body:not(.theme-light) .fr-word,body:not(.theme-light) .static-char{color:var(--vr-night-text)}
+body:not(.theme-light) .mode-label{background:#31424F;color:#C4D8E7}
+body:not(.theme-light) .reveal-zone{background:#402C34;border-color:#76505A}
+body:not(.theme-light) .reveal-label,body:not(.theme-light) .reveal-answer{color:#E4AAB4}body:not(.theme-light) .btn-timer{color:var(--vr-raspberry-dark)}
+body:not(.theme-light) .streak-box{background:#402C34;border-color:#76505A}body:not(.theme-light) .streak-val{color:var(--vr-raspberry-dark)}
+body:not(.theme-light) .letter-box.input-hint{background:#402C34!important;color:#F0DDE1!important}
+body:not(.theme-light) .letter-box.input-revealed{background:#343A49!important;color:#E0E5F0!important}
+body:not(.theme-light) .results-score{background:#31424F}body:not(.theme-light) .results-score-val,body:not(.theme-light) .results-score-label{color:#C4D8E7}
+body:not(.theme-light) .results-cell--amber{background:#593840}body:not(.theme-light) .results-cell--amber .results-cell-label{color:#F0DDE1}
+body:not(.theme-light) .history-practice-timeline-panel{background:var(--vr-night-surface);border-color:var(--vr-night-border);color:var(--vr-night-text);box-shadow:none}
+body:not(.theme-light) .history-practice-counter{background:#31424F;border-color:#526A7D;color:var(--vr-blue-dark)}
+body:not(.theme-light) .history-practice-timeline-heading h3{color:var(--vr-night-text)}
+body:not(.theme-light) .history-practice-timeline-heading p,body:not(.theme-light) .history-practice-format{color:#AAB5BF}
+body:not(.theme-light) .history-practice-track::before{background:#526A7D}
+body:not(.theme-light) .history-practice-event{background:var(--vr-night);color:var(--vr-night-text);border-color:var(--vr-night-border)}
+body:not(.theme-light) .history-practice-marker{background:var(--vr-night-surface);border-color:#526A7D;color:var(--vr-blue-dark)}
+body:not(.theme-light) .history-practice-event-name{background:var(--vr-night-surface);color:var(--vr-night-text);border-color:var(--vr-night-border)}
+body:not(.theme-light) .history-practice-card-input{background:#171D24;color:var(--vr-night-text);border-color:#526A7D}
+body:not(.theme-light) .history-practice-card-input.date-answer-wrong{background:#402C34;color:#F0DDE1;border-color:var(--vr-raspberry-dark)}
+body:not(.theme-light) .history-practice-event-date,body:not(.theme-light) .history-practice-event-feedback.is-success,body:not(.theme-light) .history-practice-complete{color:var(--vr-blue-dark)}
+body:not(.theme-light) .history-practice-event-feedback.is-error{color:var(--vr-raspberry-dark)}
+body:not(.theme-light) .history-practice-event.is-active{background:#31424F;border-color:var(--vr-blue-dark)}
+body:not(.theme-light) .history-practice-event.is-active .history-practice-event-name{background:#31424F;color:#E0EAF1;border-color:var(--vr-blue-dark)}
+body:not(.theme-light) .history-practice-event.is-done{background:#293642;border-color:#526A7D}
+body:not(.theme-light) .history-practice-event.is-done .history-practice-event-name{background:#293642;color:#D1DCE5;border-color:#526A7D}
+body.theme-light :is(input,textarea,select,button):focus-visible{outline:2px solid var(--vr-blue);outline-offset:2px}
+body:not(.theme-light) :is(input,textarea,select,button):focus-visible{outline:2px solid var(--vr-blue-dark);outline-offset:2px}
+
 </style>
 </head>
 <body>
