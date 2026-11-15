@@ -43,6 +43,37 @@
           }
         }
       }
+    },
+    "leaderboard": {
+      ".read": "auth != null",
+      "$scoreId": {
+        ".write": "auth != null && newData.child('uid').val() === auth.uid",
+        ".validate": "newData.hasChildren(['uid','name','score','timeMs','mode','dataset','list','createdAt'])",
+        "uid": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20"
+        },
+        "score": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "timeMs": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "mode": {
+          ".validate": "newData.isString()"
+        },
+        "dataset": {
+          ".validate": "newData.val() === 'vocab' || newData.val() === 'history'"
+        },
+        "list": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        }
+      }
     }
   }
 }
