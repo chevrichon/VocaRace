@@ -87,13 +87,22 @@ input{font-family:inherit;-webkit-appearance:none;appearance:none}
 #difficulty-screen,#lobby-screen,#learn-intro-screen,#dates-screen{z-index:61}
 #end-modal{z-index:100;background:rgba(15,23,42,.92)}
 
-@media(min-width:1000px){#difficulty-screen .diff-inner{margin-left:280px;width:calc(100% - 280px);max-width:56rem} .difficulty-leaderboard{position:absolute;left:1.5rem;top:5rem;width:250px;max-height:calc(100dvh - 7rem);overflow:auto}}
-.difficulty-leaderboard{display:none;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left;background:rgba(30,41,59,.96);color:#e2e8f0;z-index:2}
+/* Classement et contenu en deux colonnes sans sortir de l'écran. */
+.difficulty-leaderboard{display:none;padding:1rem;border:1px solid #64748b55;border-radius:1rem;text-align:left;background:rgba(30,41,59,.96);color:#e2e8f0;z-index:2;min-width:0}
 .difficulty-leaderboard h3{font-size:1rem;font-weight:900;margin-bottom:.4rem}
 .difficulty-leaderboard p{font-size:.75rem;color:#94a3b8;margin-bottom:.6rem}
-.difficulty-leaderboard ol{padding-left:1.3rem;font-size:.82rem;display:grid;gap:.35rem}
+.difficulty-leaderboard ol{padding-left:1.3rem;font-size:.82rem;display:grid;gap:.35rem;overflow-wrap:anywhere}
 body.theme-light .difficulty-leaderboard{background:#fff;color:#1e293b;border-color:#cbd5e1}
-@media(max-width:999px){#difficulty-screen .difficulty-leaderboard{margin:.75rem auto 1rem;width:100%;max-width:56rem;order:2}#difficulty-screen .diff-inner{order:1}}
+@media(min-width:1000px){
+  #difficulty-screen{display:grid;grid-template-columns:250px minmax(0,56rem);justify-content:center;align-content:start;align-items:start;column-gap:1.5rem}
+  #difficulty-screen>#difficulty-leaderboard-panel{position:relative;left:auto;top:auto;width:250px;max-height:calc(100dvh - 7rem);overflow:auto;margin-top:3.5rem}
+  #difficulty-screen>.diff-inner{width:100%;max-width:56rem;min-width:0;margin:0;padding-top:.75rem}
+}
+@media(max-width:999px){
+  #difficulty-screen{display:flex}
+  #difficulty-screen .difficulty-leaderboard{order:2;margin:.75rem auto 1rem;width:100%;max-width:56rem}
+  #difficulty-screen .diff-inner{order:1}
+}
 /* ── MENU ── */
 .menu-inner{max-width:64rem;width:100%;text-align:center;padding-top:.5rem}
 .menu-title{font-size:clamp(2.2rem,8vw,3.5rem);font-weight:900;color:#fff;margin-bottom:.5rem;font-style:italic;text-transform:uppercase;letter-spacing:-.04em}
