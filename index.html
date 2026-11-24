@@ -5165,12 +5165,20 @@ window.showGeoChooser=async()=>{
     if(!Array.isArray(manifest))throw new Error('Le manifeste geo/geo_lists.json doit contenir un tableau de chemins.');
     const unique=[...new Set(manifest.filter(value=>typeof value==='string'&&value.toLowerCase().endsWith('.geo')))];
     const loaded=await Promise.all(unique.map(async path=>{
-      const response=await fetch(rawFile(path));
-      if(!response.ok)throw new Error('HTTP '+response.status+' pour '+path);
-      const raw=await response.json();
-      const map=geoNormalizeMap(raw,path,'public');return {map:map,source:{kind:'public',path:path}};
+      try{
+        const response=await fetch(rawFile(path));
+        if(!response.ok)throw new Error('HTTP '+response.status);
+        const raw=await response.json();
+        const map=geoNormalizeMap(raw,path,'public');
+        return {map:map,source:{kind:'public',path:path}};
+      }catch(error){
+        return {loadError:path+' : '+(error.message||String(error))};
+      }
     }));
-    available.push(...loaded);
+    loaded.forEach(entry=>{
+      if(entry.loadError){if(!publicError)publicError=entry.loadError;console.warn('Carte .geo ignorée : '+entry.loadError);}
+      else available.push(entry);
+    });
   }catch(error){publicError=error.message||String(error);}
   try{
     const access=await creatorCheckAccess();
