@@ -22,3 +22,22 @@ Then add the exact filename to `histoire_lists.json`:
 ```
 
 The Dates mode reads the list of available files from `histoire_lists.json`. Players can also import their own `.histoire` file directly from their device.
+
+## Géographie et cartes .geo
+
+Le mode Géographie propose trois exercices, selon les éléments contenus dans la carte : identifier une figure, compléter la carte en plaçant une étiquette et retrouver une zone de texte.
+
+Les cartes publiques sont déclarées dans [geo/geo_lists.json](geo/geo_lists.json). Un exemple jouable se trouve dans [geo/France-villes.geo](geo/France-villes.geo). Les cartes doivent respecter le schéma versionné **vocarace.geo.v1** documenté dans [docs/FORMAT-GEO.md](docs/FORMAT-GEO.md).
+
+Pour publier une carte :
+
+1. Crée-la dans l’atelier créateur, puis télécharge le fichier .geo.
+2. Place le fichier dans le dossier geo/.
+3. Ajoute son chemin au tableau geo/geo_lists.json.
+4. Vérifie le rendu dans le mode Géographie avant de publier le changement.
+
+La bibliothèque de l’atelier reste privée. Les fichiers privés ne sont pas publiés automatiquement pour les joueurs ; il faut les ajouter explicitement au dépôt public pour les rendre accessibles à tous.
+
+### Règles Firebase de l’atelier
+
+Les changements de permissions doivent également être publiés dans Firebase Console → Realtime Database → Rules à partir du fichier database.rules.json. Modifier le fichier dans GitHub ne déploie pas automatiquement ces règles dans le projet Firebase.
