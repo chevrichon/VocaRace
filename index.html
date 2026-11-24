@@ -5414,6 +5414,30 @@ document.addEventListener('keydown',event=>{
   event.preventDefault();card.click();
 });
 
+
+window.creatorDeselectGeoItem=()=>{
+  const item=creatorSelectedGeoIndex===null?null:creatorGeoItems[creatorSelectedGeoIndex];
+  if(item){
+    const label=document.getElementById('creator-geo-label').value.trim();
+    const answers=document.getElementById('creator-geo-answers').value.split(',').map(value=>value.trim()).filter(Boolean);
+    const textValue=document.getElementById('creator-geo-text').value.trim();
+    const changed=item.type==='figure'
+      ?label!==String(item.label||'')||answers.join('|')!==(Array.isArray(item.answers)?item.answers:[]).join('|')||Number(document.getElementById('creator-geo-tolerance').value)!==Number(item.tolerance||7)
+      :textValue!==String(item.text||'')||Number(document.getElementById('creator-geo-width').value)!==Number(item.width||25)||Number(document.getElementById('creator-geo-height').value)!==Number(item.height||15);
+    if(changed&&!confirm('Les propriétés saisies ne sont pas appliquées. Les abandonner ?'))return;
+  }
+  creatorSelectedGeoIndex=null;
+  document.getElementById('creator-geo-label').value='';
+  document.getElementById('creator-geo-answers').value='';
+  document.getElementById('creator-geo-tolerance').value='7';
+  document.getElementById('creator-geo-text').value='';
+  document.getElementById('creator-geo-width').value='25';
+  document.getElementById('creator-geo-height').value='15';
+  const status=document.getElementById('creator-geo-selection-status');
+  if(status)status.textContent='Mode ajout : clique sur la carte pour placer un nouvel élément.';
+  creatorRenderGeoItems();
+};
+
 </script>
 </body>
 </html>
