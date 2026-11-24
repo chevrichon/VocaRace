@@ -1729,6 +1729,79 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 @media(max-width:480px){.creator-panel-header{align-items:flex-start}.creator-geo-tools{grid-template-columns:1fr}.creator-permission-form{grid-template-columns:1fr}.creator-panel-card textarea{min-height:14rem}}
 </style>
 
+
+<style id="vocarace-navigation-geo-style">
+#category-selection-screen .category-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));align-items:stretch}
+#category-selection-screen .category-card[role="button"]{cursor:pointer}
+#category-selection-screen .category-card[role="button"]:focus-visible,#mode-selection-screen .mode-card:focus-visible,.creator-panel-root button:focus-visible,.geo-screen button:focus-visible,.geo-screen input:focus-visible,.geo-screen select:focus-visible{outline:3px solid #818cf8;outline-offset:3px}
+.creator-panel-root .creator-library-tools{display:grid;gap:.55rem;margin:.75rem 0}
+.creator-panel-root .creator-library-tools input,.creator-panel-root .creator-library-tools select{width:100%;padding:.6rem .65rem;border:1px solid #cbd5e1;border-radius:.5rem;background:#fff;color:#172033}
+.creator-panel-root .creator-library-tabs{display:flex;flex-wrap:wrap;gap:.35rem}
+.creator-panel-root .creator-library-tabs button{padding:.4rem .55rem;border:1px solid #cbd5e1;border-radius:.5rem;background:#f8fafc;color:#334155;font-size:.72rem;font-weight:800}
+.creator-panel-root .creator-library-tabs button[aria-pressed="true"]{background:#312e81;border-color:#312e81;color:#fff}
+.creator-panel-root .creator-dirty-indicator{display:inline-block;margin:.4rem 0;padding:.25rem .45rem;border-radius:.35rem;background:#f1f5f9;color:#475569;font-size:.72rem;font-weight:800}
+.creator-panel-root .creator-dirty-indicator.is-dirty{background:#fff7ed;color:#9a3412}
+.creator-panel-root .creator-preview{max-height:15rem;overflow:auto;margin:.6rem 0 0;padding:.7rem;border:1px solid #dbe2ea;border-radius:.55rem;background:#f8fafc;color:#334155;font:500 .75rem/1.5 ui-monospace,SFMono-Regular,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.creator-panel-root .creator-geo-selected{border-color:#818cf8;background:#eef2ff}
+.creator-panel-root .creator-geo-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:.65rem 0}
+.creator-panel-root .creator-geo-figure.is-selected,.creator-panel-root .creator-geo-zone.is-selected{outline:3px solid #f59e0b;outline-offset:2px}
+.geo-screen{display:none!important;min-height:100dvh;width:100%;padding:clamp(.8rem,2.2vw,2rem);background:var(--vr-paper);color:var(--vr-ink)}
+.geo-screen:not(.hidden){display:block!important}
+.geo-shell{width:min(100%,1120px);margin:0 auto}
+.geo-page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--vr-border)}
+.geo-page-eyebrow{margin:0 0 .35rem;color:var(--vr-raspberry);font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.geo-page-title{margin:0;color:var(--vr-ink);font:600 clamp(1.5rem,3vw,2.3rem)/1.15 Georgia,"Times New Roman",serif;letter-spacing:-.03em}
+.geo-page-desc{max-width:58rem;margin:.6rem 0 0;color:var(--vr-muted,var(--vr-ink));font-size:.88rem;line-height:1.55}
+.geo-back-btn,.geo-quiet-btn{flex-shrink:0;padding:.65rem .8rem;border:1px solid var(--vr-border);border-radius:.6rem;background:var(--vr-surface);color:var(--vr-ink);font-size:.82rem;font-weight:800;cursor:pointer}
+.geo-status{min-height:1.3rem;margin:.7rem 0;color:var(--vr-muted,var(--vr-ink));font-size:.8rem;line-height:1.45}
+.geo-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:.85rem}
+.geo-select-card{display:grid;grid-template-columns:7rem minmax(0,1fr);gap:.8rem;width:100%;min-width:0;padding:.8rem;border:1px solid var(--vr-border);border-radius:.8rem;background:var(--vr-surface);color:var(--vr-ink);text-align:left;cursor:pointer;transition:border-color .18s,transform .18s,box-shadow .18s}
+.geo-select-card:hover{border-color:var(--vr-blue);transform:translateY(-2px);box-shadow:0 8px 24px #17203312}
+.geo-card-thumb{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;border:1px solid var(--vr-border);border-radius:.5rem;background:#edf4f8}
+.geo-card-title{display:block;margin:.15rem 0 .35rem;font-weight:900;font-size:.92rem;line-height:1.35;overflow-wrap:anywhere}
+.geo-card-desc{display:block;margin:0;color:var(--vr-muted,var(--vr-ink));font-size:.75rem;line-height:1.45;overflow-wrap:anywhere}
+.geo-card-meta{display:block;margin:.5rem 0 0;color:var(--vr-raspberry);font-size:.7rem;font-weight:850}
+.geo-empty{padding:1rem;border:1px dashed var(--vr-border);border-radius:.8rem;color:var(--vr-muted,var(--vr-ink));font-size:.85rem;line-height:1.55}
+.geo-exercise-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:.75rem;margin-top:1rem}
+.geo-exercise-card{display:flex;flex-direction:column;align-items:flex-start;gap:.45rem;padding:1rem;border:1px solid var(--vr-border);border-radius:.8rem;background:var(--vr-surface);color:var(--vr-ink);text-align:left;cursor:pointer}
+.geo-exercise-card:disabled{opacity:.48;cursor:not-allowed}
+.geo-exercise-card strong{font-size:.95rem}
+.geo-exercise-card span{font-size:.78rem;line-height:1.5;color:var(--vr-muted,var(--vr-ink))}
+.geo-game-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(14rem,18rem);gap:1rem;align-items:start}
+.geo-game-main,.geo-game-side{min-width:0;padding:clamp(.8rem,1.5vw,1.2rem);border:1px solid var(--vr-border);border-radius:.9rem;background:var(--vr-surface)}
+.geo-game-topline{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.8rem}
+.geo-game-count{color:var(--vr-muted,var(--vr-ink));font-size:.78rem;font-weight:800}
+.geo-progress-track{width:100%;height:.5rem;overflow:hidden;border-radius:999px;background:var(--vr-border);margin:.55rem 0 1rem}
+.geo-progress-bar{height:100%;width:0;background:var(--vr-blue);transition:width .2s ease}
+.geo-prompt{margin:0 0 .9rem;font-size:clamp(1rem,2vw,1.3rem);line-height:1.45;font-weight:850;color:var(--vr-ink)}
+.geo-map-stage{position:relative;width:100%;max-width:900px;margin:0 auto;border:1px solid var(--vr-border);border-radius:.65rem;overflow:hidden;background:#edf4f8;touch-action:manipulation}
+.geo-map-stage>img{display:block;width:100%;height:auto;max-height:64vh;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.geo-map-overlays{position:absolute;inset:0}
+.geo-map-point{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;min-width:1.8rem;min-height:1.8rem;transform:translate(-50%,-50%);border:2px solid #fff;border-radius:50%;background:#312e81;color:#fff;box-shadow:0 2px 8px #0005;font-size:.76rem;font-weight:900;cursor:pointer}
+.geo-map-point.is-correct{background:#047857}
+.geo-map-zone{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;transform:none;padding:.2rem;border:2px dashed #be123c;background:#fff5;color:#881337;font-weight:900;font-size:clamp(.7rem,1.2vw,.9rem);overflow:hidden;cursor:pointer}
+.geo-map-zone.is-correct{border-style:solid;border-color:#047857;background:#d1fae5cc;color:#065f46}
+.geo-map-placed-label{position:absolute;z-index:2;transform:translate(-50%,-50%);max-width:45%;overflow:hidden;text-overflow:ellipsis;padding:.25rem .4rem;border:1px solid #fff;border-radius:.35rem;background:#047857;color:#fff;font-size:clamp(.65rem,1.1vw,.8rem);font-weight:900;white-space:nowrap;pointer-events:none}
+.geo-map-tray{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.8rem}
+.geo-map-chip{padding:.55rem .7rem;border:1px solid var(--vr-border);border-radius:.5rem;background:var(--vr-paper);color:var(--vr-ink);font-size:.78rem;font-weight:800;cursor:pointer}
+.geo-map-chip.is-selected{border-color:#4338ca;background:#eef2ff;color:#312e81}
+.geo-feedback{min-height:1.45rem;margin:.75rem 0 0;font-size:.82rem;font-weight:800;color:var(--vr-ink)}
+.geo-feedback.is-error{color:#be123c}.geo-feedback.is-success{color:#047857}
+.geo-game-actions{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.8rem}
+.geo-primary-btn{padding:.7rem .95rem;border:1px solid #4338ca;border-radius:.55rem;background:#4338ca;color:#fff;font-weight:850;font-size:.82rem;cursor:pointer}
+.geo-primary-btn:disabled{opacity:.45;cursor:not-allowed}
+.geo-secondary-btn{padding:.7rem .95rem;border:1px solid var(--vr-border);border-radius:.55rem;background:var(--vr-paper);color:var(--vr-ink);font-weight:850;font-size:.82rem;cursor:pointer}
+.geo-side-title{margin:0 0 .45rem;font-size:.9rem;font-weight:900}
+.geo-side-text{margin:0;color:var(--vr-muted,var(--vr-ink));font-size:.76rem;line-height:1.6;overflow-wrap:anywhere}
+.geo-result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin:1rem 0}
+.geo-result-cell{padding:1rem;border:1px solid var(--vr-border);border-radius:.7rem;background:var(--vr-surface);text-align:center}
+.geo-result-number{display:block;font-size:clamp(1.3rem,4vw,2rem);font-weight:900;color:var(--vr-blue)}
+.geo-result-label{display:block;margin-top:.3rem;color:var(--vr-muted,var(--vr-ink));font-size:.75rem}
+@media(max-width:760px){.geo-game-layout{grid-template-columns:1fr}.geo-game-side{order:2}.geo-game-main{order:1}.geo-map-stage>img{max-height:55vh}}
+@media(max-width:480px){.geo-screen{padding:.55rem}.geo-page-header{gap:.5rem}.geo-back-btn,.geo-quiet-btn{padding:.5rem;font-size:.72rem}.geo-select-card{grid-template-columns:5.5rem minmax(0,1fr);padding:.55rem}.geo-result-grid{gap:.4rem}.geo-result-cell{padding:.7rem .4rem}}
+@media(prefers-reduced-motion:reduce){.geo-select-card,.geo-progress-bar{transition:none}}
+</style>
+
 </head>
 <body>
 <label id="theme-toggle-button" title="Basculer entre le thème clair et sombre" aria-label="Basculer entre le thème clair et sombre">
@@ -1794,6 +1867,12 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
         <div><div class="mode-art mode-art--timeline" aria-hidden="true"><svg viewBox="0 0 320 120"><path d="M28 62H292" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round"/><path d="M281 52l12 10-12 10" fill="none" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="4"><circle cx="62" cy="62" r="10"/><circle cx="160" cy="62" r="10"/><circle cx="258" cy="62" r="10"/></g><g font-size="13" font-weight="700" fill="var(--vr-ink)" text-anchor="middle"><text x="62" y="37">1789</text><text x="160" y="37">1914</text><text x="258" y="37">1945</text></g><path d="M62 76v15M160 76v15M258 76v15" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round"/><path d="M47 96h30M145 96h30M243 96h30" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round"/></svg></div><h3 class="mode-card-title category-title-light">Histoire</h3>
         <p class="mode-card-desc category-desc-light">Révise les événements et leurs dates.</p></div>
         <div class="mode-cta mode-cta--dates">Choisir l’histoire</div>
+
+      <div onclick="showGeoChooser()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showGeoChooser();}" role="button" tabindex="0" aria-label="Choisir la géographie" class="mode-card mode-card--solo category-card" style="cursor:pointer">
+        <div><div class="mode-art mode-art--subject" aria-hidden="true"><svg viewBox="0 0 320 120"><rect x="62" y="12" width="196" height="96" rx="8" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2"/><path d="M125 20l47 9 36 28-12 31-34 14-42-13-22-29 10-27z" fill="#d9e8c7" stroke="#537b62" stroke-width="3" stroke-linejoin="round"/><g fill="var(--vr-raspberry)" stroke="#fff" stroke-width="2"><circle cx="161" cy="43" r="5"/><circle cx="137" cy="60" r="5"/><circle cx="177" cy="72" r="5"/></g><path d="M232 25v20m-7-7 7 7 7-7" stroke="var(--vr-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 class="mode-card-title mode-card-title--solo">Géographie</h3>
+        <p class="mode-card-desc mode-card-desc--solo">Localise des villes, complète des cartes et retrouve les zones.</p></div>
+        <div class="mode-cta mode-cta--solo">Choisir une carte</div>
+      </div>
       </div>
     </div>
   </div>
@@ -1859,6 +1938,55 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
     <button onclick="backToModeSelection()" class="btn-back" style="margin-top:1.5rem">← Retour aux modes d'histoire</button>
   </div>
 </div>
+
+
+<!-- PARCOURS GÉOGRAPHIE -->
+<section id="geo-chooser-screen" class="screen hidden geo-screen" aria-labelledby="geo-chooser-title">
+  <div class="geo-shell">
+    <header class="geo-page-header"><div><p class="geo-page-eyebrow">VocaRace · Géographie</p><h1 id="geo-chooser-title" class="geo-page-title">Choisir une carte</h1><p class="geo-page-desc">Sélectionne une carte pour t’entraîner à localiser ses figures et ses zones. Les cartes privées restent réservées aux éditeurs autorisés.</p></div><button class="geo-back-btn" type="button" onclick="backToCategories()">← Matières</button></header>
+    <label for="geo-map-search" style="display:block;font-size:.8rem;font-weight:850;margin:.5rem 0">Rechercher une carte</label>
+    <input id="geo-map-search" type="search" placeholder="Titre, description…" autocomplete="off" oninput="filterGeoMapCards()" style="width:100%;padding:.7rem;border:1px solid var(--vr-border);border-radius:.55rem;background:var(--vr-surface);color:var(--vr-ink)">
+    <p id="geo-chooser-status" class="geo-status" aria-live="polite">Chargement des cartes…</p>
+    <div id="geo-map-card-list" class="geo-card-grid"></div>
+  </div>
+</section>
+<section id="geo-exercise-screen" class="screen hidden geo-screen" aria-labelledby="geo-exercise-title">
+  <div class="geo-shell">
+    <header class="geo-page-header"><div><p class="geo-page-eyebrow">VocaRace · Géographie</p><h1 id="geo-exercise-title" class="geo-page-title">Choisir un exercice</h1><p id="geo-exercise-description" class="geo-page-desc"></p></div><button class="geo-back-btn" type="button" onclick="showGeoChooser()">← Cartes</button></header>
+    <div id="geo-exercise-preview" style="max-width:460px;margin:1rem auto"></div>
+    <div class="geo-exercise-grid">
+      <button id="geo-exercise-identify" type="button" class="geo-exercise-card" onclick="startGeoExercise('identify')"><strong>1. Identifier une figure</strong><span>Lis le nom demandé et clique sur le bon repère numéroté de la carte.</span></button>
+      <button id="geo-exercise-complete" type="button" class="geo-exercise-card" onclick="startGeoExercise('complete')"><strong>2. Compléter la carte</strong><span>Choisis une étiquette puis clique à l’endroit où elle doit être placée.</span></button>
+      <button id="geo-exercise-zones" type="button" class="geo-exercise-card" onclick="startGeoExercise('zones')"><strong>3. Retrouver une zone</strong><span>Lis le nom d’un espace géographique et choisis la zone numérotée correspondante.</span></button>
+    </div>
+    <p id="geo-exercise-status" class="geo-status" aria-live="polite"></p>
+  </div>
+</section>
+<section id="geo-game-screen" class="screen hidden geo-screen" aria-labelledby="geo-game-title">
+  <div class="geo-shell">
+    <header class="geo-page-header"><div><p class="geo-page-eyebrow">VocaRace · Géographie</p><h1 id="geo-game-title" class="geo-page-title">Carte en cours</h1><p id="geo-game-description" class="geo-page-desc"></p></div><button class="geo-back-btn" type="button" onclick="quitGeoGame()">Quitter</button></header>
+    <div class="geo-game-layout">
+      <section class="geo-game-main">
+        <div class="geo-game-topline"><span id="geo-game-counter" class="geo-game-count">Question 1 / 8</span><span id="geo-game-score" class="geo-game-count">0 point</span></div>
+        <div class="geo-progress-track" aria-hidden="true"><div id="geo-game-progress" class="geo-progress-bar"></div></div>
+        <p id="geo-game-prompt" class="geo-prompt" aria-live="polite"></p>
+        <div id="geo-game-stage" class="geo-map-stage"></div>
+        <div id="geo-game-tray" class="geo-map-tray"></div>
+        <p id="geo-game-feedback" class="geo-feedback" role="status" aria-live="polite"></p>
+        <div class="geo-game-actions"><button id="geo-game-continue" class="geo-primary-btn" type="button" onclick="geoContinue()" hidden>Continuer</button><button id="geo-game-skip" class="geo-secondary-btn" type="button" onclick="geoSkip()">Passer</button></div>
+      </section>
+      <aside class="geo-game-side"><h2 class="geo-side-title">Consigne</h2><p id="geo-game-side-instructions" class="geo-side-text"></p><h2 class="geo-side-title" style="margin-top:1rem">Règles</h2><p class="geo-side-text">Une réponse correcte au premier essai rapporte un point. En cas d’erreur, tu peux retenter sans perdre la question. Le résultat s’affiche à la fin.</p></aside>
+    </div>
+  </div>
+</section>
+<section id="geo-results-screen" class="screen hidden geo-screen" aria-labelledby="geo-results-title">
+  <div class="geo-shell">
+    <header class="geo-page-header"><div><p class="geo-page-eyebrow">VocaRace · Géographie</p><h1 id="geo-results-title" class="geo-page-title">Résultat</h1><p id="geo-results-description" class="geo-page-desc"></p></div><button class="geo-back-btn" type="button" onclick="showGeoChooser()">← Cartes</button></header>
+    <div class="geo-result-grid"><div class="geo-result-cell"><span id="geo-result-score" class="geo-result-number">0/0</span><span class="geo-result-label">Bonnes réponses au premier essai</span></div><div class="geo-result-cell"><span id="geo-result-errors" class="geo-result-number">0</span><span class="geo-result-label">Erreurs</span></div><div class="geo-result-cell"><span id="geo-result-accuracy" class="geo-result-number">0 %</span><span class="geo-result-label">Réussite au premier essai</span></div></div>
+    <div id="geo-result-detail" class="geo-empty"></div>
+    <div class="geo-game-actions"><button id="geo-result-replay" type="button" class="geo-primary-btn" onclick="startGeoExercise(geoCurrentExercise)">Rejouer</button><button type="button" class="geo-secondary-btn" onclick="showGeoExercises(geoCurrentMap,geoCurrentSource)">Choisir un autre exercice</button><button type="button" class="geo-secondary-btn" onclick="showGeoChooser()">Autre carte</button></div>
+  </div>
+</section>
 
 <!-- DIFFICULTÉ -->
 <div id="difficulty-screen" class="screen hidden">
