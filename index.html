@@ -1711,7 +1711,7 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 .creator-library-entry-title{margin:0;font-size:.82rem;font-weight:900;overflow-wrap:anywhere}
 .creator-library-entry-meta{margin:.25rem 0 .55rem;color:#64748b;font-size:.7rem}
 .creator-library-entry-actions{display:flex;gap:.4rem;flex-wrap:wrap}
-.creator-library-entry-actions button{padding:.4rem .5rem;border:1px solid #cbd5e1;border-radius:.45rem;background:#f8fafc;color:#172033;font-size:.72rem;font-weight:800;cursor:pointer}
+.creator-library-entry-actions button{padding:.4rem .5rem;border:1px solid #cbd5e1;border-radius:.45rem;background:#f8fafc;color:#172033;font-size:.72rem;font-weight:800;cursor:pointer}.creator-library-entry-actions button:disabled{opacity:.42;cursor:not-allowed}
 .creator-geo-tools{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 .creator-geo-tools .creator-panel-btn{width:100%}
 .creator-geo-stage{position:relative;width:100%;margin-top:.8rem;border:1px solid #94a3b8;border-radius:.65rem;overflow:hidden;background:#e2e8f0;cursor:crosshair}
@@ -4319,9 +4319,10 @@ function creatorRenderLibrary(){
     const date=Number(entry.updatedAt)?new Date(Number(entry.updatedAt)).toLocaleString('fr-FR'):'Date inconnue';
     meta.textContent=(entry.extension||'fichier')+' · '+date;
     const actions=document.createElement('div');actions.className='creator-library-entry-actions';
-    const open=document.createElement('button');open.type='button';open.textContent='Ouvrir';open.onclick=()=>creatorLoadEntry(entry.id);
+    const canEdit=creatorIsOwner(auth&&auth.currentUser)||!!(auth&&auth.currentUser&&!auth.currentUser.isAnonymous&&entry.savedBy===auth.currentUser.uid);
+    const open=document.createElement('button');open.type='button';open.textContent='Ouvrir';open.disabled=!canEdit;open.title=canEdit?'Modifier ce fichier':'Seul le créateur ou son auteur peut le modifier';open.onclick=()=>creatorLoadEntry(entry.id);
     const download=document.createElement('button');download.type='button';download.textContent='Télécharger';download.onclick=()=>creatorDownloadFile(entry);
-    const remove=document.createElement('button');remove.type='button';remove.textContent='Supprimer';remove.onclick=()=>creatorDeleteEntry(entry.id);
+    const remove=document.createElement('button');remove.type='button';remove.textContent='Supprimer';remove.disabled=!canEdit;remove.title=canEdit?'Supprimer ce fichier':'Seul le créateur ou son auteur peut le supprimer';remove.onclick=()=>creatorDeleteEntry(entry.id);
     actions.append(open,download,remove);card.append(title,meta,actions);list.appendChild(card);
   });
 }
