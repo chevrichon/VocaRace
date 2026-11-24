@@ -1816,7 +1816,15 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 .creator-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.85rem}
 .creator-section-heading h3{margin:0}
 .creator-section-heading p{margin:.3rem 0 0;color:#64748b;font-size:.75rem;line-height:1.45}
-#creator-editor-section[hidden],#creator-library-section[hidden]{display:none!important}
+#creator-editor-section[hidden],#creator-library-section[hidden],#creator-panel-root .creator-panel-layout[hidden]{display:none!important}
+#creator-owner-permissions{margin-top:.8rem}
+#creator-panel-root .creator-panel-card{min-height:0}
+#creator-panel-root .creator-panel-footnote{margin-top:1rem}
+#category-selection-screen .category-card{min-width:0;min-height:235px}
+#category-selection-screen .category-card .mode-art{width:100%;max-width:100%}
+#category-selection-screen .category-card .mode-art svg{display:block;width:100%;height:auto;max-height:115px}
+#category-selection-screen .category-card .mode-cta{margin-top:1rem}
+@media(max-width:480px){#category-selection-screen .category-card{min-height:200px;padding:1rem}#category-selection-screen .menu-sub{margin-bottom:1.25rem}}
 @media(max-width:480px){
  .creator-panel-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
  .creator-panel-view{padding:.5rem .3rem;font-size:.72rem}
@@ -5104,7 +5112,7 @@ creatorBindEditorEvents();
 // ════════════════════════════════════════════════════
 const GEO_LISTS_JSON=GH_RAW+'geo/geo_lists.json';
 let geoPublicMaps=[], geoCurrentMap=null, geoCurrentSource=null, geoCurrentExercise='identify';
-let geoQuestionOrder=[], geoQuestionIndex=0, geoCurrentTargetId=null;
+let geoQuestionOrder=[], geoMarkerOrder=[], geoQuestionIndex=0, geoCurrentTargetId=null;
 let geoScore=0, geoErrors=0, geoSkippedIds=new Set(), geoCompletedIds=new Set(), geoAttemptsById={};
 let geoPendingContinue=false;
 
@@ -5261,7 +5269,7 @@ function geoRenderStage(){
   stage.appendChild(image);
   const overlay=document.createElement('div');overlay.className='geo-map-overlays';stage.appendChild(overlay);
   if(geoCurrentExercise==='identify'){
-    geoQuestionOrder.forEach((item,index)=>{
+    geoMarkerOrder.forEach((item,index)=>{
       const button=document.createElement('button');button.type='button';button.className='geo-map-point';
       button.style.left=item.x+'%';button.style.top=item.y+'%';button.textContent=String(index+1);
       button.setAttribute('aria-label','Repère '+(index+1));button.title='Repère '+(index+1);
@@ -5269,7 +5277,7 @@ function geoRenderStage(){
       button.onclick=()=>geoAnswerChoice(item.id);overlay.appendChild(button);
     });
   }else if(geoCurrentExercise==='zones'){
-    geoQuestionOrder.forEach((item,index)=>{
+    geoMarkerOrder.forEach((item,index)=>{
       const button=document.createElement('button');button.type='button';button.className='geo-map-zone';
       button.style.left=item.x+'%';button.style.top=item.y+'%';button.style.width=item.width+'%';button.style.height=item.height+'%';
       button.textContent=String(index+1);button.setAttribute('aria-label','Zone '+(index+1));button.title='Zone '+(index+1);
@@ -5338,7 +5346,7 @@ window.startGeoExercise=type=>{
   if(!['identify','complete','zones'].includes(type)||!items.length){
     document.getElementById('geo-exercise-status').textContent='Cet exercice est indisponible : la carte ne contient pas les données nécessaires.';return;
   }
-  geoCurrentExercise=type;geoQuestionOrder=geoShuffle(items);geoQuestionIndex=0;geoCurrentTargetId=null;
+  geoCurrentExercise=type;geoQuestionOrder=geoShuffle(items);geoMarkerOrder=geoShuffle(items);geoQuestionIndex=0;geoCurrentTargetId=null;
   geoScore=0;geoErrors=0;geoSkippedIds=new Set();geoCompletedIds=new Set();geoAttemptsById={};geoPendingContinue=false;
   hideAll();document.getElementById('geo-game-screen').classList.remove('hidden');
   document.getElementById('geo-game-title').textContent=type==='identify'?'Identifier une figure':type==='complete'?'Compléter la carte':'Retrouver une zone de texte';
@@ -5506,6 +5514,7 @@ window.creatorSwitchPanelView=view=>{
   editor.hidden=view!=='editor';
   library.hidden=view!=='library';
   permissions.hidden=!(view==='permissions'&&accessOwner);
+  layout.hidden=view==='permissions';
   layout.classList.add('is-single');
   [['library','creator-view-library'],['editor','creator-view-editor'],['permissions','creator-view-permissions']].forEach(([key,id])=>{
     const button=document.getElementById(id);
