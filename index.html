@@ -4789,13 +4789,13 @@ function creatorLoadEntry(id,force=false){
     if(type==='histoire')document.getElementById('creator-histoire-content').value=entry.content;
     if(type==='espagnol')document.getElementById('creator-espagnol-content').value=entry.content;
     if(type==='geo'){
-      const map=JSON.parse(entry.content);
-      if(!map||!map.image||typeof map.image.dataUrl!=='string')throw new Error('Carte .geo invalide ou image intégrée absente.');
+      const rawMap=JSON.parse(entry.content);
+      const map=geoNormalizeMap(rawMap,entry.filename,'private');
       document.getElementById('creator-geo-title').value=String(map.title||map.name||'');
       document.getElementById('creator-geo-description').value=String(map.description||'');
       document.getElementById('creator-geo-instructions').value=String(map.instructions||'');
-      creatorGeoImageData=map.image.dataUrl;creatorGeoImageName=map.image.filename||'carte-image';
-      creatorGeoItems=Array.isArray(map.items)?map.items.map((item,index)=>Object.assign({id:item.id||('item-'+(index+1))},item)):[];
+      creatorGeoImageData=rawMap.image.dataUrl;creatorGeoImageName=rawMap.image.filename||'carte-image';
+      creatorGeoItems=map.items.map((item,index)=>Object.assign({id:item.id||('item-'+(index+1))},item));
       creatorSelectedGeoIndex=null;creatorGeoUndoStack=[];creatorGeoRedoStack=[];
       document.getElementById('creator-geo-image').value='';
       document.getElementById('creator-geo-preview-image').src=creatorGeoImageData;
