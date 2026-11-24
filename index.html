@@ -1673,6 +1673,62 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 }
 
 </style>
+
+<style id="creator-panel-style">
+.creator-panel-root[hidden]{display:none!important}
+.creator-panel-root{display:none;position:fixed;inset:0;z-index:12000;overflow:auto;padding:clamp(.5rem,2vw,1.5rem);background:rgba(2,6,23,.84);backdrop-filter:blur(8px);color:#172033}
+.creator-panel-card{max-width:1320px;min-height:calc(100dvh - 3rem);margin:auto;padding:clamp(1rem,2.5vw,1.8rem);border:1px solid #cbd5e1;border-radius:1.2rem;background:#f8fafc;box-shadow:0 24px 90px #0008}
+.creator-panel-header{display:flex;gap:1rem;justify-content:space-between;align-items:flex-start;padding-bottom:1rem;border-bottom:1px solid #cbd5e1}
+.creator-panel-title{margin:0;font-size:clamp(1.4rem,3vw,2rem);font-weight:900;letter-spacing:-.03em}
+.creator-panel-subtitle{margin:.4rem 0 0;color:#475569;font-size:.84rem;line-height:1.45}
+.creator-panel-close{flex-shrink:0;padding:.55rem .8rem;border:1px solid #94a3b8;border-radius:.6rem;background:#fff;color:#172033;font-weight:800;cursor:pointer}
+.creator-panel-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.8fr);gap:1rem;margin-top:1rem;align-items:start}
+.creator-panel-card *{box-sizing:border-box}
+.creator-panel-card button,.creator-panel-card input,.creator-panel-card textarea{font:inherit}
+.creator-panel-section{min-width:0;border:1px solid #d5dce6;border-radius:.9rem;background:#fff;padding:1rem}
+.creator-panel-section h3{margin:0 0 .75rem;font-size:1rem;font-weight:900}
+.creator-panel-card label{display:block;margin:.65rem 0 .3rem;color:#334155;font-size:.78rem;font-weight:850}
+.creator-panel-card input[type=text],.creator-panel-card input[type=number],.creator-panel-card input[type=file],.creator-panel-card textarea{width:100%;max-width:100%;padding:.65rem .7rem;border:1px solid #cbd5e1;border-radius:.55rem;background:#fff;color:#172033}
+.creator-panel-card textarea{min-height:18rem;resize:vertical;font:500 .83rem/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
+.creator-panel-help{margin:.45rem 0 0;color:#64748b;font-size:.75rem;line-height:1.5}
+.creator-panel-tabs{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.9rem}
+.creator-panel-tab,.creator-panel-btn{padding:.58rem .75rem;border:1px solid #cbd5e1;border-radius:.55rem;background:#f8fafc;color:#172033;font-weight:800;font-size:.8rem;cursor:pointer}
+.creator-panel-tab.is-active{background:#312e81;color:#fff;border-color:#312e81}
+.creator-panel-btn.primary{background:#4338ca;color:#fff;border-color:#4338ca}
+.creator-panel-btn.danger{color:#b91c1c;border-color:#fecaca;background:#fff7f7}
+.creator-panel-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.85rem}
+.creator-panel-status{min-height:1.35rem;margin:.6rem 0 0;color:#3730a3;font-size:.8rem;font-weight:750;overflow-wrap:anywhere}
+.creator-panel-pane[hidden],.creator-owner-permissions[hidden]{display:none!important}
+.creator-owner-permissions{margin-top:1rem;padding:1rem;border:1px solid #a5b4fc;border-radius:.9rem;background:#eef2ff}
+.creator-owner-permissions h3{margin:0 0 .3rem;font-size:.95rem}
+.creator-permission-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.5rem;margin-top:.65rem}
+.creator-permission-list{display:grid;gap:.4rem;margin-top:.7rem}
+.creator-permission-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.5rem .6rem;border:1px solid #c7d2fe;border-radius:.5rem;background:#fff;font-size:.78rem}
+.creator-permission-row code{overflow-wrap:anywhere}
+.creator-library-list{display:grid;gap:.65rem}
+.creator-library-empty{padding:.8rem;border:1px dashed #cbd5e1;border-radius:.7rem;color:#64748b;font-size:.82rem;line-height:1.5}
+.creator-library-entry{padding:.75rem;border:1px solid #dbe2ea;border-radius:.7rem;background:#fff}
+.creator-library-entry-title{margin:0;font-size:.82rem;font-weight:900;overflow-wrap:anywhere}
+.creator-library-entry-meta{margin:.25rem 0 .55rem;color:#64748b;font-size:.7rem}
+.creator-library-entry-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+.creator-library-entry-actions button{padding:.4rem .5rem;border:1px solid #cbd5e1;border-radius:.45rem;background:#f8fafc;color:#172033;font-size:.72rem;font-weight:800;cursor:pointer}
+.creator-geo-tools{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.creator-geo-tools .creator-panel-btn{width:100%}
+.creator-geo-stage{position:relative;width:100%;margin-top:.8rem;border:1px solid #94a3b8;border-radius:.65rem;overflow:hidden;background:#e2e8f0;cursor:crosshair}
+.creator-geo-stage[hidden]{display:none!important}
+.creator-geo-stage>img{display:block;width:100%;height:auto;max-height:56vh;object-fit:contain;pointer-events:none}
+.creator-geo-overlays{position:absolute;inset:0;pointer-events:none}
+.creator-geo-figure{position:absolute;transform:translate(-50%,-50%);padding:.22rem .38rem;border:2px solid #fff;border-radius:999px;background:#312e81;color:#fff;box-shadow:0 1px 5px #0009;font-size:clamp(.58rem,1vw,.8rem);font-weight:900;white-space:nowrap;max-width:45%;overflow:hidden;text-overflow:ellipsis}
+.creator-geo-zone{position:absolute;display:flex;align-items:flex-start;justify-content:flex-start;overflow:hidden;padding:.25rem;border:2px dashed #be123c;border-radius:.2rem;background:#fff9;color:#881337;white-space:pre-wrap;font-size:clamp(.58rem,1vw,.8rem);line-height:1.2}
+.creator-geo-item-list{display:grid;gap:.4rem;margin:.75rem 0 0;padding:0;list-style:none}
+.creator-geo-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;padding:.5rem;border:1px solid #e2e8f0;border-radius:.5rem;font-size:.73rem}
+.creator-geo-item-row span{overflow-wrap:anywhere;line-height:1.4}
+.creator-geo-empty{margin:.6rem 0;color:#64748b;font-size:.75rem}
+.creator-panel-footnote{margin:1rem 0 0;padding-top:.75rem;border-top:1px solid #dbe2ea;color:#64748b;font-size:.73rem;line-height:1.55}
+@media(max-width:850px){.creator-panel-layout{grid-template-columns:1fr}.creator-panel-card{min-height:0}.creator-panel-root{padding:.4rem}.creator-panel-card{padding:.8rem}.creator-panel-section{padding:.8rem}}
+@media(max-width:480px){.creator-panel-header{align-items:flex-start}.creator-geo-tools{grid-template-columns:1fr}.creator-permission-form{grid-template-columns:1fr}.creator-panel-card textarea{min-height:14rem}}
+</style>
+
 </head>
 <body>
 <label id="theme-toggle-button" title="Basculer entre le thème clair et sombre" aria-label="Basculer entre le thème clair et sombre">
@@ -2062,8 +2118,83 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 <input id="voca-account-password" type="password" placeholder="Mot de passe (6 caractères minimum)" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:.7rem;margin:.3rem 0;border-radius:.6rem;color:#111">
 <div style="display:flex;gap:.5rem;margin-top:.5rem"><button onclick="createVocaAccount()" style="flex:1;padding:.65rem;border-radius:.6rem;background:#6366f1;color:white;border:0">Créer un compte</button><button onclick="loginVocaAccount()" style="flex:1;padding:.65rem;border-radius:.6rem;background:#334155;color:white;border:0">Connexion</button></div>
 <p style="font-size:.7rem;color:#94a3b8;margin-top:.6rem">Sans compte, joue normalement et choisis un pseudo en fin de partie. Il sera gardé sur cet appareil.</p></div>
-<div id="voca-account-member" class="hidden"><p id="voca-account-email-label"></p><input id="voca-account-pseudo-edit" maxlength="20" placeholder="Pseudo" style="width:100%;box-sizing:border-box;padding:.7rem;margin:.3rem 0;border-radius:.6rem;color:#111"><button onclick="saveVocaAccountPseudo()">Enregistrer le pseudo</button><button onclick="logoutVocaAccount()">Déconnexion</button></div>
+<div id="voca-account-member" class="hidden"><p id="voca-account-email-label"></p><p id="creator-account-uid-row" class="hidden" style="font-size:.72rem;color:#94a3b8;overflow-wrap:anywhere">UID Firebase à transmettre au créateur : <code id="creator-account-uid"></code></p><input id="voca-account-pseudo-edit" maxlength="20" placeholder="Pseudo" style="width:100%;box-sizing:border-box;padding:.7rem;margin:.3rem 0;border-radius:.6rem;color:#111"><button onclick="saveVocaAccountPseudo()">Enregistrer le pseudo</button><button id="creator-panel-open" class="hidden" onclick="openCreatorPanel()" style="margin:.5rem 0;width:100%;padding:.7rem;border:1px solid #818cf8;border-radius:.6rem;background:#312e81;color:#fff;font-weight:800">Atelier créateur</button><button onclick="logoutVocaAccount()">Déconnexion</button></div>
 <p id="voca-account-message" role="status" style="font-size:.8rem;margin-top:.7rem;color:#a5b4fc"></p><button onclick="closeVocaAccount()" style="width:100%;margin-top:.7rem;padding:.65rem">Fermer</button></div></div>
+
+<section id="creator-panel-root" class="creator-panel-root" hidden role="dialog" aria-modal="true" aria-labelledby="creator-panel-title">
+  <div class="creator-panel-card">
+    <header class="creator-panel-header">
+      <div><h2 id="creator-panel-title" class="creator-panel-title">Atelier créateur</h2><p class="creator-panel-subtitle">Création des listes d’histoire et d’espagnol, et des cartes géographiques interactives.</p></div>
+      <button type="button" class="creator-panel-close" onclick="closeCreatorPanel()" aria-label="Fermer l’atelier">Fermer</button>
+    </header>
+    <section id="creator-owner-permissions" class="creator-owner-permissions" hidden>
+      <h3>Permissions des éditeurs</h3>
+      <p class="creator-panel-help">Seul le créateur peut autoriser ou retirer un compte. Colle ici l’UID Firebase de la personne — pas son pseudo.</p>
+      <div class="creator-permission-form"><input id="creator-grant-uid" type="text" maxlength="128" placeholder="UID Firebase du compte à autoriser" autocomplete="off"><button type="button" class="creator-panel-btn primary" onclick="creatorGrantEditor()">Autoriser</button></div>
+      <div id="creator-permission-status" class="creator-panel-status" role="status"></div>
+      <div id="creator-permission-list" class="creator-permission-list"></div>
+    </section>
+    <div class="creator-panel-layout">
+      <section class="creator-panel-section">
+        <h3>Éditeur de fichiers</h3>
+        <div class="creator-panel-tabs" role="tablist" aria-label="Type de fichier">
+          <button type="button" id="creator-tab-histoire" class="creator-panel-tab is-active" onclick="creatorSetType('histoire')">Histoire · .histoire</button>
+          <button type="button" id="creator-tab-espagnol" class="creator-panel-tab" onclick="creatorSetType('espagnol')">Espagnol · .espagnol</button>
+          <button type="button" id="creator-tab-geo" class="creator-panel-tab" onclick="creatorSetType('geo')">Carte · .geo</button>
+        </div>
+        <label for="creator-filename">Nom du fichier, sans extension</label>
+        <input id="creator-filename" type="text" maxlength="90" placeholder="ex. H1-Rome" autocomplete="off">
+        <div id="creator-histoire-pane" class="creator-panel-pane">
+          <label for="creator-histoire-content">Événements historiques</label>
+          <textarea id="creator-histoire-content" spellcheck="false" placeholder="14/07/1789::Prise de la Bastille&#10;1804::Proclamation de l’Empire"></textarea>
+          <p class="creator-panel-help">Une ligne par événement au format date::événement. Les lignes vides sont ignorées.</p>
+        </div>
+        <div id="creator-espagnol-pane" class="creator-panel-pane" hidden>
+          <label for="creator-espagnol-content">Mots ou expressions</label>
+          <textarea id="creator-espagnol-content" spellcheck="false" placeholder="&quot;el agua&quot; &quot;l’eau&quot;&#10;&quot;aprender&quot; &quot;apprendre&quot;"></textarea>
+          <p class="creator-panel-help">Une ligne par paire, avec les deux expressions entre guillemets : "espagnol" "français".</p>
+        </div>
+        <div id="creator-geo-pane" class="creator-panel-pane" hidden>
+          <label for="creator-geo-image">Image de fond de la carte</label>
+          <input id="creator-geo-image" type="file" accept="image/*" onchange="creatorHandleGeoImage(event)">
+          <p class="creator-panel-help">L’image sera intégrée dans le fichier .geo. Image limitée à 3,5 Mo pour conserver un fichier transportable.</p>
+          <div class="creator-geo-tools" style="margin-top:.7rem">
+            <button type="button" id="creator-geo-mode-figure" class="creator-panel-btn primary" onclick="creatorSetGeoMode('figure')">Placer une figure</button>
+            <button type="button" id="creator-geo-mode-text" class="creator-panel-btn" onclick="creatorSetGeoMode('text')">Placer une zone de texte</button>
+          </div>
+          <div id="creator-geo-stage" class="creator-geo-stage" hidden onclick="creatorGeoStageClick(event)" aria-label="Aperçu interactif de la carte">
+            <img id="creator-geo-preview-image" alt="Image de fond de la carte">
+            <div id="creator-geo-overlays" class="creator-geo-overlays"></div>
+          </div>
+          <p class="creator-panel-help">Clique sur l’image pour placer l’élément sélectionné. Les positions sont stockées en pourcentage de l’image.</p>
+          <label for="creator-geo-label">Nom de la figure</label>
+          <input id="creator-geo-label" type="text" maxlength="60" placeholder="ex. Napoléon">
+          <label for="creator-geo-text">Texte de la zone</label>
+          <textarea id="creator-geo-text" style="min-height:5rem" maxlength="500" placeholder="Texte affiché dans la zone"></textarea>
+          <div class="creator-geo-tools">
+            <div><label for="creator-geo-width">Largeur de la zone (%)</label><input id="creator-geo-width" type="number" min="5" max="100" value="25"></div>
+            <div><label for="creator-geo-height">Hauteur de la zone (%)</label><input id="creator-geo-height" type="number" min="5" max="100" value="15"></div>
+          </div>
+          <ul id="creator-geo-item-list" class="creator-geo-item-list"><li class="creator-geo-empty">Aucun élément placé.</li></ul>
+        </div>
+        <div class="creator-panel-actions">
+          <button type="button" class="creator-panel-btn primary" onclick="creatorSaveCurrent()">Enregistrer dans la bibliothèque</button>
+          <button type="button" class="creator-panel-btn" onclick="creatorDownloadCurrent()">Télécharger le fichier</button>
+          <button type="button" class="creator-panel-btn" onclick="creatorResetEditor()">Nouveau fichier</button>
+        </div>
+        <p id="creator-editor-status" class="creator-panel-status" role="status" aria-live="polite"></p>
+      </section>
+      <aside class="creator-panel-section">
+        <h3>Bibliothèque privée</h3>
+        <p class="creator-panel-help" style="margin-bottom:.8rem">Les fichiers enregistrés sont accessibles aux comptes autorisés. Télécharge un fichier pour l’ajouter ensuite au dépôt du jeu.</p>
+        <div id="creator-library-list" class="creator-library-list"><div class="creator-library-empty">Chargement de la bibliothèque…</div></div>
+        <p id="creator-library-status" class="creator-panel-status" role="status"></p>
+      </aside>
+    </div>
+    <p class="creator-panel-footnote">Les permissions sont contrôlées par Firebase. L’atelier ne pousse pas directement dans GitHub : il stocke les fichiers dans la bibliothèque privée et les exporte au format .histoire, .espagnol ou .geo. Un fichier .geo contient l’image et les coordonnées des figures/zones de texte.</p>
+  </div>
+</section>
+
 <!-- MODAL FIN -->
 <div id="end-modal" class="screen hidden">
   <div class="modal-inner">
@@ -4043,6 +4174,306 @@ window.addEventListener('keydown',e=>{
   e.preventDefault();
   window.handleCheck();
 });
+
+// ════════════════════════════════════════════════════
+// ATELIER CRÉATEUR — accès vérifié côté client ET Firebase
+// L'adresse correspond au compte interne associé au pseudo "chevrichon".
+// ════════════════════════════════════════════════════
+const CREATOR_OWNER_EMAIL='udfba5682@accounts.vocarace.invalid';
+let creatorPanelType='histoire', creatorCurrentEntryId=null, creatorLibraryEntries=[];
+let creatorGeoImageData='', creatorGeoImageName='', creatorGeoItems=[], creatorGeoMode='figure';
+function creatorIsOwner(user){return !!(user&&!user.isAnonymous&&user.email===CREATOR_OWNER_EMAIL);}
+async function creatorCheckAccess(){
+  const user=auth&&auth.currentUser;
+  if(!user||user.isAnonymous||!db)return {allowed:false,owner:false,user:user};
+  const owner=creatorIsOwner(user);
+  if(owner)return {allowed:true,owner:true,user:user};
+  try{
+    const snap=await db.ref('creatorEditors/'+user.uid).once('value');
+    const allowed=snap.val()===true;
+    return {allowed:allowed,owner:false,user:user};
+  }catch(error){return {allowed:false,owner:false,user:user,error:error};}
+}
+async function refreshCreatorAccessUI(){
+  const button=document.getElementById('creator-panel-open');
+  const uidRow=document.getElementById('creator-account-uid-row');
+  const uidText=document.getElementById('creator-account-uid');
+  const user=auth&&auth.currentUser;
+  if(uidRow)uidRow.classList.toggle('hidden',!(user&&!user.isAnonymous));
+  if(uidText)uidText.textContent=user&&!user.isAnonymous?user.uid:'';
+  if(!button)return;
+  if(!user||user.isAnonymous){button.classList.add('hidden');button.hidden=true;return;}
+  const access=await creatorCheckAccess();
+  if(auth.currentUser&&auth.currentUser.uid===user.uid){
+    button.classList.toggle('hidden',!access.allowed);
+    button.hidden=!access.allowed;
+  }
+}
+window.openCreatorPanel=async()=>{
+  const access=await creatorCheckAccess();
+  if(!access.allowed){alert('Accès réservé au créateur et aux comptes autorisés.');await refreshCreatorAccessUI();return;}
+  const root=document.getElementById('creator-panel-root');
+  root.hidden=false;root.style.display='block';document.body.style.overflow='hidden';
+  document.getElementById('creator-owner-permissions').hidden=!access.owner;
+  document.getElementById('creator-editor-status').textContent='';
+  document.getElementById('creator-permission-status').textContent='';
+  if(access.owner)await creatorLoadPermissions();
+  await creatorLoadLibrary();
+};
+window.closeCreatorPanel=()=>{
+  const root=document.getElementById('creator-panel-root');
+  root.hidden=true;root.style.display='none';document.body.style.overflow='';
+};
+function creatorSetStatus(message,isError){
+  const el=document.getElementById('creator-editor-status');
+  if(el){el.textContent=message||'';el.style.color=isError?'#b91c1c':'#3730a3';}
+}
+window.creatorSetType=(type)=>{
+  if(!['histoire','espagnol','geo'].includes(type))return;
+  creatorPanelType=type;creatorCurrentEntryId=null;
+  ['histoire','espagnol','geo'].forEach(t=>{
+    document.getElementById('creator-tab-'+t).classList.toggle('is-active',t===type);
+    document.getElementById('creator-'+t+'-pane').hidden=t!==type;
+  });
+  creatorSetStatus('');
+};
+function creatorSafeBaseName(value){
+  return String(value||'').replace(/\.(histoire|espagnol|geo)$/i,'').trim()
+    .replace(/[\/\\:*?"<>|\u0000-\u001f]/g,'_').replace(/\s+/g,'_').replace(/^\.+|\.+$/g,'').slice(0,90);
+}
+function creatorBuildCurrent(){
+  const base=creatorSafeBaseName(document.getElementById('creator-filename').value);
+  if(!base)throw new Error('Donne un nom au fichier.');
+  const extension=creatorPanelType==='histoire'?'.histoire':creatorPanelType==='espagnol'?'.espagnol':'.geo';
+  let content='';
+  if(creatorPanelType==='histoire'){
+    content=document.getElementById('creator-histoire-content').value.replace(/\r\n/g,'\n').trim();
+    const lines=content.split('\n').map(line=>line.trim()).filter(Boolean);
+    if(!lines.length)throw new Error('Ajoute au moins un événement.');
+    const invalid=lines.findIndex(line=>{const i=line.indexOf('::');return i<=0||!line.slice(0,i).trim()||!line.slice(i+2).trim();});
+    if(invalid>=0)throw new Error('Ligne '+(invalid+1)+' invalide : utilise date::événement.');
+    content=lines.join('\n')+'\n';
+  }else if(creatorPanelType==='espagnol'){
+    content=document.getElementById('creator-espagnol-content').value.replace(/\r\n/g,'\n').trim();
+    const lines=content.split('\n').map(line=>line.trim()).filter(Boolean);
+    if(!lines.length)throw new Error('Ajoute au moins une paire espagnol/français.');
+    const invalid=lines.findIndex(line=>!/^"([^"]+)"\s+"([^"]+)"/.test(line));
+    if(invalid>=0)throw new Error('Ligne '+(invalid+1)+' invalide : utilise "espagnol" "français".');
+    content=lines.join('\n')+'\n';
+  }else{
+    if(!creatorGeoImageData)throw new Error('Ajoute une image à la carte.');
+    const image=document.getElementById('creator-geo-preview-image');
+    const map={format:'vocarace.geo.v1',name:base,image:{filename:creatorGeoImageName||'carte-image',width:image.naturalWidth||0,height:image.naturalHeight||0,dataUrl:creatorGeoImageData},items:creatorGeoItems};
+    content=JSON.stringify(map,null,2)+'\n';
+  }
+  if(content.length>7500000)throw new Error('Fichier trop volumineux pour la bibliothèque Firebase. Réduis la taille de l’image.');
+  return {filename:base+extension,extension:extension,content:content};
+}
+function creatorDownloadFile(file){
+  const blob=new Blob([file.content],{type:file.extension==='.geo'?'application/json;charset=utf-8':'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=file.filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+window.creatorDownloadCurrent=()=>{
+  try{const file=creatorBuildCurrent();creatorDownloadFile(file);creatorSetStatus('Téléchargement lancé : '+file.filename,false);}
+  catch(error){creatorSetStatus(error.message||String(error),true);}
+};
+window.creatorSaveCurrent=async()=>{
+  try{
+    const access=await creatorCheckAccess();
+    if(!access.allowed)throw new Error('Permission créateur absente. Reconnecte-toi avec un compte autorisé.');
+    const file=creatorBuildCurrent();
+    const record={filename:file.filename,extension:file.extension,content:file.content,updatedAt:firebase.database.ServerValue.TIMESTAMP,savedBy:access.user.uid};
+    let ref;
+    if(creatorCurrentEntryId)ref=db.ref('creatorLibrary/'+creatorCurrentEntryId);
+    else ref=db.ref('creatorLibrary').push();
+    await ref.set(record);
+    creatorCurrentEntryId=ref.key;
+    creatorSetStatus('Fichier enregistré : '+file.filename,false);
+    await creatorLoadLibrary();
+  }catch(error){creatorSetStatus(error.message||String(error),true);}
+};
+async function creatorLoadLibrary(){
+  const list=document.getElementById('creator-library-list');
+  const status=document.getElementById('creator-library-status');
+  list.textContent='Chargement…';status.textContent='';
+  try{
+    const access=await creatorCheckAccess();
+    if(!access.allowed)throw new Error('Accès refusé.');
+    const snap=await db.ref('creatorLibrary').once('value'),raw=snap.val()||{};
+    creatorLibraryEntries=Object.keys(raw).map(id=>Object.assign({id:id},raw[id]||{}))
+      .filter(entry=>typeof entry.content==='string'&&typeof entry.filename==='string')
+      .sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
+    creatorRenderLibrary();
+  }catch(error){list.textContent='Impossible de lire la bibliothèque : '+(error.message||String(error));}
+}
+function creatorRenderLibrary(){
+  const list=document.getElementById('creator-library-list');list.textContent='';
+  if(!creatorLibraryEntries.length){const empty=document.createElement('div');empty.className='creator-library-empty';empty.textContent='Aucun fichier enregistré. Crée ton premier fichier avec le formulaire.';list.appendChild(empty);return;}
+  creatorLibraryEntries.forEach(entry=>{
+    const card=document.createElement('article');card.className='creator-library-entry';
+    const title=document.createElement('p');title.className='creator-library-entry-title';title.textContent=entry.filename;
+    const meta=document.createElement('p');meta.className='creator-library-entry-meta';
+    const date=Number(entry.updatedAt)?new Date(Number(entry.updatedAt)).toLocaleString('fr-FR'):'Date inconnue';
+    meta.textContent=(entry.extension||'fichier')+' · '+date;
+    const actions=document.createElement('div');actions.className='creator-library-entry-actions';
+    const open=document.createElement('button');open.type='button';open.textContent='Ouvrir';open.onclick=()=>creatorLoadEntry(entry.id);
+    const download=document.createElement('button');download.type='button';download.textContent='Télécharger';download.onclick=()=>creatorDownloadFile(entry);
+    const remove=document.createElement('button');remove.type='button';remove.textContent='Supprimer';remove.onclick=()=>creatorDeleteEntry(entry.id);
+    actions.append(open,download,remove);card.append(title,meta,actions);list.appendChild(card);
+  });
+}
+function creatorResetGeo(){
+  creatorGeoImageData='';creatorGeoImageName='';creatorGeoItems=[];
+  const input=document.getElementById('creator-geo-image');if(input)input.value='';
+  const image=document.getElementById('creator-geo-preview-image');if(image)image.removeAttribute('src');
+  const stage=document.getElementById('creator-geo-stage');if(stage)stage.hidden=true;
+  creatorRenderGeoItems();
+}
+window.creatorResetEditor=()=>{
+  creatorCurrentEntryId=null;
+  document.getElementById('creator-filename').value='';
+  document.getElementById('creator-histoire-content').value='';
+  document.getElementById('creator-espagnol-content').value='';
+  document.getElementById('creator-geo-label').value='';
+  document.getElementById('creator-geo-text').value='';
+  creatorResetGeo();creatorSetType('histoire');creatorSetStatus('Nouveau fichier prêt.',false);
+};
+async function creatorLoadEntry(id){
+  const entry=creatorLibraryEntries.find(item=>item.id===id);if(!entry)return;
+  try{
+    creatorCurrentEntryId=entry.id;
+    const type=entry.extension==='.espagnol'?'espagnol':entry.extension==='.geo'?'geo':'histoire';
+    creatorSetType(type);creatorCurrentEntryId=entry.id;
+    document.getElementById('creator-filename').value=entry.filename.replace(/\.(histoire|espagnol|geo)$/i,'');
+    if(type==='histoire')document.getElementById('creator-histoire-content').value=entry.content;
+    if(type==='espagnol')document.getElementById('creator-espagnol-content').value=entry.content;
+    if(type==='geo'){
+      const map=JSON.parse(entry.content);
+      if(!map||!map.image||typeof map.image.dataUrl!=='string')throw new Error('Carte .geo invalide ou image intégrée absente.');
+      creatorGeoImageData=map.image.dataUrl;creatorGeoImageName=map.image.filename||'carte-image';
+      creatorGeoItems=Array.isArray(map.items)?map.items:[];
+      document.getElementById('creator-geo-image').value='';
+      document.getElementById('creator-geo-preview-image').src=creatorGeoImageData;
+      document.getElementById('creator-geo-stage').hidden=false;
+      creatorRenderGeoItems();
+    }
+    creatorSetStatus('Fichier chargé pour modification : '+entry.filename,false);
+  }catch(error){creatorSetStatus(error.message||String(error),true);}
+}
+window.creatorDeleteEntry=async(id)=>{
+  const entry=creatorLibraryEntries.find(item=>item.id===id);
+  if(!entry||!confirm('Supprimer '+entry.filename+' de la bibliothèque privée ?'))return;
+  try{
+    const access=await creatorCheckAccess();if(!access.allowed)throw new Error('Accès refusé.');
+    await db.ref('creatorLibrary/'+id).remove();
+    if(creatorCurrentEntryId===id)window.creatorResetEditor();
+    document.getElementById('creator-library-status').textContent='Fichier supprimé.';
+    await creatorLoadLibrary();
+  }catch(error){document.getElementById('creator-library-status').textContent='Suppression impossible : '+(error.message||String(error));}
+};
+window.creatorHandleGeoImage=event=>{
+  const file=event&&event.target&&event.target.files?event.target.files[0]:null;if(!file)return;
+  if(!file.type||!file.type.startsWith('image/')){creatorSetStatus('Choisis un fichier image.',true);return;}
+  if(file.size>3.5*1024*1024){creatorSetStatus('Image trop lourde : limite 3,5 Mo.',true);event.target.value='';return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    if(typeof reader.result!=='string'){creatorSetStatus('Lecture de l’image impossible.',true);return;}
+    creatorGeoImageData=reader.result;creatorGeoImageName=file.name;creatorGeoItems=[];
+    document.getElementById('creator-geo-preview-image').src=creatorGeoImageData;
+    document.getElementById('creator-geo-stage').hidden=false;
+    creatorRenderGeoItems();creatorSetStatus('Image chargée. Clique dessus pour placer les éléments.',false);
+  };
+  reader.onerror=()=>creatorSetStatus('Impossible de lire cette image.',true);
+  reader.readAsDataURL(file);
+};
+window.creatorSetGeoMode=mode=>{
+  creatorGeoMode=mode==='text'?'text':'figure';
+  document.getElementById('creator-geo-mode-figure').classList.toggle('primary',creatorGeoMode==='figure');
+  document.getElementById('creator-geo-mode-text').classList.toggle('primary',creatorGeoMode==='text');
+};
+window.creatorGeoStageClick=event=>{
+  if(!creatorGeoImageData)return;
+  if(event.target&&event.target.closest&&event.target.closest('.creator-geo-figure,.creator-geo-zone'))return;
+  const stage=document.getElementById('creator-geo-stage'),rect=stage.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  let x=Math.max(0,Math.min(100,(event.clientX-rect.left)/rect.width*100));
+  let y=Math.max(0,Math.min(100,(event.clientY-rect.top)/rect.height*100));
+  if(creatorGeoMode==='figure'){
+    const label=document.getElementById('creator-geo-label').value.trim();
+    if(!label){creatorSetStatus('Renseigne le nom de la figure avant de cliquer sur la carte.',true);return;}
+    creatorGeoItems.push({type:'figure',label:label,x:Number(x.toFixed(2)),y:Number(y.toFixed(2))});
+  }else{
+    const text=document.getElementById('creator-geo-text').value.trim();
+    if(!text){creatorSetStatus('Renseigne le texte de la zone avant de cliquer sur la carte.',true);return;}
+    const width=Math.max(5,Math.min(100,Number(document.getElementById('creator-geo-width').value)||25));
+    const height=Math.max(5,Math.min(100,Number(document.getElementById('creator-geo-height').value)||15));
+    x=Math.min(x,100-width);y=Math.min(y,100-height);
+    creatorGeoItems.push({type:'text',text:text,x:Number(x.toFixed(2)),y:Number(y.toFixed(2)),width:width,height:height});
+  }
+  creatorRenderGeoItems();
+};
+function creatorRenderGeoItems(){
+  const overlay=document.getElementById('creator-geo-overlays'),list=document.getElementById('creator-geo-item-list');
+  if(overlay)overlay.textContent='';
+  if(list)list.textContent='';
+  creatorGeoItems.forEach((item,index)=>{
+    if(overlay){
+      const el=document.createElement(item.type==='figure'?'div':'div');
+      if(item.type==='figure'){
+        el.className='creator-geo-figure';el.style.left=Number(item.x||0)+'%';el.style.top=Number(item.y||0)+'%';el.textContent=String(item.label||'Figure');el.title=String(item.label||'Figure')+' ('+item.x+'%, '+item.y+'%)';
+      }else{
+        el.className='creator-geo-zone';el.style.left=Number(item.x||0)+'%';el.style.top=Number(item.y||0)+'%';el.style.width=Math.max(5,Math.min(100,Number(item.width)||25))+'%';el.style.height=Math.max(5,Math.min(100,Number(item.height)||15))+'%';el.textContent=String(item.text||'Zone de texte');
+      }
+      overlay.appendChild(el);
+    }
+    if(list){
+      const row=document.createElement('li');row.className='creator-geo-item-row';
+      const label=document.createElement('span');
+      label.textContent=item.type==='figure'?'Figure « '+String(item.label||'')+' » · '+item.x+'%, '+item.y+'%':'Zone « '+String(item.text||'').slice(0,70)+' » · '+item.x+'%, '+item.y+'%';
+      const remove=document.createElement('button');remove.type='button';remove.className='creator-panel-btn danger';remove.textContent='Retirer';remove.onclick=()=>{creatorGeoItems.splice(index,1);creatorRenderGeoItems();};
+      row.append(label,remove);list.appendChild(row);
+    }
+  });
+  if(list&&!creatorGeoItems.length){const empty=document.createElement('li');empty.className='creator-geo-empty';empty.textContent='Aucun élément placé.';list.appendChild(empty);}
+}
+async function creatorLoadPermissions(){
+  const container=document.getElementById('creator-permission-list');container.textContent='Chargement…';
+  try{
+    const access=await creatorCheckAccess();if(!access.owner)throw new Error('Seul le créateur gère les permissions.');
+    const snap=await db.ref('creatorEditors').once('value'),raw=snap.val()||{};
+    container.textContent='';
+    const enabled=Object.keys(raw).filter(uid=>raw[uid]===true);
+    if(!enabled.length){const p=document.createElement('p');p.className='creator-panel-help';p.textContent='Aucun autre éditeur autorisé.';container.appendChild(p);return;}
+    enabled.forEach(uid=>{
+      const row=document.createElement('div');row.className='creator-permission-row';
+      const code=document.createElement('code');code.textContent=uid;
+      const revoke=document.createElement('button');revoke.type='button';revoke.className='creator-panel-btn danger';revoke.textContent='Retirer';revoke.onclick=()=>creatorRevokeEditor(uid);
+      row.append(code,revoke);container.appendChild(row);
+    });
+  }catch(error){container.textContent='Lecture des permissions impossible : '+(error.message||String(error));}
+}
+window.creatorGrantEditor=async()=>{
+  const status=document.getElementById('creator-permission-status'),input=document.getElementById('creator-grant-uid');
+  const uid=input.value.trim();
+  if(!/^[A-Za-z0-9:_-]{8,128}$/.test(uid)){status.textContent='UID invalide. Utilise l’identifiant Firebase complet.';return;}
+  try{
+    const access=await creatorCheckAccess();if(!access.owner)throw new Error('Seul le créateur peut autoriser un éditeur.');
+    if(uid===access.user.uid)throw new Error('Le créateur possède déjà les droits complets.');
+    await db.ref('creatorEditors/'+uid).set(true);
+    input.value='';status.textContent='Compte autorisé.';await creatorLoadPermissions();
+  }catch(error){status.textContent='Autorisation impossible : '+(error.message||String(error));}
+};
+window.creatorRevokeEditor=async uid=>{
+  try{
+    const access=await creatorCheckAccess();if(!access.owner)throw new Error('Seul le créateur peut retirer une permission.');
+    await db.ref('creatorEditors/'+uid).remove();
+    document.getElementById('creator-permission-status').textContent='Permission retirée.';
+    await creatorLoadPermissions();
+  }catch(error){document.getElementById('creator-permission-status').textContent='Retrait impossible : '+(error.message||String(error));}
+};
+
 </script>
 </body>
 </html>
