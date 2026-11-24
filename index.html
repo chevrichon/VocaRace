@@ -5214,6 +5214,57 @@ document.addEventListener('keydown',event=>{
   }
 });
 
+
+// Petites finitions : cohérence du suivi, confirmation des suppressions et clavier.
+function geoUpdateProgress(){
+  const total=geoQuestionOrder.length||1;
+  const answered=geoCompletedIds.size+geoSkippedIds.size;
+  const current=geoPendingContinue?Math.max(1,answered):Math.min(total,answered+1);
+  document.getElementById('geo-game-counter').textContent='Question '+current+' / '+total;
+  document.getElementById('geo-game-score').textContent=geoScore+' point(s)';
+  document.getElementById('geo-game-progress').style.width=Math.min(100,answered/total*100)+'%';
+}
+function geoShowResults(){
+  hideAll();document.getElementById('geo-results-screen').classList.remove('hidden');
+  const total=geoQuestionOrder.length,accuracy=total?Math.round(geoScore/total*100):0;
+  document.getElementById('geo-results-title').textContent=geoScore===total?'Carte maîtrisée':'Exercice terminé';
+  document.getElementById('geo-results-description').textContent=geoCurrentMap.title+' · '+(geoCurrentExercise==='identify'?'Identifier une figure':geoCurrentExercise==='complete'?'Compléter la carte':'Retrouver une zone de texte');
+  document.getElementById('geo-result-score').textContent=geoScore+'/'+total;
+  document.getElementById('geo-result-errors').textContent=String(geoErrors+geoSkippedIds.size);
+  document.getElementById('geo-result-accuracy').textContent=accuracy+' %';
+  document.getElementById('geo-result-detail').textContent=geoSkippedIds.size
+    ?geoSkippedIds.size+' élément(s) passé(s). Tu peux recommencer pour consolider les positions.'
+    :geoScore===total?'Toutes les réponses ont été trouvées du premier coup.':(total-geoScore)+' élément(s) à revoir. Recommence pour améliorer ton score.';
+}
+window.creatorDeleteEntry=async(id)=>{
+  const entry=creatorLibraryEntries.find(item=>item.id===id);if(!entry)return;
+  if(creatorCurrentEntryId===id&&!creatorConfirmDiscard('Les modifications du fichier à supprimer seront perdues. Continuer ?'))return;
+  if(!confirm('Supprimer « '+entry.filename+' » de la bibliothèque privée ?'))return;
+  try{
+    const access=await creatorCheckAccess();if(!access.allowed)throw new Error('Accès refusé.');
+    const canEdit=access.owner||entry.savedBy===access.user.uid;
+    if(!canEdit)throw new Error('Tu ne peux supprimer que tes propres fichiers.');
+    await db.ref('creatorLibrary/'+id).remove();
+    if(creatorCurrentEntryId===id){
+      creatorCurrentEntryId=null;creatorDirty=false;creatorClearDraftFields();
+      window.creatorSetType('histoire',true);
+    }
+    document.getElementById('creator-library-status').textContent='Fichier supprimé.';
+    await creatorLoadLibrary();
+  }catch(error){document.getElementById('creator-library-status').textContent='Suppression impossible : '+(error.message||String(error));}
+};
+document.querySelectorAll('.category-card,#mode-selection-screen .mode-card[onclick]').forEach(card=>{
+  if(!card.hasAttribute('tabindex'))card.tabIndex=0;
+  if(!card.hasAttribute('role'))card.setAttribute('role','button');
+});
+document.addEventListener('keydown',event=>{
+  if(event.key!=='Enter'&&event.key!==' ')return;
+  const card=event.target&&event.target.closest?event.target.closest('.category-card,#mode-selection-screen .mode-card[onclick]'):null;
+  if(!card||card.hasAttribute('onkeydown'))return;
+  if(event.target!==card)return;
+  event.preventDefault();card.click();
+});
+
 </script>
 </body>
 </html>
