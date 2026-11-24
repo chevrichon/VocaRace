@@ -87,6 +87,36 @@
           ".validate": "newData.isNumber()"
         }
       }
+    },
+    "creatorEditors": {
+      ".read": "auth != null && auth.token.email === 'udfba5682@accounts.vocarace.invalid'",
+      "$uid": {
+        ".read": "auth != null && (auth.token.email === 'udfba5682@accounts.vocarace.invalid' || auth.uid === $uid)",
+        ".write": "auth != null && auth.token.email === 'udfba5682@accounts.vocarace.invalid'",
+        ".validate": "newData.isBoolean()"
+      }
+    },
+    "creatorLibrary": {
+      ".read": "auth != null && (auth.token.email === 'udfba5682@accounts.vocarace.invalid' || root.child('creatorEditors').child(auth.uid).val() === true)",
+      ".write": "auth != null && (auth.token.email === 'udfba5682@accounts.vocarace.invalid' || root.child('creatorEditors').child(auth.uid).val() === true)",
+      "$entryId": {
+        ".validate": "newData.hasChildren(['filename','extension','content','updatedAt','savedBy'])",
+        "filename": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+        },
+        "extension": {
+          ".validate": "newData.val() === '.histoire' || newData.val() === '.espagnol' || newData.val() === '.geo'"
+        },
+        "content": {
+          ".validate": "newData.isString() && newData.val().length <= 7500000"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "savedBy": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        }
+      }
     }
   }
 }
