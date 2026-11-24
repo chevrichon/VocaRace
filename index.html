@@ -4517,6 +4517,7 @@ window.creatorDeleteEntry=async(id)=>{
 };
 window.creatorHandleGeoImage=event=>{
   const file=event&&event.target&&event.target.files?event.target.files[0]:null;if(!file)return;
+  if(creatorGeoImageData&&(creatorGeoItems.length||creatorDirty)&&!confirm('Remplacer le fond de carte ? Les figures et zones existantes seront supprimées.')){event.target.value='';return;}
   if(!file.type||!file.type.startsWith('image/')){creatorSetStatus('Choisis un fichier image.',true);return;}
   if(file.size>3.5*1024*1024){creatorSetStatus('Image trop lourde : limite 3,5 Mo.',true);event.target.value='';return;}
   const reader=new FileReader();
@@ -4799,26 +4800,34 @@ function creatorResetGeo(){
   const stage=document.getElementById('creator-geo-stage');if(stage)stage.hidden=true;
   creatorRenderGeoItems();
 }
+function creatorGeoSnapshot(){
+  return {items:JSON.parse(JSON.stringify(creatorGeoItems)),selected:creatorSelectedGeoIndex,imageData:creatorGeoImageData,imageName:creatorGeoImageName};
+}
 function creatorPushGeoHistory(){
-  creatorGeoUndoStack.push(JSON.stringify({items:creatorGeoItems,selected:creatorSelectedGeoIndex}));
-  if(creatorGeoUndoStack.length>40)creatorGeoUndoStack.shift();
+  creatorGeoUndoStack.push(creatorGeoSnapshot());
+  if(creatorGeoUndoStack.length>20)creatorGeoUndoStack.shift();
   creatorGeoRedoStack=[];
 }
 function creatorRestoreGeoSnapshot(snapshot){
-  const value=JSON.parse(snapshot||'{}');
+  const value=snapshot||{};
   creatorGeoItems=Array.isArray(value.items)?value.items:[];
   creatorSelectedGeoIndex=Number.isInteger(value.selected)?value.selected:null;
+  creatorGeoImageData=String(value.imageData||'');creatorGeoImageName=String(value.imageName||'');
+  const image=document.getElementById('creator-geo-preview-image');
+  const stage=document.getElementById('creator-geo-stage');
+  if(creatorGeoImageData){image.src=creatorGeoImageData;stage.hidden=false;}
+  else{image.removeAttribute('src');stage.hidden=true;}
   if(creatorSelectedGeoIndex!==null&&(creatorSelectedGeoIndex<0||creatorSelectedGeoIndex>=creatorGeoItems.length))creatorSelectedGeoIndex=null;
   creatorRenderGeoItems();creatorMarkDirty();
 }
 window.creatorUndoGeo=()=>{
   if(!creatorGeoUndoStack.length)return;
-  creatorGeoRedoStack.push(JSON.stringify({items:creatorGeoItems,selected:creatorSelectedGeoIndex}));
+  creatorGeoRedoStack.push(creatorGeoSnapshot());
   creatorRestoreGeoSnapshot(creatorGeoUndoStack.pop());
 };
 window.creatorRedoGeo=()=>{
   if(!creatorGeoRedoStack.length)return;
-  creatorGeoUndoStack.push(JSON.stringify({items:creatorGeoItems,selected:creatorSelectedGeoIndex}));
+  creatorGeoUndoStack.push(creatorGeoSnapshot());
   creatorRestoreGeoSnapshot(creatorGeoRedoStack.pop());
 };
 window.creatorSelectGeoItem=index=>{
@@ -5074,7 +5083,7 @@ function geoNormalizeMap(raw,sourcePath='',sourceKind='public'){
     if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>100||y<0||y>100)throw new Error('Coordonnées invalides pour « '+id+' ».');
     if(type==='figure'){
       const label=String(item.label||'').trim();if(!label)throw new Error('La figure « '+id+' » n’a pas de nom.');
-      return {id:id,type:type,label:label,x:x,y:y,answers:Array.isArray(item.answers)?item.answers.map(String):[]};
+      return {id:id,type:type,label:label,x:x,y:y,tolerance:geoNumber(item.tolerance,1,25,7),answers:Array.isArray(item.answers)?item.answers.map(String):[]};
     }
     const textValue=String(item.text||'').trim();if(!textValue)throw new Error('La zone « '+id+' » n’a pas de texte.');
     const width=geoNumber(item.width,5,100,25),height=geoNumber(item.height,5,100,15);
@@ -5174,7 +5183,7 @@ window.showGeoExercises=(map,source={kind:'public'})=>{
     const button=document.getElementById(item.id);button.disabled=!item.enabled;
     button.title=item.enabled?item.count+' élément(s) à travailler':'Indisponible : la carte ne contient pas les données nécessaires.';
     const span=button.querySelector('span');
-    if(span)span.textContent=(item.enabled?item.count+' élément(s). ':'Données nécessaires absentes. ')+span.textContent;
+    if(span){if(!span.dataset.baseText)span.dataset.baseText=span.textContent;span.textContent=(item.enabled?item.count+' élément(s). ':'Données nécessaires absentes. ')+span.dataset.baseText;}
   });
 };
 function geoRenderStage(){
