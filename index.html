@@ -1804,6 +1804,27 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 @media(prefers-reduced-motion:reduce){.geo-select-card,.geo-progress-bar{transition:none}}
 </style>
 
+
+<style id="creator-panel-navigation-style">
+.creator-panel-navigation{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1rem;padding:.35rem;border:1px solid #dbe2ea;border-radius:.8rem;background:#e9eef5}
+.creator-panel-view{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:2.6rem;padding:.55rem .9rem;border:1px solid transparent;border-radius:.55rem;background:transparent;color:#475569;font-size:.82rem;font-weight:850;cursor:pointer}
+.creator-panel-view.is-active{background:#fff;color:#312e81;border-color:#c7d2fe;box-shadow:0 1px 3px #0f172a0d}
+.creator-panel-view[hidden]{display:none!important}
+.creator-panel-navigation+.creator-panel-layout{margin-top:.8rem}
+.creator-panel-layout.is-single{grid-template-columns:minmax(0,1fr)}
+.creator-panel-layout.is-single>.creator-panel-section,.creator-panel-layout.is-single>aside{width:100%;max-width:none}
+.creator-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.85rem}
+.creator-section-heading h3{margin:0}
+.creator-section-heading p{margin:.3rem 0 0;color:#64748b;font-size:.75rem;line-height:1.45}
+#creator-editor-section[hidden],#creator-library-section[hidden]{display:none!important}
+@media(max-width:480px){
+ .creator-panel-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .creator-panel-view{padding:.5rem .3rem;font-size:.72rem}
+ .creator-section-heading{flex-direction:column}
+ .creator-section-heading>.creator-panel-btn{width:100%}
+}
+</style>
+
 </head>
 <body>
 <label id="theme-toggle-button" title="Basculer entre le thème clair et sombre" aria-label="Basculer entre le thème clair et sombre">
@@ -1872,7 +1893,7 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
         <div><div class="mode-art mode-art--timeline" aria-hidden="true"><svg viewBox="0 0 320 120"><path d="M28 62H292" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round"/><path d="M281 52l12 10-12 10" fill="none" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="4"><circle cx="62" cy="62" r="10"/><circle cx="160" cy="62" r="10"/><circle cx="258" cy="62" r="10"/></g><g font-size="13" font-weight="700" fill="var(--vr-ink)" text-anchor="middle"><text x="62" y="37">1789</text><text x="160" y="37">1914</text><text x="258" y="37">1945</text></g><path d="M62 76v15M160 76v15M258 76v15" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round"/><path d="M47 96h30M145 96h30M243 96h30" stroke="var(--vr-raspberry)" stroke-width="3" stroke-linecap="round"/></svg></div><h3 class="mode-card-title category-title-light">Histoire</h3>
         <p class="mode-card-desc category-desc-light">Révise les événements et leurs dates.</p></div>
         <div class="mode-cta mode-cta--dates">Choisir l’histoire</div>
-
+      </div>
       <div onclick="showGeoChooser()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showGeoChooser();}" role="button" tabindex="0" aria-label="Choisir la géographie" class="mode-card mode-card--solo category-card" style="cursor:pointer">
         <div><div class="mode-art mode-art--subject" aria-hidden="true"><svg viewBox="0 0 320 120"><rect x="62" y="12" width="196" height="96" rx="8" fill="var(--vr-surface)" stroke="var(--vr-blue)" stroke-width="2"/><path d="M125 20l47 9 36 28-12 31-34 14-42-13-22-29 10-27z" fill="#d9e8c7" stroke="#537b62" stroke-width="3" stroke-linejoin="round"/><g fill="var(--vr-raspberry)" stroke="#fff" stroke-width="2"><circle cx="161" cy="43" r="5"/><circle cx="137" cy="60" r="5"/><circle cx="177" cy="72" r="5"/></g><path d="M232 25v20m-7-7 7 7 7-7" stroke="var(--vr-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 class="mode-card-title mode-card-title--solo">Géographie</h3>
         <p class="mode-card-desc mode-card-desc--solo">Localise des villes, complète des cartes et retrouve les zones.</p></div>
@@ -2260,6 +2281,11 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
       <div><h2 id="creator-panel-title" class="creator-panel-title">Atelier créateur</h2><p class="creator-panel-subtitle">Création des listes d’histoire et d’espagnol, et des cartes géographiques interactives.</p></div>
       <button type="button" class="creator-panel-close" onclick="closeCreatorPanel()" aria-label="Fermer l’atelier">Fermer</button>
     </header>
+    <nav class="creator-panel-navigation" role="tablist" aria-label="Sections de l’atelier">
+      <button type="button" id="creator-view-library" class="creator-panel-view is-active" role="tab" aria-selected="true" onclick="creatorSwitchPanelView('library')"><span aria-hidden="true">▤</span> Bibliothèque</button>
+      <button type="button" id="creator-view-editor" class="creator-panel-view" role="tab" aria-selected="false" onclick="creatorSwitchPanelView('editor')"><span aria-hidden="true">✎</span> Éditeur</button>
+      <button type="button" id="creator-view-permissions" class="creator-panel-view hidden" role="tab" aria-selected="false" onclick="creatorSwitchPanelView('permissions')" hidden><span aria-hidden="true">♙</span> Permissions</button>
+    </nav>
     <section id="creator-owner-permissions" class="creator-owner-permissions" hidden>
       <h3>Permissions des éditeurs</h3>
       <p class="creator-panel-help">Seul le créateur peut autoriser ou retirer un compte. Colle ici l’UID Firebase de la personne — pas son pseudo.</p>
@@ -2268,8 +2294,8 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
       <div id="creator-permission-list" class="creator-permission-list"></div>
     </section>
     <div class="creator-panel-layout">
-      <section class="creator-panel-section">
-        <h3>Éditeur de fichiers</h3>
+      <section id="creator-editor-section" class="creator-panel-section" hidden>
+        <div class="creator-section-heading"><div><h3>Éditeur de fichiers</h3><p>Choisis le format, modifie le contenu puis enregistre ou exporte.</p></div><button type="button" class="creator-panel-btn" onclick="creatorSwitchPanelView('library')">Bibliothèque</button></div>
         <div class="creator-panel-tabs" role="tablist" aria-label="Type de fichier">
           <button type="button" id="creator-tab-histoire" class="creator-panel-tab is-active" onclick="creatorSetType('histoire')">Histoire · .histoire</button>
           <button type="button" id="creator-tab-espagnol" class="creator-panel-tab" onclick="creatorSetType('espagnol')">Espagnol · .espagnol</button>
@@ -2328,8 +2354,8 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
         <label for="creator-content-preview">Aperçu du fichier</label><pre id="creator-content-preview" class="creator-preview">L’aperçu s’affichera ici.</pre>
         <p id="creator-editor-status" class="creator-panel-status" role="status" aria-live="polite"></p>
       </section>
-      <aside class="creator-panel-section">
-        <h3>Bibliothèque privée</h3>
+      <aside id="creator-library-section" class="creator-panel-section">
+        <div class="creator-section-heading"><div><h3>Bibliothèque privée</h3><p>Recherche et ouvre tes créations.</p></div><button type="button" class="creator-panel-btn primary" onclick="creatorNewFileFromLibrary()">+ Créer un fichier</button></div>
         <p class="creator-panel-help" style="margin-bottom:.8rem">Les fichiers enregistrés sont accessibles aux comptes autorisés. Télécharge un fichier pour l’ajouter ensuite au dépôt du jeu.</p>
         <div class="creator-library-tools">
           <label for="creator-library-search">Rechercher un fichier</label><input id="creator-library-search" type="search" placeholder="Nom de fichier ou titre" oninput="creatorFilterLibrary()" autocomplete="off">
@@ -4376,7 +4402,9 @@ window.openCreatorPanel=async()=>{
   if(!access.allowed){alert('Accès réservé au créateur et aux comptes autorisés.');await refreshCreatorAccessUI();return;}
   const root=document.getElementById('creator-panel-root');
   root.hidden=false;root.style.display='block';document.body.style.overflow='hidden';
-  document.getElementById('creator-owner-permissions').hidden=!access.owner;
+  document.getElementById('creator-view-permissions').hidden=!access.owner;
+  document.getElementById('creator-view-permissions').classList.toggle('hidden',!access.owner);
+  creatorSwitchPanelView('library');
   document.getElementById('creator-editor-status').textContent='';
   document.getElementById('creator-permission-status').textContent='';
   if(access.owner)await creatorLoadPermissions();
@@ -5464,6 +5492,36 @@ window.creatorDeselectGeoItem=()=>{
   const status=document.getElementById('creator-geo-selection-status');
   if(status)status.textContent='Mode ajout : clique sur la carte pour placer un nouvel élément.';
   creatorRenderGeoItems();
+};
+
+
+window.creatorSwitchPanelView=view=>{
+  if(!['library','editor','permissions'].includes(view))return;
+  const accessOwner=creatorIsOwner(auth&&auth.currentUser);
+  if(view==='permissions'&&!accessOwner)return;
+  const editor=document.getElementById('creator-editor-section');
+  const library=document.getElementById('creator-library-section');
+  const permissions=document.getElementById('creator-owner-permissions');
+  const layout=document.querySelector('#creator-panel-root .creator-panel-layout');
+  editor.hidden=view!=='editor';
+  library.hidden=view!=='library';
+  permissions.hidden=!(view==='permissions'&&accessOwner);
+  layout.classList.add('is-single');
+  [['library','creator-view-library'],['editor','creator-view-editor'],['permissions','creator-view-permissions']].forEach(([key,id])=>{
+    const button=document.getElementById(id);
+    button.classList.toggle('is-active',key===view);
+    button.setAttribute('aria-selected',String(key===view));
+    if(key==='permissions'){button.hidden=!accessOwner;button.classList.toggle('hidden',!accessOwner);}
+  });
+};
+window.creatorNewFileFromLibrary=()=>{
+  if(!creatorConfirmDiscard('Les modifications non enregistrées seront abandonnées pour créer un fichier. Continuer ?'))return;
+  creatorPanelType='histoire';creatorCurrentType='histoire';
+  creatorClearDraftFields();
+  window.creatorSetType('histoire',true);
+  creatorSwitchPanelView('editor');
+  creatorSetStatus('Nouveau fichier prêt.',false);
+  document.getElementById('creator-filename').focus();
 };
 
 </script>
