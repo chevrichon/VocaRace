@@ -2299,10 +2299,14 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
             <div id="creator-geo-overlays" class="creator-geo-overlays"></div>
           </div>
           <p class="creator-panel-help">Clique sur l’image pour placer un élément. Pour déplacer un élément déjà placé, sélectionne-le dans la liste puis clique sur sa nouvelle position. Les coordonnées restent relatives à l’image.</p>
-          <div class="creator-geo-actions"><button type="button" class="creator-panel-btn" onclick="creatorUndoGeo()">Annuler</button><button type="button" class="creator-panel-btn" onclick="creatorRedoGeo()">Rétablir</button><button type="button" class="creator-panel-btn" onclick="creatorApplySelectedGeoProperties()">Appliquer les propriétés</button><button type="button" class="creator-panel-btn danger" onclick="creatorDeleteSelectedGeo()">Supprimer la sélection</button></div>
+          <div class="creator-geo-actions"><button type="button" class="creator-panel-btn" onclick="creatorUndoGeo()">Annuler</button><button type="button" class="creator-panel-btn" onclick="creatorRedoGeo()">Rétablir</button><button type="button" class="creator-panel-btn" onclick="creatorApplySelectedGeoProperties()">Appliquer les propriétés</button><button type="button" class="creator-panel-btn" onclick="creatorDeselectGeoItem()">Nouvel élément</button><button type="button" class="creator-panel-btn danger" onclick="creatorDeleteSelectedGeo()">Supprimer la sélection</button></div>
           <p id="creator-geo-selection-status" class="creator-panel-help" role="status" aria-live="polite">Aucun élément sélectionné.</p>
           <label for="creator-geo-label">Nom de la figure</label>
           <input id="creator-geo-label" type="text" maxlength="60" placeholder="ex. Napoléon">
+          <label for="creator-geo-answers">Réponses alternatives (séparées par des virgules)</label>
+          <input id="creator-geo-answers" type="text" maxlength="300" placeholder="ex. Paris, capitale">
+          <label for="creator-geo-tolerance">Tolérance de placement (%)</label>
+          <input id="creator-geo-tolerance" type="number" min="1" max="25" value="7">
           <label for="creator-geo-text">Texte de la zone</label>
           <textarea id="creator-geo-text" style="min-height:5rem" maxlength="500" placeholder="Texte affiché dans la zone"></textarea>
           <div class="creator-geo-tools">
@@ -4645,6 +4649,8 @@ function creatorClearDraftFields(){
   document.getElementById('creator-geo-description').value='';
   document.getElementById('creator-geo-instructions').value='';
   document.getElementById('creator-geo-label').value='';
+  document.getElementById('creator-geo-answers').value='';
+  document.getElementById('creator-geo-tolerance').value='7';
   document.getElementById('creator-geo-text').value='';
   document.getElementById('creator-geo-width').value='25';
   document.getElementById('creator-geo-height').value='15';
@@ -4835,6 +4841,8 @@ window.creatorSelectGeoItem=index=>{
   creatorSelectedGeoIndex=index;
   const item=creatorGeoItems[index];
   document.getElementById('creator-geo-label').value=String(item.label||'');
+  document.getElementById('creator-geo-answers').value=Array.isArray(item.answers)?item.answers.join(', '):'';
+  document.getElementById('creator-geo-tolerance').value=String(item.tolerance||7);
   document.getElementById('creator-geo-text').value=String(item.text||'');
   document.getElementById('creator-geo-width').value=String(item.width||25);
   document.getElementById('creator-geo-height').value=String(item.height||15);
@@ -4851,6 +4859,8 @@ window.creatorApplySelectedGeoProperties=()=>{
     const label=document.getElementById('creator-geo-label').value.trim();
     if(!label){creatorSetStatus('Le nom de la figure est obligatoire.',true);return;}
     item.label=label;
+    item.answers=document.getElementById('creator-geo-answers').value.split(',').map(value=>value.trim()).filter(Boolean);
+    item.tolerance=Math.max(1,Math.min(25,Number(document.getElementById('creator-geo-tolerance').value)||7));
   }else{
     const value=document.getElementById('creator-geo-text').value.trim();
     if(!value){creatorSetStatus('Le texte de la zone est obligatoire.',true);return;}
@@ -4885,7 +4895,9 @@ window.creatorGeoStageClick=event=>{
   if(creatorGeoMode==='figure'){
     const label=document.getElementById('creator-geo-label').value.trim();
     if(!label){creatorSetStatus('Renseigne le nom de la figure avant de cliquer sur la carte.',true);return;}
-    creatorGeoItems.push({id:'figure-'+Date.now().toString(36),type:'figure',label:label,x:Number(x.toFixed(2)),y:Number(y.toFixed(2))});
+    const answers=document.getElementById('creator-geo-answers').value.split(',').map(value=>value.trim()).filter(Boolean);
+    const tolerance=Math.max(1,Math.min(25,Number(document.getElementById('creator-geo-tolerance').value)||7));
+    creatorGeoItems.push({id:'figure-'+Date.now().toString(36),type:'figure',label:label,answers:answers,tolerance:tolerance,x:Number(x.toFixed(2)),y:Number(y.toFixed(2))});
   }else{
     const textValue=document.getElementById('creator-geo-text').value.trim();
     if(!textValue){creatorSetStatus('Renseigne le texte de la zone avant de cliquer sur la carte.',true);return;}
@@ -5025,7 +5037,7 @@ window.closeCreatorPanel=()=>{
   root.hidden=true;root.style.display='none';document.body.style.overflow='';
 };
 function creatorBindEditorEvents(){
-  ['creator-filename','creator-histoire-content','creator-espagnol-content','creator-geo-title','creator-geo-description','creator-geo-instructions','creator-geo-label','creator-geo-text','creator-geo-width','creator-geo-height'].forEach(id=>{
+  ['creator-filename','creator-histoire-content','creator-espagnol-content','creator-geo-title','creator-geo-description','creator-geo-instructions','creator-geo-label','creator-geo-answers','creator-geo-tolerance','creator-geo-text','creator-geo-width','creator-geo-height'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     el.addEventListener('input',creatorMarkDirty);
   });
