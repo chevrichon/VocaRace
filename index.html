@@ -4635,6 +4635,7 @@ window.creatorRevokeEditor=async uid=>{
 // ATELIER CRÉATEUR — gestion, aperçu, historique d'édition
 // ════════════════════════════════════════════════════
 let creatorDirty=false, creatorLibraryFilter='all', creatorCurrentType='histoire';
+let creatorGeoImageWidth=0, creatorGeoImageHeight=0;
 let creatorGeoUndoStack=[], creatorGeoRedoStack=[], creatorSelectedGeoIndex=null;
 
 function creatorSetDirty(value){
@@ -4794,7 +4795,7 @@ function creatorLoadEntry(id,force=false){
       document.getElementById('creator-geo-title').value=String(map.title||map.name||'');
       document.getElementById('creator-geo-description').value=String(map.description||'');
       document.getElementById('creator-geo-instructions').value=String(map.instructions||'');
-      creatorGeoImageData=rawMap.image.dataUrl;creatorGeoImageName=rawMap.image.filename||'carte-image';
+      creatorGeoImageData=rawMap.image.dataUrl;creatorGeoImageName=rawMap.image.filename||'carte-image';creatorGeoImageWidth=Number(rawMap.image.width)||map.image.width||0;creatorGeoImageHeight=Number(rawMap.image.height)||map.image.height||0;
       creatorGeoItems=map.items.map((item,index)=>Object.assign({id:item.id||('item-'+(index+1))},item));
       creatorSelectedGeoIndex=null;creatorGeoUndoStack=[];creatorGeoRedoStack=[];
       document.getElementById('creator-geo-image').value='';
@@ -4808,7 +4809,7 @@ function creatorLoadEntry(id,force=false){
   return Promise.resolve();
 }
 function creatorResetGeo(){
-  creatorGeoImageData='';creatorGeoImageName='';creatorGeoItems=[];creatorSelectedGeoIndex=null;
+  creatorGeoImageData='';creatorGeoImageName='';creatorGeoImageWidth=0;creatorGeoImageHeight=0;creatorGeoItems=[];creatorSelectedGeoIndex=null;
   creatorGeoUndoStack=[];creatorGeoRedoStack=[];
   const input=document.getElementById('creator-geo-image');if(input)input.value='';
   const image=document.getElementById('creator-geo-preview-image');if(image)image.removeAttribute('src');
@@ -4816,7 +4817,7 @@ function creatorResetGeo(){
   creatorRenderGeoItems();
 }
 function creatorGeoSnapshot(){
-  return {items:JSON.parse(JSON.stringify(creatorGeoItems)),selected:creatorSelectedGeoIndex,imageData:creatorGeoImageData,imageName:creatorGeoImageName};
+  return {items:JSON.parse(JSON.stringify(creatorGeoItems)),selected:creatorSelectedGeoIndex,imageData:creatorGeoImageData,imageName:creatorGeoImageName,imageWidth:creatorGeoImageWidth,imageHeight:creatorGeoImageHeight};
 }
 function creatorPushGeoHistory(){
   creatorGeoUndoStack.push(creatorGeoSnapshot());
@@ -4827,7 +4828,7 @@ function creatorRestoreGeoSnapshot(snapshot){
   const value=snapshot||{};
   creatorGeoItems=Array.isArray(value.items)?value.items:[];
   creatorSelectedGeoIndex=Number.isInteger(value.selected)?value.selected:null;
-  creatorGeoImageData=String(value.imageData||'');creatorGeoImageName=String(value.imageName||'');
+  creatorGeoImageData=String(value.imageData||'');creatorGeoImageName=String(value.imageName||'');creatorGeoImageWidth=Number(value.imageWidth)||0;creatorGeoImageHeight=Number(value.imageHeight)||0;
   const image=document.getElementById('creator-geo-preview-image');
   const stage=document.getElementById('creator-geo-stage');
   if(creatorGeoImageData){image.src=creatorGeoImageData;stage.hidden=false;}
@@ -4957,6 +4958,7 @@ function creatorRenderGeoItems(){
 }
 window.creatorHandleGeoImage=event=>{
   const file=event&&event.target&&event.target.files?event.target.files[0]:null;if(!file)return;
+  if(creatorGeoImageData&&(creatorGeoItems.length||creatorDirty)&&!confirm('Remplacer le fond de carte ? Les figures et zones existantes seront supprimées.')){event.target.value='';return;}
   if(!file.type||!file.type.startsWith('image/')){creatorSetStatus('Choisis un fichier image.',true);return;}
   if(file.size>12*1024*1024){creatorSetStatus('Image trop lourde : limite de 12 Mo avant compression.',true);event.target.value='';return;}
   const reader=new FileReader();
@@ -4964,7 +4966,8 @@ window.creatorHandleGeoImage=event=>{
     if(typeof reader.result!=='string'){creatorSetStatus('Lecture de l’image impossible.',true);return;}
     if(file.type==='image/svg+xml'){
       if(reader.result.length>6000000){creatorSetStatus('SVG trop lourd. Simplifie cette image avant de l’importer.',true);return;}
-      creatorPushGeoHistory();creatorGeoImageData=reader.result;creatorGeoImageName=file.name;creatorGeoItems=[];
+      creatorPushGeoHistory();creatorGeoImageData=reader.result;creatorGeoImageName=file.name;creatorGeoImageWidth=0;creatorGeoImageHeight=0;
+      const svgDimensions=new Image();svgDimensions.onload=()=>{creatorGeoImageWidth=svgDimensions.naturalWidth||0;creatorGeoImageHeight=svgDimensions.naturalHeight||0;creatorRenderEditorPreview();};svgDimensions.src=reader.result;creatorGeoItems=[];
       document.getElementById('creator-geo-preview-image').src=creatorGeoImageData;document.getElementById('creator-geo-stage').hidden=false;
       creatorSelectedGeoIndex=null;creatorMarkDirty();creatorRenderGeoItems();creatorSetStatus('Image SVG chargée.',false);return;
     }
@@ -4975,7 +4978,7 @@ window.creatorHandleGeoImage=event=>{
         const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(image.naturalHeight*ratio));
         const context=canvas.getContext('2d');context.fillStyle='#ffffff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(image,0,0,canvas.width,canvas.height);
         const data=canvas.toDataURL('image/jpeg',.88);
-        creatorPushGeoHistory();creatorGeoImageData=data;creatorGeoImageName=file.name.replace(/\.[^.]+$/,'')+'.jpg';creatorGeoItems=[];creatorSelectedGeoIndex=null;
+        creatorPushGeoHistory();creatorGeoImageData=data;creatorGeoImageName=file.name.replace(/\.[^.]+$/,'')+'.jpg';creatorGeoImageWidth=canvas.width;creatorGeoImageHeight=canvas.height;creatorGeoItems=[];creatorSelectedGeoIndex=null;
         document.getElementById('creator-geo-preview-image').src=data;document.getElementById('creator-geo-stage').hidden=false;
         creatorMarkDirty();creatorRenderGeoItems();creatorSetStatus('Image optimisée : '+canvas.width+' × '+canvas.height+' px.',false);
       }catch(error){creatorSetStatus('Compression de l’image impossible : '+(error.message||String(error)),true);}
@@ -5018,7 +5021,7 @@ function creatorBuildCurrent(){
       return Object.assign({},item,{id:String(item.id||('item-'+(index+1))),x:Number(x.toFixed(2)),y:Number(y.toFixed(2))});
     });
     const map={format:'vocarace.geo.v1',version:1,id:base,name:title,title:title,description:description,instructions:instructions,
-      image:{filename:creatorGeoImageName||'carte-image',mimeType:(creatorGeoImageData.match(/^data:([^;,]+)/)||[])[1]||'image/jpeg',width:image.naturalWidth||0,height:image.naturalHeight||0,dataUrl:creatorGeoImageData},
+      image:{filename:creatorGeoImageName||'carte-image',mimeType:(creatorGeoImageData.match(/^data:([^;,]+)/)||[])[1]||'image/jpeg',width:creatorGeoImageWidth||image.naturalWidth||0,height:creatorGeoImageHeight||image.naturalHeight||0,dataUrl:creatorGeoImageData},
       items:items};
     content=JSON.stringify(map,null,2)+'\n';
   }
