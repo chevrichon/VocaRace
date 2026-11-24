@@ -2282,8 +2282,8 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
         </div>
         <div id="creator-espagnol-pane" class="creator-panel-pane" hidden>
           <label for="creator-espagnol-content">Mots ou expressions</label>
-          <textarea id="creator-espagnol-content" spellcheck="false" placeholder="&quot;el agua&quot; &quot;l’eau&quot;&#10;&quot;aprender&quot; &quot;apprendre&quot;"></textarea>
-          <p class="creator-panel-help">Une ligne par paire, avec les deux expressions entre guillemets : "espagnol" "français".</p>
+          <textarea id="creator-espagnol-content" spellcheck="false" placeholder="&quot;l’eau&quot; &quot;el agua&quot;&#10;&quot;apprendre&quot; &quot;aprender&quot;"></textarea>
+          <p class="creator-panel-help">Une ligne par paire, dans l’ordre utilisé par VocaRace : "français" "espagnol".</p>
         </div>
         <div id="creator-geo-pane" class="creator-panel-pane" hidden>
           <label for="creator-geo-title">Titre de la carte</label><input id="creator-geo-title" type="text" maxlength="140" placeholder="ex. Les grandes villes de France">
@@ -4412,7 +4412,7 @@ function creatorBuildCurrent(){
     const lines=content.split('\n').map(line=>line.trim()).filter(Boolean);
     if(!lines.length)throw new Error('Ajoute au moins une paire espagnol/français.');
     const invalid=lines.findIndex(line=>!/^"([^"]+)"\s+"([^"]+)"/.test(line));
-    if(invalid>=0)throw new Error('Ligne '+(invalid+1)+' invalide : utilise "espagnol" "français".');
+    if(invalid>=0)throw new Error('Ligne '+(invalid+1)+' invalide : utilise "français" "espagnol".');
     content=lines.join('\n')+'\n';
   }else{
     if(!creatorGeoImageData)throw new Error('Ajoute une image à la carte.');
