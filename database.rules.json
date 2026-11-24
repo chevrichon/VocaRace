@@ -98,8 +98,8 @@
     },
     "creatorLibrary": {
       ".read": "auth != null && (auth.token.email === 'udfba5682@accounts.vocarace.invalid' || root.child('creatorEditors').child(auth.uid).val() === true)",
-      ".write": "auth != null && (auth.token.email === 'udfba5682@accounts.vocarace.invalid' || root.child('creatorEditors').child(auth.uid).val() === true)",
       "$entryId": {
+        ".write": "auth != null && (auth.token.email === 'udfba5682@accounts.vocarace.invalid' || (root.child('creatorEditors').child(auth.uid).val() === true && ((!data.exists() && newData.exists() && newData.child('savedBy').val() === auth.uid) || (data.exists() && data.child('savedBy').val() === auth.uid && (!newData.exists() || newData.child('savedBy').val() === auth.uid)))))",
         ".validate": "newData.hasChildren(['filename','extension','content','updatedAt','savedBy'])",
         "filename": {
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
