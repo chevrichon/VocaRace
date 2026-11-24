@@ -2144,6 +2144,7 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
         </div>
         <label for="creator-filename">Nom du fichier, sans extension</label>
         <input id="creator-filename" type="text" maxlength="90" placeholder="ex. H1-Rome" autocomplete="off">
+        <span id="creator-dirty-indicator" class="creator-dirty-indicator" role="status">Modifications enregistrées</span>
         <div id="creator-histoire-pane" class="creator-panel-pane">
           <label for="creator-histoire-content">Événements historiques</label>
           <textarea id="creator-histoire-content" spellcheck="false" placeholder="14/07/1789::Prise de la Bastille&#10;1804::Proclamation de l’Empire"></textarea>
@@ -2155,6 +2156,9 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
           <p class="creator-panel-help">Une ligne par paire, avec les deux expressions entre guillemets : "espagnol" "français".</p>
         </div>
         <div id="creator-geo-pane" class="creator-panel-pane" hidden>
+          <label for="creator-geo-title">Titre de la carte</label><input id="creator-geo-title" type="text" maxlength="140" placeholder="ex. Les grandes villes de France">
+          <label for="creator-geo-description">Description</label><input id="creator-geo-description" type="text" maxlength="400" placeholder="Ce que la carte permet de réviser">
+          <label for="creator-geo-instructions">Consigne de l’exercice</label><textarea id="creator-geo-instructions" style="min-height:4.5rem" maxlength="800" placeholder="Localise les villes et les régions."></textarea>
           <label for="creator-geo-image">Image de fond de la carte</label>
           <input id="creator-geo-image" type="file" accept="image/*" onchange="creatorHandleGeoImage(event)">
           <p class="creator-panel-help">L’image sera intégrée dans le fichier .geo. Image limitée à 3,5 Mo pour conserver un fichier transportable.</p>
@@ -2166,7 +2170,9 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
             <img id="creator-geo-preview-image" alt="Image de fond de la carte">
             <div id="creator-geo-overlays" class="creator-geo-overlays"></div>
           </div>
-          <p class="creator-panel-help">Clique sur l’image pour placer l’élément sélectionné. Les positions sont stockées en pourcentage de l’image.</p>
+          <p class="creator-panel-help">Clique sur l’image pour placer un élément. Pour déplacer un élément déjà placé, sélectionne-le dans la liste puis clique sur sa nouvelle position. Les coordonnées restent relatives à l’image.</p>
+          <div class="creator-geo-actions"><button type="button" class="creator-panel-btn" onclick="creatorUndoGeo()">Annuler</button><button type="button" class="creator-panel-btn" onclick="creatorRedoGeo()">Rétablir</button><button type="button" class="creator-panel-btn" onclick="creatorApplySelectedGeoProperties()">Appliquer les propriétés</button><button type="button" class="creator-panel-btn danger" onclick="creatorDeleteSelectedGeo()">Supprimer la sélection</button></div>
+          <p id="creator-geo-selection-status" class="creator-panel-help" role="status" aria-live="polite">Aucun élément sélectionné.</p>
           <label for="creator-geo-label">Nom de la figure</label>
           <input id="creator-geo-label" type="text" maxlength="60" placeholder="ex. Napoléon">
           <label for="creator-geo-text">Texte de la zone</label>
@@ -2182,11 +2188,17 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
           <button type="button" class="creator-panel-btn" onclick="creatorDownloadCurrent()">Télécharger le fichier</button>
           <button type="button" class="creator-panel-btn" onclick="creatorResetEditor()">Nouveau fichier</button>
         </div>
+        <label for="creator-content-preview">Aperçu du fichier</label><pre id="creator-content-preview" class="creator-preview">L’aperçu s’affichera ici.</pre>
         <p id="creator-editor-status" class="creator-panel-status" role="status" aria-live="polite"></p>
       </section>
       <aside class="creator-panel-section">
         <h3>Bibliothèque privée</h3>
         <p class="creator-panel-help" style="margin-bottom:.8rem">Les fichiers enregistrés sont accessibles aux comptes autorisés. Télécharge un fichier pour l’ajouter ensuite au dépôt du jeu.</p>
+        <div class="creator-library-tools">
+          <label for="creator-library-search">Rechercher un fichier</label><input id="creator-library-search" type="search" placeholder="Nom de fichier ou titre" oninput="creatorFilterLibrary()" autocomplete="off">
+          <label for="creator-library-sort">Trier la bibliothèque</label><select id="creator-library-sort" onchange="creatorFilterLibrary()"><option value="date">Modification récente</option><option value="name">Nom A → Z</option><option value="category">Catégorie</option></select>
+          <div class="creator-library-tabs" role="group" aria-label="Filtrer par catégorie"><button type="button" data-creator-filter="all" aria-pressed="true" onclick="creatorSetLibraryFilter('all')">Tout</button><button type="button" data-creator-filter="histoire" aria-pressed="false" onclick="creatorSetLibraryFilter('histoire')">Histoire</button><button type="button" data-creator-filter="espagnol" aria-pressed="false" onclick="creatorSetLibraryFilter('espagnol')">Espagnol</button><button type="button" data-creator-filter="geo" aria-pressed="false" onclick="creatorSetLibraryFilter('geo')">Géographie</button></div>
+        </div>
         <div id="creator-library-list" class="creator-library-list"><div class="creator-library-empty">Chargement de la bibliothèque…</div></div>
         <p id="creator-library-status" class="creator-panel-status" role="status"></p>
       </aside>
