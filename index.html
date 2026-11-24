@@ -1854,7 +1854,9 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 
 <!-- CHOIX DE LA MATIÈRE -->
 <div id="category-selection-screen" class="screen">
-  <div class="menu-inner">
+  <div class="menu-inner" style="position:relative">
+    <button id="voca-account-button-home" onclick="openVocaAccount()" aria-label="Compte" title="Compte" style="position:fixed;right:3.8rem;top:.25rem;height:30px;padding:0 .65rem;border:1px solid #94a3b866;background:transparent;color:inherit;cursor:pointer;z-index:201">Compte</button>
+    <span id="voca-account-label-home" style="position:fixed;right:3.8rem;top:2.05rem;font-size:.55rem;color:#94a3b8;max-width:90px;text-align:right;z-index:201">Compte facultatif</span>
     <h2 class="menu-title">VocaRace</h2>
     <p class="menu-sub">Choisis ta matière</p>
     <div class="category-grid">
@@ -2458,7 +2460,14 @@ try {
 function makeVocaAccountEmail(pseudo){let h=2166136261;for(const c of String(pseudo).trim().toLowerCase()){h^=c.codePointAt(0);h=Math.imul(h,16777619);}return "u"+(h>>>0).toString(16)+"@accounts.vocarace.invalid";}
 function getVocaLocalName(){try{return localStorage.getItem("vocarace_leaderboard_name")||"";}catch(e){return "";}}
 function setVocaLocalName(n){n=String(n||"").trim().slice(0,20);if(!n)return;try{localStorage.setItem("vocarace_leaderboard_name",n);}catch(e){}setLeaderboardCookie(n);updateVocaAccountButton();}
-function updateVocaAccountButton(){const b=document.getElementById("voca-account-button"),l=document.getElementById("voca-account-label");if(!b||!l)return;const member=!!(vocaUser&&!vocaUser.isAnonymous),n=vocaProfileName||getVocaLocalName();b.textContent=member?"Compte connecté":"Compte";b.title=member?"Compte connecté":"Compte facultatif";l.textContent=member?(vocaProfileName||n||"Connecté"):(n?"Pseudo local : "+n:"Compte facultatif");}
+function updateVocaAccountButton(){
+  const member=!!(vocaUser&&!vocaUser.isAnonymous),n=vocaProfileName||getVocaLocalName();
+  [['voca-account-button','voca-account-label'],['voca-account-button-home','voca-account-label-home']].forEach(ids=>{
+    const b=document.getElementById(ids[0]),l=document.getElementById(ids[1]);if(!b||!l)return;
+    b.textContent=member?"Compte connecté":"Compte";b.title=member?"Compte connecté":"Compte facultatif";
+    l.textContent=member?(vocaProfileName||n||"Connecté"):(n?"Pseudo local : "+n:"Compte facultatif");
+  });
+}
 window.openVocaAccount=()=>{const m=document.getElementById("voca-account-modal");m.classList.remove("hidden");m.style.display="flex";const member=!!(vocaUser&&!vocaUser.isAnonymous);document.getElementById("voca-account-guest").classList.toggle("hidden",member);document.getElementById("voca-account-member").classList.toggle("hidden",!member);document.getElementById("voca-account-message").textContent="";if(member){document.getElementById("voca-account-email-label").textContent="Connecté : "+(vocaProfileName||"compte");document.getElementById("voca-account-pseudo-edit").value=vocaProfileName;}else document.getElementById("voca-account-pseudo").value=getVocaLocalName();refreshCreatorAccessUI();};
 window.closeVocaAccount=()=>{const m=document.getElementById("voca-account-modal");m.style.display="none";m.classList.add("hidden");};
 function vocaAccountMsg(t){document.getElementById("voca-account-message").textContent=t;}
