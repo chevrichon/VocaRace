@@ -1732,6 +1732,8 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 
 <style id="vocarace-navigation-geo-style">
 #category-selection-screen .category-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));align-items:stretch}
+#creator-home-shortcut{max-width:100%;margin-inline:auto}
+#creator-home-shortcut[hidden]{display:none!important}
 #category-selection-screen .category-card[role="button"]{cursor:pointer}
 #category-selection-screen .category-card[role="button"]:focus-visible,#mode-selection-screen .mode-card:focus-visible,.creator-panel-root button:focus-visible,.geo-screen button:focus-visible,.geo-screen input:focus-visible,.geo-screen select:focus-visible{outline:3px solid #818cf8;outline-offset:3px}
 .creator-panel-root .creator-library-tools{display:grid;gap:.55rem;margin:.75rem 0}
@@ -1859,6 +1861,7 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
     <span id="voca-account-label-home" style="position:fixed;right:3.8rem;top:2.05rem;font-size:.55rem;color:#94a3b8;max-width:90px;text-align:right;z-index:201">Compte facultatif</span>
     <h2 class="menu-title">VocaRace</h2>
     <p class="menu-sub">Choisis ta matière</p>
+    <button id="creator-home-shortcut" class="geo-secondary-btn hidden" type="button" onclick="openCreatorPanel()" style="margin:.2rem 0 1rem" hidden>Atelier créateur</button>
     <div class="category-grid">
       <div onclick="chooseSubject('vocab')" class="mode-card mode-card--solo category-card">
         <div><div class="mode-art mode-art--subject" aria-hidden="true"><svg viewBox="0 0 320 120"><g transform="translate(58 15) rotate(-7 66 43)"><rect width="132" height="82" rx="8" fill="var(--vr-surface)" stroke="var(--vr-border)" stroke-width="2"/><rect x="12" y="12" width="32" height="22" rx="5" fill="var(--vr-blue)"/><text x="28" y="27" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">ES</text><path d="M15 47h92M15 58h72M15 69h50" stroke="var(--vr-blue)" stroke-width="4" stroke-linecap="round" opacity=".55"/></g><g transform="translate(138 22) rotate(7 66 43)"><rect width="132" height="82" rx="8" fill="var(--vr-surface)" stroke="var(--vr-raspberry)" stroke-width="2"/><rect x="12" y="12" width="32" height="22" rx="5" fill="var(--vr-raspberry)"/><text x="28" y="27" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">FR</text><path d="M15 47h92M15 58h72M15 69h50" stroke="var(--vr-raspberry)" stroke-width="4" stroke-linecap="round" opacity=".55"/></g></svg></div><h3 class="mode-card-title mode-card-title--solo">Espagnol</h3>
@@ -4350,17 +4353,22 @@ async function creatorCheckAccess(){
 }
 async function refreshCreatorAccessUI(){
   const button=document.getElementById('creator-panel-open');
+  const homeButton=document.getElementById('creator-home-shortcut');
   const uidRow=document.getElementById('creator-account-uid-row');
   const uidText=document.getElementById('creator-account-uid');
   const user=auth&&auth.currentUser;
   if(uidRow)uidRow.classList.toggle('hidden',!(user&&!user.isAnonymous));
   if(uidText)uidText.textContent=user&&!user.isAnonymous?user.uid:'';
-  if(!button)return;
-  if(!user||user.isAnonymous){button.classList.add('hidden');button.hidden=true;return;}
+  const setVisible=(node,visible)=>{
+    if(!node)return;
+    node.classList.toggle('hidden',!visible);
+    node.hidden=!visible;
+  };
+  if(!user||user.isAnonymous){setVisible(button,false);setVisible(homeButton,false);return;}
   const access=await creatorCheckAccess();
   if(auth.currentUser&&auth.currentUser.uid===user.uid){
-    button.classList.toggle('hidden',!access.allowed);
-    button.hidden=!access.allowed;
+    setVisible(button,access.allowed);
+    setVisible(homeButton,access.allowed);
   }
 }
 window.openCreatorPanel=async()=>{
