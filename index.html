@@ -1854,6 +1854,26 @@ body.theme-light .geo-primary-btn{background:var(--vr-forest);border-color:var(-
 }
 </style>
 
+
+<style id="creator-geo-workspace-style">
+#creator-panel-root .creator-geo-layout{display:grid;grid-template-columns:minmax(245px,.78fr) minmax(0,1.22fr);gap:1rem;align-items:start;margin-top:.8rem}
+#creator-panel-root .creator-geo-properties,#creator-panel-root .creator-geo-map-column{min-width:0}
+#creator-panel-root .creator-geo-properties{padding:.8rem;border:1px solid #dbe2ea;border-radius:.7rem;background:#f8fafc}
+#creator-panel-root .creator-geo-panel-title{margin:0 0 .4rem;font-size:.88rem;font-weight:900;color:#172033}
+#creator-panel-root .creator-geo-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem;margin:.8rem 0}
+#creator-panel-root .creator-geo-actions button{min-width:0;padding:.55rem .4rem;font-size:.72rem}
+#creator-panel-root .creator-geo-actions button:last-child{grid-column:1/-1}
+#creator-panel-root .creator-geo-map-column .creator-geo-stage{margin-top:0}
+#creator-panel-root .creator-geo-map-column .creator-geo-stage>img{max-height:none;object-fit:fill}
+#creator-panel-root .creator-geo-item-row{align-items:center}
+#creator-panel-root .creator-geo-item-row .creator-library-entry-actions{flex-shrink:0}
+@media(max-width:850px){
+ #creator-panel-root .creator-geo-layout{grid-template-columns:minmax(0,1fr)}
+ #creator-panel-root .creator-geo-properties{order:1}
+ #creator-panel-root .creator-geo-map-column{order:2}
+}
+</style>
+
 </head>
 <body>
 <label id="theme-toggle-button" title="Basculer entre le thème clair et sombre" aria-label="Basculer entre le thème clair et sombre">
@@ -2348,31 +2368,44 @@ body.theme-light .geo-primary-btn{background:var(--vr-forest);border-color:var(-
           <label for="creator-geo-instructions">Consigne de l’exercice</label><textarea id="creator-geo-instructions" style="min-height:4.5rem" maxlength="800" placeholder="Localise les villes et les régions."></textarea>
           <label for="creator-geo-image">Image de fond de la carte</label>
           <input id="creator-geo-image" type="file" accept="image/*" onchange="creatorHandleGeoImage(event)">
-          <p class="creator-panel-help">L’image sera intégrée dans le fichier .geo. Image limitée à 3,5 Mo pour conserver un fichier transportable.</p>
-          <div class="creator-geo-tools" style="margin-top:.7rem">
-            <button type="button" id="creator-geo-mode-figure" class="creator-panel-btn primary" onclick="creatorSetGeoMode('figure')">Placer une figure</button>
-            <button type="button" id="creator-geo-mode-text" class="creator-panel-btn" onclick="creatorSetGeoMode('text')">Placer une zone de texte</button>
+          <p class="creator-panel-help">Images matricielles : import jusqu’à 12 Mo, puis redimensionnement et compression automatiques. Les SVG sont conservés tels quels (limite 6 Mo).</p>
+          <div class="creator-geo-layout">
+            <div class="creator-geo-properties">
+              <h4 class="creator-geo-panel-title">Éléments de la carte</h4>
+              <div class="creator-geo-tools" style="margin-top:.7rem">
+                <button type="button" id="creator-geo-mode-figure" class="creator-panel-btn primary" onclick="creatorSetGeoMode('figure')">+ Placer une figure</button>
+                <button type="button" id="creator-geo-mode-text" class="creator-panel-btn" onclick="creatorSetGeoMode('text')">+ Zone de texte</button>
+              </div>
+              <p id="creator-geo-selection-status" class="creator-panel-help" role="status" aria-live="polite">Mode ajout : renseigne un élément puis clique sur la carte.</p>
+              <label for="creator-geo-label">Nom de la figure</label>
+              <input id="creator-geo-label" type="text" maxlength="60" placeholder="ex. Paris">
+              <label for="creator-geo-answers">Réponses alternatives (séparées par des virgules)</label>
+              <input id="creator-geo-answers" type="text" maxlength="300" placeholder="ex. capitale, ville principale">
+              <label for="creator-geo-tolerance">Tolérance de placement (%)</label>
+              <input id="creator-geo-tolerance" type="number" min="1" max="25" value="7">
+              <label for="creator-geo-text">Texte de la zone</label>
+              <textarea id="creator-geo-text" style="min-height:5rem" maxlength="500" placeholder="Texte affiché dans la zone"></textarea>
+              <div class="creator-geo-tools">
+                <div><label for="creator-geo-width">Largeur de la zone (%)</label><input id="creator-geo-width" type="number" min="5" max="100" value="25"></div>
+                <div><label for="creator-geo-height">Hauteur de la zone (%)</label><input id="creator-geo-height" type="number" min="5" max="100" value="15"></div>
+              </div>
+              <div class="creator-geo-actions">
+                <button type="button" class="creator-panel-btn" onclick="creatorUndoGeo()">Annuler</button>
+                <button type="button" class="creator-panel-btn" onclick="creatorRedoGeo()">Rétablir</button>
+                <button type="button" class="creator-panel-btn" onclick="creatorApplySelectedGeoProperties()">Appliquer</button>
+                <button type="button" class="creator-panel-btn" onclick="creatorDeselectGeoItem()">Nouvel élément</button>
+                <button type="button" class="creator-panel-btn danger" onclick="creatorDeleteSelectedGeo()">Supprimer la sélection</button>
+              </div>
+              <ul id="creator-geo-item-list" class="creator-geo-item-list"><li class="creator-geo-empty">Aucun élément placé.</li></ul>
+            </div>
+            <div class="creator-geo-map-column">
+              <div id="creator-geo-stage" class="creator-geo-stage" hidden onclick="creatorGeoStageClick(event)" aria-label="Aperçu interactif de la carte">
+                <img id="creator-geo-preview-image" alt="Image de fond de la carte">
+                <div id="creator-geo-overlays" class="creator-geo-overlays"></div>
+              </div>
+              <p class="creator-panel-help">Clique sur la carte pour placer l’élément saisi. Pour déplacer un élément, sélectionne-le dans la liste puis clique sur sa nouvelle position. Toutes les coordonnées sont relatives à l’image.</p>
+            </div>
           </div>
-          <div id="creator-geo-stage" class="creator-geo-stage" hidden onclick="creatorGeoStageClick(event)" aria-label="Aperçu interactif de la carte">
-            <img id="creator-geo-preview-image" alt="Image de fond de la carte">
-            <div id="creator-geo-overlays" class="creator-geo-overlays"></div>
-          </div>
-          <p class="creator-panel-help">Clique sur l’image pour placer un élément. Pour déplacer un élément déjà placé, sélectionne-le dans la liste puis clique sur sa nouvelle position. Les coordonnées restent relatives à l’image.</p>
-          <div class="creator-geo-actions"><button type="button" class="creator-panel-btn" onclick="creatorUndoGeo()">Annuler</button><button type="button" class="creator-panel-btn" onclick="creatorRedoGeo()">Rétablir</button><button type="button" class="creator-panel-btn" onclick="creatorApplySelectedGeoProperties()">Appliquer les propriétés</button><button type="button" class="creator-panel-btn" onclick="creatorDeselectGeoItem()">Nouvel élément</button><button type="button" class="creator-panel-btn danger" onclick="creatorDeleteSelectedGeo()">Supprimer la sélection</button></div>
-          <p id="creator-geo-selection-status" class="creator-panel-help" role="status" aria-live="polite">Aucun élément sélectionné.</p>
-          <label for="creator-geo-label">Nom de la figure</label>
-          <input id="creator-geo-label" type="text" maxlength="60" placeholder="ex. Napoléon">
-          <label for="creator-geo-answers">Réponses alternatives (séparées par des virgules)</label>
-          <input id="creator-geo-answers" type="text" maxlength="300" placeholder="ex. Paris, capitale">
-          <label for="creator-geo-tolerance">Tolérance de placement (%)</label>
-          <input id="creator-geo-tolerance" type="number" min="1" max="25" value="7">
-          <label for="creator-geo-text">Texte de la zone</label>
-          <textarea id="creator-geo-text" style="min-height:5rem" maxlength="500" placeholder="Texte affiché dans la zone"></textarea>
-          <div class="creator-geo-tools">
-            <div><label for="creator-geo-width">Largeur de la zone (%)</label><input id="creator-geo-width" type="number" min="5" max="100" value="25"></div>
-            <div><label for="creator-geo-height">Hauteur de la zone (%)</label><input id="creator-geo-height" type="number" min="5" max="100" value="15"></div>
-          </div>
-          <ul id="creator-geo-item-list" class="creator-geo-item-list"><li class="creator-geo-empty">Aucun élément placé.</li></ul>
         </div>
         <div class="creator-panel-actions">
           <button type="button" class="creator-panel-btn primary" onclick="creatorSaveCurrent()">Enregistrer dans la bibliothèque</button>
