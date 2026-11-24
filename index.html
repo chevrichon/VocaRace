@@ -4488,6 +4488,732 @@ window.creatorRevokeEditor=async uid=>{
   }catch(error){document.getElementById('creator-permission-status').textContent='Retrait impossible : '+(error.message||String(error));}
 };
 
+
+// ════════════════════════════════════════════════════
+// ATELIER CRÉATEUR — gestion, aperçu, historique d'édition
+// ════════════════════════════════════════════════════
+let creatorDirty=false, creatorLibraryFilter='all', creatorCurrentType='histoire';
+let creatorGeoUndoStack=[], creatorGeoRedoStack=[], creatorSelectedGeoIndex=null;
+
+function creatorSetDirty(value){
+  creatorDirty=!!value;
+  const indicator=document.getElementById('creator-dirty-indicator');
+  if(indicator){
+    indicator.textContent=creatorDirty?'Modifications non enregistrées':'Modifications enregistrées';
+    indicator.classList.toggle('is-dirty',creatorDirty);
+  }
+  creatorRenderEditorPreview();
+}
+function creatorMarkDirty(){creatorSetDirty(true);}
+function creatorConfirmDiscard(message){
+  return !creatorDirty||confirm(message||'Des modifications ne sont pas enregistrées. Les abandonner ?');
+}
+function creatorClearDraftFields(){
+  document.getElementById('creator-filename').value='';
+  document.getElementById('creator-histoire-content').value='';
+  document.getElementById('creator-espagnol-content').value='';
+  document.getElementById('creator-geo-title').value='';
+  document.getElementById('creator-geo-description').value='';
+  document.getElementById('creator-geo-instructions').value='';
+  document.getElementById('creator-geo-label').value='';
+  document.getElementById('creator-geo-text').value='';
+  document.getElementById('creator-geo-width').value='25';
+  document.getElementById('creator-geo-height').value='15';
+  creatorResetGeo();
+  creatorCurrentEntryId=null;
+  creatorCurrentType=creatorPanelType;
+  creatorSetDirty(false);
+}
+window.creatorSetType=(type,force=false)=>{
+  if(!['histoire','espagnol','geo'].includes(type))return;
+  if(type!==creatorPanelType&&(creatorDirty||creatorCurrentEntryId)){
+    if(!force&&!creatorConfirmDiscard('Changer de type de fichier fermera le fichier actuel. Les modifications non enregistrées seront perdues. Continuer ?'))return;
+    creatorClearDraftFields();
+  }
+  creatorPanelType=type;creatorCurrentType=type;
+  ['histoire','espagnol','geo'].forEach(t=>{
+    document.getElementById('creator-tab-'+t).classList.toggle('is-active',t===type);
+    document.getElementById('creator-tab-'+t).setAttribute('aria-selected',String(t===type));
+    document.getElementById('creator-'+t+'-pane').hidden=t!==type;
+  });
+  creatorSetStatus('');
+  creatorRenderEditorPreview();
+};
+function creatorRenderEditorPreview(){
+  const out=document.getElementById('creator-content-preview');
+  if(!out)return;
+  const base=creatorSafeBaseName(document.getElementById('creator-filename')?.value||'');
+  if(creatorPanelType==='histoire'){
+    const raw=document.getElementById('creator-histoire-content')?.value||'';
+    const rows=raw.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+    out.textContent=(base?base+'.histoire':'Nouveau fichier .histoire')+'\n'+rows.length+' événement(s)\n\n'+(rows.slice(0,50).join('\n')||'Ajoute une ligne date::événement.');
+  }else if(creatorPanelType==='espagnol'){
+    const raw=document.getElementById('creator-espagnol-content')?.value||'';
+    const rows=raw.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+    out.textContent=(base?base+'.espagnol':'Nouveau fichier .espagnol')+'\n'+rows.length+' paire(s) de vocabulaire\n\n'+(rows.slice(0,50).join('\n')||'Ajoute une ligne "espagnol" "français".');
+  }else{
+    const image=document.getElementById('creator-geo-preview-image');
+    const figures=creatorGeoItems.filter(item=>item.type==='figure').length;
+    const zones=creatorGeoItems.filter(item=>item.type==='text').length;
+    const summary={format:'vocarace.geo.v1',version:1,id:base||'nouvelle-carte',title:document.getElementById('creator-geo-title')?.value||base,description:document.getElementById('creator-geo-description')?.value||'',instructions:document.getElementById('creator-geo-instructions')?.value||'',image:creatorGeoImageData?{filename:creatorGeoImageName,width:image?.naturalWidth||0,height:image?.naturalHeight||0,embedded:true}:null,items:creatorGeoItems};
+    out.textContent=JSON.stringify(summary,null,2)+'\n\n'+figures+' figure(s) · '+zones+' zone(s) de texte';
+  }
+}
+function creatorLibraryTitle(entry){
+  if(entry.extension==='.geo'){
+    try{const value=JSON.parse(entry.content);return String(value.title||value.name||entry.filename);}
+    catch(e){return entry.filename;}
+  }
+  return entry.filename;
+}
+window.creatorSetLibraryFilter=(filter)=>{
+  creatorLibraryFilter=['all','histoire','espagnol','geo'].includes(filter)?filter:'all';
+  document.querySelectorAll('[data-creator-filter]').forEach(button=>{
+    button.setAttribute('aria-pressed',String(button.dataset.creatorFilter===creatorLibraryFilter));
+  });
+  creatorFilterLibrary();
+};
+window.creatorFilterLibrary=()=>creatorRenderLibrary();
+function creatorRenderLibrary(){
+  const list=document.getElementById('creator-library-list');if(!list)return;
+  const query=String(document.getElementById('creator-library-search')?.value||'').trim().toLocaleLowerCase('fr');
+  const sort=document.getElementById('creator-library-sort')?.value||'date';
+  const entries=creatorLibraryEntries.filter(entry=>{
+    const kind=entry.extension==='.geo'?'geo':entry.extension==='.espagnol'?'espagnol':'histoire';
+    const contentMatch=(entry.filename+' '+creatorLibraryTitle(entry)).toLocaleLowerCase('fr').includes(query);
+    return (creatorLibraryFilter==='all'||creatorLibraryFilter===kind)&&contentMatch;
+  });
+  entries.sort((a,b)=>{
+    if(sort==='name')return creatorLibraryTitle(a).localeCompare(creatorLibraryTitle(b),'fr');
+    if(sort==='category')return String(a.extension).localeCompare(String(b.extension))||creatorLibraryTitle(a).localeCompare(creatorLibraryTitle(b),'fr');
+    return (Number(b.updatedAt)||0)-(Number(a.updatedAt)||0);
+  });
+  list.textContent='';
+  if(!entries.length){
+    const empty=document.createElement('div');empty.className='creator-library-empty';
+    empty.textContent=creatorLibraryEntries.length?'Aucun fichier ne correspond à ces filtres.':'Aucun fichier enregistré. Crée un fichier avec l’éditeur.';
+    list.appendChild(empty);return;
+  }
+  const user=auth&&auth.currentUser;
+  entries.forEach(entry=>{
+    const card=document.createElement('article');card.className='creator-library-entry';
+    const title=document.createElement('p');title.className='creator-library-entry-title';title.textContent=creatorLibraryTitle(entry);
+    const meta=document.createElement('p');meta.className='creator-library-entry-meta';
+    const date=Number(entry.updatedAt)?new Date(Number(entry.updatedAt)).toLocaleString('fr-FR'):'Date inconnue';
+    const owner=creatorIsOwner(user),ownFile=!!(user&&entry.savedBy===user.uid);
+    meta.textContent=(entry.extension||'fichier')+' · '+date+' · '+(ownFile?'Créé par toi':owner?'Créé par un autre éditeur':'Autre éditeur');
+    const actions=document.createElement('div');actions.className='creator-library-entry-actions';
+    const canEdit=owner||ownFile;
+    const open=document.createElement('button');open.type='button';open.textContent='Ouvrir / modifier';open.disabled=!canEdit;
+    open.title=canEdit?'Ouvrir ce fichier':'Seul son auteur ou le créateur peut le modifier';
+    open.onclick=()=>creatorLoadEntry(entry.id);
+    const duplicate=document.createElement('button');duplicate.type='button';duplicate.textContent='Dupliquer';duplicate.disabled=!canEdit;
+    duplicate.title=canEdit?'Créer une copie modifiable':'Seul son auteur ou le créateur peut dupliquer ce fichier';
+    duplicate.onclick=()=>creatorDuplicateEntry(entry.id);
+    const download=document.createElement('button');download.type='button';download.textContent='Télécharger';download.onclick=()=>creatorDownloadFile(entry);
+    const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent='Supprimer';remove.disabled=!canEdit;
+    remove.title=canEdit?'Supprimer ce fichier':'Seul son auteur ou le créateur peut le supprimer';
+    remove.onclick=()=>creatorDeleteEntry(entry.id);
+    actions.append(open,duplicate,download,remove);card.append(title,meta,actions);list.appendChild(card);
+  });
+}
+window.creatorDuplicateEntry=async(id)=>{
+  const entry=creatorLibraryEntries.find(item=>item.id===id);if(!entry)return;
+  if(!creatorConfirmDiscard('Abandonner les modifications actuelles pour charger une copie ?'))return;
+  await creatorLoadEntry(id,true);
+  document.getElementById('creator-filename').value=creatorSafeBaseName(entry.filename).replace(/\.(histoire|espagnol|geo)$/i,'')+'-copie';
+  creatorCurrentEntryId=null;
+  creatorMarkDirty();
+  creatorSetStatus('Copie prête. Enregistre-la pour créer un nouveau fichier.',false);
+};
+window.creatorResetEditor=()=>{
+  if(!creatorConfirmDiscard('Abandonner les modifications non enregistrées et créer un nouveau fichier ?'))return;
+  creatorPanelType='histoire';creatorCurrentType='histoire';
+  creatorClearDraftFields();
+  window.creatorSetType('histoire',true);
+  creatorSetStatus('Nouveau fichier prêt.',false);
+};
+function creatorLoadEntry(id,force=false){
+  const entry=creatorLibraryEntries.find(item=>item.id===id);if(!entry)return Promise.resolve();
+  if(!force&&!creatorConfirmDiscard('Abandonner les modifications non enregistrées pour ouvrir ce fichier ?'))return Promise.resolve();
+  try{
+    const type=entry.extension==='.espagnol'?'espagnol':entry.extension==='.geo'?'geo':'histoire';
+    creatorPanelType=type;creatorCurrentType=type;
+    window.creatorSetType(type,true);
+    creatorCurrentEntryId=entry.id;
+    document.getElementById('creator-filename').value=entry.filename.replace(/\.(histoire|espagnol|geo)$/i,'');
+    if(type==='histoire')document.getElementById('creator-histoire-content').value=entry.content;
+    if(type==='espagnol')document.getElementById('creator-espagnol-content').value=entry.content;
+    if(type==='geo'){
+      const map=JSON.parse(entry.content);
+      if(!map||!map.image||typeof map.image.dataUrl!=='string')throw new Error('Carte .geo invalide ou image intégrée absente.');
+      document.getElementById('creator-geo-title').value=String(map.title||map.name||'');
+      document.getElementById('creator-geo-description').value=String(map.description||'');
+      document.getElementById('creator-geo-instructions').value=String(map.instructions||'');
+      creatorGeoImageData=map.image.dataUrl;creatorGeoImageName=map.image.filename||'carte-image';
+      creatorGeoItems=Array.isArray(map.items)?map.items.map((item,index)=>Object.assign({id:item.id||('item-'+(index+1))},item)):[];
+      creatorSelectedGeoIndex=null;creatorGeoUndoStack=[];creatorGeoRedoStack=[];
+      document.getElementById('creator-geo-image').value='';
+      document.getElementById('creator-geo-preview-image').src=creatorGeoImageData;
+      document.getElementById('creator-geo-stage').hidden=false;
+      creatorRenderGeoItems();
+    }
+    creatorSetDirty(false);
+    creatorSetStatus('Fichier chargé : '+entry.filename,false);
+  }catch(error){creatorSetStatus(error.message||String(error),true);}
+  return Promise.resolve();
+}
+function creatorResetGeo(){
+  creatorGeoImageData='';creatorGeoImageName='';creatorGeoItems=[];creatorSelectedGeoIndex=null;
+  creatorGeoUndoStack=[];creatorGeoRedoStack=[];
+  const input=document.getElementById('creator-geo-image');if(input)input.value='';
+  const image=document.getElementById('creator-geo-preview-image');if(image)image.removeAttribute('src');
+  const stage=document.getElementById('creator-geo-stage');if(stage)stage.hidden=true;
+  creatorRenderGeoItems();
+}
+function creatorPushGeoHistory(){
+  creatorGeoUndoStack.push(JSON.stringify({items:creatorGeoItems,selected:creatorSelectedGeoIndex}));
+  if(creatorGeoUndoStack.length>40)creatorGeoUndoStack.shift();
+  creatorGeoRedoStack=[];
+}
+function creatorRestoreGeoSnapshot(snapshot){
+  const value=JSON.parse(snapshot||'{}');
+  creatorGeoItems=Array.isArray(value.items)?value.items:[];
+  creatorSelectedGeoIndex=Number.isInteger(value.selected)?value.selected:null;
+  if(creatorSelectedGeoIndex!==null&&(creatorSelectedGeoIndex<0||creatorSelectedGeoIndex>=creatorGeoItems.length))creatorSelectedGeoIndex=null;
+  creatorRenderGeoItems();creatorMarkDirty();
+}
+window.creatorUndoGeo=()=>{
+  if(!creatorGeoUndoStack.length)return;
+  creatorGeoRedoStack.push(JSON.stringify({items:creatorGeoItems,selected:creatorSelectedGeoIndex}));
+  creatorRestoreGeoSnapshot(creatorGeoUndoStack.pop());
+};
+window.creatorRedoGeo=()=>{
+  if(!creatorGeoRedoStack.length)return;
+  creatorGeoUndoStack.push(JSON.stringify({items:creatorGeoItems,selected:creatorSelectedGeoIndex}));
+  creatorRestoreGeoSnapshot(creatorGeoRedoStack.pop());
+};
+window.creatorSelectGeoItem=index=>{
+  if(!Number.isInteger(index)||index<0||index>=creatorGeoItems.length)return;
+  creatorSelectedGeoIndex=index;
+  const item=creatorGeoItems[index];
+  document.getElementById('creator-geo-label').value=String(item.label||'');
+  document.getElementById('creator-geo-text').value=String(item.text||'');
+  document.getElementById('creator-geo-width').value=String(item.width||25);
+  document.getElementById('creator-geo-height').value=String(item.height||15);
+  window.creatorSetGeoMode(item.type==='text'?'text':'figure');
+  const status=document.getElementById('creator-geo-selection-status');
+  if(status)status.textContent='Sélection : '+(item.type==='text'?'zone de texte':'figure')+' · '+String(item.label||item.text||item.id||'élément')+'. Clique sur la carte pour la déplacer.';
+  creatorRenderGeoItems();
+};
+window.creatorApplySelectedGeoProperties=()=>{
+  const index=creatorSelectedGeoIndex,item=creatorGeoItems[index];
+  if(!item)return;
+  creatorPushGeoHistory();
+  if(item.type==='figure'){
+    const label=document.getElementById('creator-geo-label').value.trim();
+    if(!label){creatorSetStatus('Le nom de la figure est obligatoire.',true);return;}
+    item.label=label;
+  }else{
+    const value=document.getElementById('creator-geo-text').value.trim();
+    if(!value){creatorSetStatus('Le texte de la zone est obligatoire.',true);return;}
+    item.text=value;item.label=String(item.label||value).trim();
+    item.width=Math.max(5,Math.min(100,Number(document.getElementById('creator-geo-width').value)||25));
+    item.height=Math.max(5,Math.min(100,Number(document.getElementById('creator-geo-height').value)||15));
+    item.x=Math.min(Number(item.x)||0,100-item.width);item.y=Math.min(Number(item.y)||0,100-item.height);
+  }
+  creatorRenderGeoItems();creatorMarkDirty();creatorSetStatus('Propriétés de l’élément mises à jour.',false);
+};
+window.creatorDeleteSelectedGeo=()=>{
+  if(creatorSelectedGeoIndex===null||!creatorGeoItems[creatorSelectedGeoIndex])return;
+  creatorPushGeoHistory();creatorGeoItems.splice(creatorSelectedGeoIndex,1);creatorSelectedGeoIndex=null;
+  document.getElementById('creator-geo-selection-status').textContent='Aucun élément sélectionné.';
+  creatorRenderGeoItems();creatorMarkDirty();creatorSetStatus('Élément supprimé. Utilise Rétablir si nécessaire.',false);
+};
+window.creatorGeoStageClick=event=>{
+  if(!creatorGeoImageData)return;
+  const stage=document.getElementById('creator-geo-stage'),rect=stage.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  let x=Math.max(0,Math.min(100,(event.clientX-rect.left)/rect.width*100));
+  let y=Math.max(0,Math.min(100,(event.clientY-rect.top)/rect.height*100));
+  if(creatorSelectedGeoIndex!==null&&creatorGeoItems[creatorSelectedGeoIndex]){
+    creatorPushGeoHistory();
+    const item=creatorGeoItems[creatorSelectedGeoIndex];
+    item.x=Number(Math.min(x,item.type==='text'?100-(Number(item.width)||25):100).toFixed(2));
+    item.y=Number(Math.min(y,item.type==='text'?100-(Number(item.height)||15):100).toFixed(2));
+    creatorRenderGeoItems();creatorMarkDirty();creatorSetStatus('Position mise à jour : '+item.x+' %, '+item.y+' %.',false);
+    return;
+  }
+  creatorPushGeoHistory();
+  if(creatorGeoMode==='figure'){
+    const label=document.getElementById('creator-geo-label').value.trim();
+    if(!label){creatorSetStatus('Renseigne le nom de la figure avant de cliquer sur la carte.',true);return;}
+    creatorGeoItems.push({id:'figure-'+Date.now().toString(36),type:'figure',label:label,x:Number(x.toFixed(2)),y:Number(y.toFixed(2))});
+  }else{
+    const textValue=document.getElementById('creator-geo-text').value.trim();
+    if(!textValue){creatorSetStatus('Renseigne le texte de la zone avant de cliquer sur la carte.',true);return;}
+    const width=Math.max(5,Math.min(100,Number(document.getElementById('creator-geo-width').value)||25));
+    const height=Math.max(5,Math.min(100,Number(document.getElementById('creator-geo-height').value)||15));
+    x=Math.min(x,100-width);y=Math.min(y,100-height);
+    creatorGeoItems.push({id:'zone-'+Date.now().toString(36),type:'text',label:textValue,text:textValue,x:Number(x.toFixed(2)),y:Number(y.toFixed(2)),width:width,height:height});
+  }
+  creatorSelectedGeoIndex=creatorGeoItems.length-1;
+  window.creatorSelectGeoItem(creatorSelectedGeoIndex);
+  creatorMarkDirty();creatorRenderGeoItems();
+};
+function creatorRenderGeoItems(){
+  const overlay=document.getElementById('creator-geo-overlays'),list=document.getElementById('creator-geo-item-list');
+  if(overlay)overlay.textContent='';
+  if(list)list.textContent='';
+  creatorGeoItems.forEach((item,index)=>{
+    if(overlay){
+      const el=document.createElement('div');
+      if(item.type==='figure'){
+        el.className='creator-geo-figure'+(index===creatorSelectedGeoIndex?' is-selected':'');
+        el.style.left=Number(item.x||0)+'%';el.style.top=Number(item.y||0)+'%';
+        el.textContent=String(item.label||'Figure');el.title=String(item.label||'Figure')+' ('+item.x+'%, '+item.y+'%)';
+      }else{
+        el.className='creator-geo-zone'+(index===creatorSelectedGeoIndex?' is-selected':'');
+        el.style.left=Number(item.x||0)+'%';el.style.top=Number(item.y||0)+'%';
+        el.style.width=Math.max(5,Math.min(100,Number(item.width)||25))+'%';
+        el.style.height=Math.max(5,Math.min(100,Number(item.height)||15))+'%';
+        el.textContent=String(item.text||'Zone de texte');
+      }
+      overlay.appendChild(el);
+    }
+    if(list){
+      const row=document.createElement('li');row.className='creator-geo-item-row'+(index===creatorSelectedGeoIndex?' creator-geo-selected':'');
+      const label=document.createElement('span');
+      label.textContent=item.type==='figure'?'Figure « '+String(item.label||'')+' » · '+item.x+' %, '+item.y+' %':'Zone « '+String(item.text||'').slice(0,70)+' » · '+item.x+' %, '+item.y+' %';
+      const actions=document.createElement('div');actions.className='creator-library-entry-actions';
+      const edit=document.createElement('button');edit.type='button';edit.textContent=index===creatorSelectedGeoIndex?'Sélectionné':'Modifier / déplacer';edit.onclick=()=>window.creatorSelectGeoItem(index);
+      const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent='Retirer';
+      remove.onclick=()=>{creatorPushGeoHistory();creatorGeoItems.splice(index,1);creatorSelectedGeoIndex=null;creatorRenderGeoItems();creatorMarkDirty();};
+      actions.append(edit,remove);row.append(label,actions);list.appendChild(row);
+    }
+  });
+  if(list&&!creatorGeoItems.length){const empty=document.createElement('li');empty.className='creator-geo-empty';empty.textContent='Aucun élément placé.';list.appendChild(empty);}
+  const selection=document.getElementById('creator-geo-selection-status');
+  if(selection&&creatorSelectedGeoIndex===null)selection.textContent='Aucun élément sélectionné. Choisis un élément ci-dessous pour le déplacer ou le modifier.';
+  creatorRenderEditorPreview();
+}
+window.creatorHandleGeoImage=event=>{
+  const file=event&&event.target&&event.target.files?event.target.files[0]:null;if(!file)return;
+  if(!file.type||!file.type.startsWith('image/')){creatorSetStatus('Choisis un fichier image.',true);return;}
+  if(file.size>12*1024*1024){creatorSetStatus('Image trop lourde : limite de 12 Mo avant compression.',true);event.target.value='';return;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    if(typeof reader.result!=='string'){creatorSetStatus('Lecture de l’image impossible.',true);return;}
+    if(file.type==='image/svg+xml'){
+      if(reader.result.length>6000000){creatorSetStatus('SVG trop lourd. Simplifie cette image avant de l’importer.',true);return;}
+      creatorPushGeoHistory();creatorGeoImageData=reader.result;creatorGeoImageName=file.name;creatorGeoItems=[];
+      document.getElementById('creator-geo-preview-image').src=creatorGeoImageData;document.getElementById('creator-geo-stage').hidden=false;
+      creatorSelectedGeoIndex=null;creatorMarkDirty();creatorRenderGeoItems();creatorSetStatus('Image SVG chargée.',false);return;
+    }
+    const image=new Image();
+    image.onload=()=>{
+      try{
+        const max=1600,ratio=Math.min(1,max/Math.max(image.naturalWidth,image.naturalHeight));
+        const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(image.naturalHeight*ratio));
+        const context=canvas.getContext('2d');context.fillStyle='#ffffff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(image,0,0,canvas.width,canvas.height);
+        const data=canvas.toDataURL('image/jpeg',.88);
+        creatorPushGeoHistory();creatorGeoImageData=data;creatorGeoImageName=file.name.replace(/\.[^.]+$/,'')+'.jpg';creatorGeoItems=[];creatorSelectedGeoIndex=null;
+        document.getElementById('creator-geo-preview-image').src=data;document.getElementById('creator-geo-stage').hidden=false;
+        creatorMarkDirty();creatorRenderGeoItems();creatorSetStatus('Image optimisée : '+canvas.width+' × '+canvas.height+' px.',false);
+      }catch(error){creatorSetStatus('Compression de l’image impossible : '+(error.message||String(error)),true);}
+    };
+    image.onerror=()=>creatorSetStatus('Image invalide ou illisible.',true);
+    image.src=reader.result;
+  };
+  reader.onerror=()=>creatorSetStatus('Impossible de lire cette image.',true);
+  reader.readAsDataURL(file);
+};
+function creatorBuildCurrent(){
+  const base=creatorSafeBaseName(document.getElementById('creator-filename').value);
+  if(!base)throw new Error('Donne un nom au fichier.');
+  const extension=creatorPanelType==='histoire'?'.histoire':creatorPanelType==='espagnol'?'.espagnol':'.geo';
+  let content='';
+  if(creatorPanelType==='histoire'){
+    const rows=document.getElementById('creator-histoire-content').value.replace(/\r\n/g,'\n').trim().split('\n').map(line=>line.trim()).filter(Boolean);
+    if(!rows.length)throw new Error('Ajoute au moins un événement.');
+    const invalid=rows.findIndex(line=>{const i=line.indexOf('::');return i<=0||!line.slice(0,i).trim()||!line.slice(i+2).trim();});
+    if(invalid>=0)throw new Error('Ligne '+(invalid+1)+' invalide : utilise date::événement.');
+    content=rows.join('\n')+'\n';
+  }else if(creatorPanelType==='espagnol'){
+    const rows=document.getElementById('creator-espagnol-content').value.replace(/\r\n/g,'\n').trim().split('\n').map(line=>line.trim()).filter(Boolean);
+    if(!rows.length)throw new Error('Ajoute au moins une paire espagnol/français.');
+    const invalid=rows.findIndex(line=>!/^"([^"]+)"\s+"([^"]+)"/.test(line));
+    if(invalid>=0)throw new Error('Ligne '+(invalid+1)+' invalide : utilise "espagnol" "français".');
+    content=rows.join('\n')+'\n';
+  }else{
+    if(!creatorGeoImageData)throw new Error('Ajoute une image à la carte.');
+    if(!creatorGeoItems.length)throw new Error('Place au moins une figure ou une zone de texte sur la carte.');
+    const image=document.getElementById('creator-geo-preview-image');
+    const title=document.getElementById('creator-geo-title').value.trim()||base;
+    const description=document.getElementById('creator-geo-description').value.trim();
+    const instructions=document.getElementById('creator-geo-instructions').value.trim();
+    const items=creatorGeoItems.map((item,index)=>{
+      const x=Number(item.x),y=Number(item.y);
+      if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>100||y<0||y>100)throw new Error('Coordonnées invalides pour l’élément '+(index+1)+'.');
+      if(item.type==='figure'&&!String(item.label||'').trim())throw new Error('Chaque figure doit avoir un nom.');
+      if(item.type==='text'&&!String(item.text||'').trim())throw new Error('Chaque zone doit avoir un texte.');
+      return Object.assign({},item,{id:String(item.id||('item-'+(index+1))),x:Number(x.toFixed(2)),y:Number(y.toFixed(2))});
+    });
+    const map={format:'vocarace.geo.v1',version:1,id:base,name:title,title:title,description:description,instructions:instructions,
+      image:{filename:creatorGeoImageName||'carte-image',mimeType:(creatorGeoImageData.match(/^data:([^;,]+)/)||[])[1]||'image/jpeg',width:image.naturalWidth||0,height:image.naturalHeight||0,dataUrl:creatorGeoImageData},
+      items:items};
+    content=JSON.stringify(map,null,2)+'\n';
+  }
+  if(content.length>7400000)throw new Error('Fichier trop volumineux pour la bibliothèque Firebase. Réduis la taille de l’image.');
+  return {filename:base+extension,extension:extension,content:content};
+}
+window.creatorSaveCurrent=async()=>{
+  try{
+    const access=await creatorCheckAccess();
+    if(!access.allowed)throw new Error('Permission créateur absente. Reconnecte-toi avec un compte autorisé.');
+    const file=creatorBuildCurrent();
+    const record={filename:file.filename,extension:file.extension,content:file.content,updatedAt:firebase.database.ServerValue.TIMESTAMP,savedBy:access.user.uid};
+    let ref;
+    if(creatorCurrentEntryId)ref=db.ref('creatorLibrary/'+creatorCurrentEntryId);
+    else ref=db.ref('creatorLibrary').push();
+    await ref.set(record);
+    creatorCurrentEntryId=ref.key;creatorCurrentType=creatorPanelType;creatorSetDirty(false);
+    creatorSetStatus('Fichier enregistré : '+file.filename,false);
+    await creatorLoadLibrary();
+  }catch(error){creatorSetStatus(error.message||String(error),true);}
+};
+window.closeCreatorPanel=()=>{
+  if(!creatorConfirmDiscard('Fermer l’atelier et abandonner les modifications non enregistrées ?'))return;
+  const root=document.getElementById('creator-panel-root');
+  root.hidden=true;root.style.display='none';document.body.style.overflow='';
+};
+function creatorBindEditorEvents(){
+  ['creator-filename','creator-histoire-content','creator-espagnol-content','creator-geo-title','creator-geo-description','creator-geo-instructions','creator-geo-label','creator-geo-text','creator-geo-width','creator-geo-height'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.addEventListener('input',creatorMarkDirty);
+  });
+  const root=document.getElementById('creator-panel-root');
+  if(root&&!root.dataset.dirtyGuardBound){
+    root.dataset.dirtyGuardBound='1';
+    window.addEventListener('beforeunload',event=>{
+      if(creatorDirty&&root.style.display==='block'){event.preventDefault();event.returnValue='';}
+    });
+  }
+}
+creatorBindEditorEvents();
+
+// ════════════════════════════════════════════════════
+// FORMAT .GEO ET PARCOURS DE JEU GÉOGRAPHIE
+// ════════════════════════════════════════════════════
+const GEO_LISTS_JSON=GH_RAW+'geo/geo_lists.json';
+let geoPublicMaps=[], geoCurrentMap=null, geoCurrentSource=null, geoCurrentExercise='identify';
+let geoQuestionOrder=[], geoQuestionIndex=0, geoCurrentTargetId=null;
+let geoScore=0, geoErrors=0, geoSkippedIds=new Set(), geoCompletedIds=new Set(), geoAttemptsById={};
+let geoPendingContinue=false;
+
+function geoNumber(value,min,max,fallback){
+  const n=Number(value);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback;
+}
+function geoNormalizeMap(raw,sourcePath='',sourceKind='public'){
+  if(!raw||typeof raw!=='object')throw new Error('Le fichier .geo ne contient pas un objet JSON.');
+  if(raw.format!=='vocarace.geo.v1')throw new Error('Format .geo non pris en charge. Format attendu : vocarace.geo.v1.');
+  const rawImage=raw.image||{};
+  let imageSrc=rawImage.dataUrl||rawImage.src||rawImage.url||'';
+  if(typeof imageSrc!=='string'||!imageSrc)throw new Error('Cette carte ne contient aucune image de fond.');
+  if(imageSrc.startsWith('data:')){
+    if(!/^data:image\//i.test(imageSrc))throw new Error('Le fond doit être une image.');
+    if(imageSrc.length>6500000)throw new Error('Image trop volumineuse (limite de sécurité : 6,5 Mo encodés).');
+  }else if(/^https:\/\//i.test(imageSrc)){
+    // Les URL HTTPS externes sont acceptées ; aucune URL scriptable n'est autorisée.
+  }else if(sourceKind==='public'&&!/^[a-z0-9_.\/ -]+$/i.test(imageSrc)){
+    throw new Error('Chemin d’image relatif invalide dans la carte.');
+  }else if(sourceKind==='public'){
+    const parent=String(sourcePath).split('/').slice(0,-1).join('/');
+    imageSrc=rawFile((parent?parent+'/':'')+imageSrc.replace(/^\.\/+/,''));
+  }else{
+    throw new Error('Une carte privée doit intégrer son image pour être transportable.');
+  }
+  if(!Array.isArray(raw.items))throw new Error('La carte doit contenir un tableau items.');
+  const seen=new Set();
+  const items=raw.items.map((item,index)=>{
+    if(!item||typeof item!=='object')throw new Error('Élément '+(index+1)+' invalide.');
+    const type=item.type==='figure'?'figure':item.type==='text'?'text':null;
+    if(!type)throw new Error('Type inconnu pour l’élément '+(index+1)+'.');
+    const id=String(item.id||('item-'+(index+1)));
+    if(seen.has(id))throw new Error('Identifiant d’élément dupliqué : '+id+'.');
+    seen.add(id);
+    const x=Number(item.x),y=Number(item.y);
+    if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>100||y<0||y>100)throw new Error('Coordonnées invalides pour « '+id+' ».');
+    if(type==='figure'){
+      const label=String(item.label||'').trim();if(!label)throw new Error('La figure « '+id+' » n’a pas de nom.');
+      return {id:id,type:type,label:label,x:x,y:y,answers:Array.isArray(item.answers)?item.answers.map(String):[]};
+    }
+    const textValue=String(item.text||'').trim();if(!textValue)throw new Error('La zone « '+id+' » n’a pas de texte.');
+    const width=geoNumber(item.width,5,100,25),height=geoNumber(item.height,5,100,15);
+    return {id:id,type:type,label:String(item.label||textValue),text:textValue,x:Math.min(x,100-width),y:Math.min(y,100-height),width:width,height:height};
+  });
+  if(!items.some(item=>item.type==='figure')&&!items.some(item=>item.type==='text'))throw new Error('La carte ne contient aucune figure ni zone de texte jouable.');
+  return {
+    format:'vocarace.geo.v1',version:Number(raw.version)||1,id:String(raw.id||raw.name||sourcePath||'geo-card'),
+    name:String(raw.name||raw.title||sourcePath.split('/').pop()||'Carte sans titre'),
+    title:String(raw.title||raw.name||sourcePath.split('/').pop()||'Carte sans titre'),
+    description:String(raw.description||''),instructions:String(raw.instructions||''),
+    image:{src:imageSrc,filename:String(rawImage.filename||'image'),mimeType:String(rawImage.mimeType||''),width:Number(rawImage.width)||0,height:Number(rawImage.height)||0},
+    items:items
+  };
+}
+function geoShuffle(items){return [...items].sort(()=>Math.random()-.5);}
+function geoFigures(map){return map.items.filter(item=>item.type==='figure');}
+function geoTextZones(map){return map.items.filter(item=>item.type==='text');}
+function geoCreateMapCard(map,source){
+  const button=document.createElement('button');button.type='button';button.className='geo-select-card';
+  button.dataset.geoSearch=(map.title+' '+map.description).toLocaleLowerCase('fr');
+  const image=document.createElement('img');image.className='geo-card-thumb';image.src=map.image.src;image.alt='Aperçu de '+map.title;image.loading='lazy';
+  const text=document.createElement('span');
+  const title=document.createElement('span');title.className='geo-card-title';title.textContent=map.title;
+  const desc=document.createElement('span');desc.className='geo-card-desc';desc.textContent=map.description||'Carte pédagogique';
+  const meta=document.createElement('span');meta.className='geo-card-meta';
+  meta.textContent=geoFigures(map).length+' figure(s) · '+geoTextZones(map).length+' zone(s)'+(source.kind==='private'?' · Bibliothèque privée':'');
+  text.append(title,desc,meta);button.append(image,text);button.onclick=()=>showGeoExercises(map,source);
+  return button;
+}
+window.filterGeoMapCards=()=>{
+  const query=String(document.getElementById('geo-map-search').value||'').trim().toLocaleLowerCase('fr');
+  document.querySelectorAll('#geo-map-card-list .geo-select-card').forEach(card=>{
+    card.hidden=!!query&&!String(card.dataset.geoSearch||'').includes(query);
+  });
+};
+window.showGeoChooser=async()=>{
+  hideAll();
+  const screen=document.getElementById('geo-chooser-screen');screen.classList.remove('hidden');
+  const list=document.getElementById('geo-map-card-list'),status=document.getElementById('geo-chooser-status');
+  list.textContent='';status.textContent='Chargement des cartes publiques…';
+  document.getElementById('geo-map-search').value='';
+  const available=[];
+  let publicError='';
+  try{
+    const manifest=await fetchJsonFrom([GEO_LISTS_JSON]);
+    if(!Array.isArray(manifest))throw new Error('Le manifeste geo/geo_lists.json doit contenir un tableau de chemins.');
+    const unique=[...new Set(manifest.filter(value=>typeof value==='string'&&value.toLowerCase().endsWith('.geo')))];
+    const loaded=await Promise.all(unique.map(async path=>{
+      const response=await fetch(rawFile(path));
+      if(!response.ok)throw new Error('HTTP '+response.status+' pour '+path);
+      const raw=await response.json();
+      const map=geoNormalizeMap(raw,path,'public');return {map:map,source:{kind:'public',path:path}};
+    }));
+    available.push(...loaded);
+  }catch(error){publicError=error.message||String(error);}
+  try{
+    const access=await creatorCheckAccess();
+    if(access.allowed){
+      const snapshot=await db.ref('creatorLibrary').once('value'),raw=snapshot.val()||{};
+      Object.keys(raw).forEach(id=>{
+        const entry=raw[id];
+        if(!entry||entry.extension!=='.geo'||typeof entry.content!=='string')return;
+        try{
+          const map=geoNormalizeMap(JSON.parse(entry.content),entry.filename,'private');
+          available.push({map:map,source:{kind:'private',id:id,filename:entry.filename}});
+        }catch(error){console.warn('Carte privée ignorée : '+entry.filename,error);}
+      });
+    }
+  }catch(error){console.info('Bibliothèque privée non disponible pour ce compte.');}
+  geoPublicMaps=available;
+  available.forEach(item=>list.appendChild(geoCreateMapCard(item.map,item.source)));
+  if(!available.length){
+    const empty=document.createElement('div');empty.className='geo-empty';
+    empty.textContent='Aucune carte utilisable pour le moment. '+(publicError?'Le chargement public a échoué : '+publicError:'Ajoute un fichier .geo valide dans geo/geo_lists.json.');
+    list.appendChild(empty);status.textContent='Aucune carte chargée.';
+  }else status.textContent=available.length+' carte(s) disponible(s).'+(publicError?' Certaines cartes publiques n’ont pas pu être chargées.':'');
+};
+window.showGeoExercises=(map,source={kind:'public'})=>{
+  if(!map||!map.items){document.getElementById('geo-chooser-status').textContent='Carte invalide.';return;}
+  geoCurrentMap=map;geoCurrentSource=source;
+  hideAll();document.getElementById('geo-exercise-screen').classList.remove('hidden');
+  document.getElementById('geo-exercise-title').textContent=map.title;
+  document.getElementById('geo-exercise-description').textContent=map.description||map.instructions||'Choisis un exercice adapté à cette carte.';
+  document.getElementById('geo-exercise-status').textContent=source.kind==='private'?'Carte privée : seuls les comptes autorisés peuvent la consulter.':'Carte publique du dépôt VocaRace.';
+  const preview=document.getElementById('geo-exercise-preview');preview.textContent='';
+  const image=document.createElement('img');image.src=map.image.src;image.alt='Aperçu de '+map.title;
+  image.style.cssText='display:block;width:100%;max-height:34vh;object-fit:contain;border:1px solid var(--vr-border);border-radius:.65rem;background:#edf4f8';
+  preview.appendChild(image);
+  const figures=geoFigures(map),zones=geoTextZones(map);
+  const config=[
+    {id:'geo-exercise-identify',enabled:figures.length>0,count:figures.length},
+    {id:'geo-exercise-complete',enabled:figures.length>0,count:figures.length},
+    {id:'geo-exercise-zones',enabled:zones.length>0,count:zones.length}
+  ];
+  config.forEach(item=>{
+    const button=document.getElementById(item.id);button.disabled=!item.enabled;
+    button.title=item.enabled?item.count+' élément(s) à travailler':'Indisponible : la carte ne contient pas les données nécessaires.';
+    const span=button.querySelector('span');
+    if(span)span.textContent=(item.enabled?item.count+' élément(s). ':'Données nécessaires absentes. ')+span.textContent;
+  });
+};
+function geoRenderStage(){
+  const stage=document.getElementById('geo-game-stage');stage.textContent='';
+  stage.onclick=null;
+  const image=document.createElement('img');image.src=geoCurrentMap.image.src;image.alt='Carte interactive : '+geoCurrentMap.title;image.draggable=false;
+  stage.appendChild(image);
+  const overlay=document.createElement('div');overlay.className='geo-map-overlays';stage.appendChild(overlay);
+  if(geoCurrentExercise==='identify'){
+    geoQuestionOrder.forEach((item,index)=>{
+      const button=document.createElement('button');button.type='button';button.className='geo-map-point';
+      button.style.left=item.x+'%';button.style.top=item.y+'%';button.textContent=String(index+1);
+      button.setAttribute('aria-label','Repère '+(index+1));button.title='Repère '+(index+1);
+      if(geoCompletedIds.has(item.id))button.classList.add('is-correct');
+      button.onclick=()=>geoAnswerChoice(item.id);overlay.appendChild(button);
+    });
+  }else if(geoCurrentExercise==='zones'){
+    geoQuestionOrder.forEach((item,index)=>{
+      const button=document.createElement('button');button.type='button';button.className='geo-map-zone';
+      button.style.left=item.x+'%';button.style.top=item.y+'%';button.style.width=item.width+'%';button.style.height=item.height+'%';
+      button.textContent=String(index+1);button.setAttribute('aria-label','Zone '+(index+1));button.title='Zone '+(index+1);
+      if(geoCompletedIds.has(item.id))button.classList.add('is-correct');
+      button.onclick=()=>geoAnswerChoice(item.id);overlay.appendChild(button);
+    });
+  }else if(geoCurrentExercise==='complete'){
+    geoCompletedIds.forEach(id=>{
+      const item=geoQuestionOrder.find(entry=>entry.id===id);if(!item)return;
+      const label=document.createElement('span');label.className='geo-map-placed-label';
+      label.style.left=item.x+'%';label.style.top=item.y+'%';label.textContent=item.label;label.title=item.label;overlay.appendChild(label);
+    });
+    stage.onclick=event=>geoPlaceAtPointer(event);
+  }
+}
+function geoUpdateProgress(){
+  const total=geoQuestionOrder.length||1;
+  const answered=geoCurrentExercise==='complete'?geoCompletedIds.size+geoSkippedIds.size:geoQuestionIndex;
+  document.getElementById('geo-game-counter').textContent='Question '+Math.min(total,answered+1)+' / '+total;
+  document.getElementById('geo-game-score').textContent=geoScore+' point(s)';
+  document.getElementById('geo-game-progress').style.width=Math.min(100,answered/total*100)+'%';
+}
+function geoCurrentTarget(){
+  if(geoCurrentExercise==='complete'){
+    if(geoCurrentTargetId){
+      const selected=geoQuestionOrder.find(item=>item.id===geoCurrentTargetId);
+      if(selected&&!geoCompletedIds.has(selected.id)&&!geoSkippedIds.has(selected.id))return selected;
+    }
+    const first=geoQuestionOrder.find(item=>!geoCompletedIds.has(item.id)&&!geoSkippedIds.has(item.id));
+    geoCurrentTargetId=first?first.id:null;
+    return first||null;
+  }
+  return geoQuestionOrder[geoQuestionIndex]||null;
+}
+function geoRenderQuestion(){
+  if(!geoCurrentMap)return;
+  const total=geoQuestionOrder.length;
+  const answered=geoCurrentExercise==='complete'?geoCompletedIds.size+geoSkippedIds.size:geoQuestionIndex;
+  if(answered>=total){geoShowResults();return;}
+  geoPendingContinue=false;
+  document.getElementById('geo-game-continue').hidden=true;
+  document.getElementById('geo-game-skip').hidden=false;
+  const target=geoCurrentTarget();
+  if(!target){geoShowResults();return;}
+  const prompt=document.getElementById('geo-game-prompt');
+  if(geoCurrentExercise==='identify')prompt.textContent='Où se trouve « '+target.label+' » ? Clique sur le bon repère numéroté.';
+  else if(geoCurrentExercise==='complete')prompt.textContent='Place l’étiquette « '+target.label+' » au bon endroit sur la carte.';
+  else prompt.textContent='Trouve la zone correspondant à « '+target.text+' » en cliquant sur le rectangle numéroté.';
+  document.getElementById('geo-game-description').textContent=geoCurrentMap.title+' · '+(geoCurrentSource&&geoCurrentSource.kind==='private'?'Bibliothèque privée':'Carte publique');
+  document.getElementById('geo-game-side-instructions').textContent=geoCurrentMap.instructions||geoCurrentMap.description||'Observe la carte et sélectionne la bonne position.';
+  const feedback=document.getElementById('geo-game-feedback');feedback.textContent='';feedback.classList.remove('is-error','is-success');
+  const tray=document.getElementById('geo-game-tray');tray.textContent='';
+  if(geoCurrentExercise==='complete'){
+    geoQuestionOrder.filter(item=>!geoCompletedIds.has(item.id)&&!geoSkippedIds.has(item.id)).forEach(item=>{
+      const chip=document.createElement('button');chip.type='button';chip.className='geo-map-chip'+(item.id===target.id?' is-selected':'');
+      chip.textContent=item.label;chip.setAttribute('aria-pressed',String(item.id===target.id));
+      chip.onclick=()=>{geoCurrentTargetId=item.id;geoRenderQuestion();};
+      tray.appendChild(chip);
+    });
+  }
+  geoRenderStage();geoUpdateProgress();
+}
+window.startGeoExercise=type=>{
+  if(!geoCurrentMap)return;
+  const items=type==='zones'?geoTextZones(geoCurrentMap):geoFigures(geoCurrentMap);
+  if(!['identify','complete','zones'].includes(type)||!items.length){
+    document.getElementById('geo-exercise-status').textContent='Cet exercice est indisponible : la carte ne contient pas les données nécessaires.';return;
+  }
+  geoCurrentExercise=type;geoQuestionOrder=geoShuffle(items);geoQuestionIndex=0;geoCurrentTargetId=null;
+  geoScore=0;geoErrors=0;geoSkippedIds=new Set();geoCompletedIds=new Set();geoAttemptsById={};geoPendingContinue=false;
+  hideAll();document.getElementById('geo-game-screen').classList.remove('hidden');
+  document.getElementById('geo-game-title').textContent=type==='identify'?'Identifier une figure':type==='complete'?'Compléter la carte':'Retrouver une zone de texte';
+  document.getElementById('geo-game-description').textContent=geoCurrentMap.title;
+  geoRenderQuestion();
+};
+function geoAnswerChoice(id){
+  if(geoPendingContinue)return;
+  const target=geoCurrentTarget();if(!target)return;
+  if(id!==target.id){
+    geoErrors++;geoAttemptsById[target.id]=(geoAttemptsById[target.id]||0)+1;
+    const feedback=document.getElementById('geo-game-feedback');feedback.textContent='Pas encore. Essaie un autre repère.';feedback.classList.remove('is-success');feedback.classList.add('is-error');
+    document.getElementById('geo-game-score').textContent=geoScore+' point(s)';return;
+  }
+  geoCorrectAnswer(target);
+}
+function geoCorrectAnswer(target){
+  if(!target||geoPendingContinue)return;
+  if((geoAttemptsById[target.id]||0)===0)geoScore++;
+  geoCompletedIds.add(target.id);geoPendingContinue=true;
+  const feedback=document.getElementById('geo-game-feedback');feedback.textContent='Correct : '+(target.label||target.text)+'.';feedback.classList.remove('is-error');feedback.classList.add('is-success');
+  document.getElementById('geo-game-continue').hidden=false;document.getElementById('geo-game-skip').hidden=true;
+  geoRenderStage();geoUpdateProgress();
+}
+function geoPlaceAtPointer(event){
+  if(geoPendingContinue)return;
+  const stage=document.getElementById('geo-game-stage'),rect=stage.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  const target=geoCurrentTarget();if(!target)return;
+  const x=(event.clientX-rect.left)/rect.width*100,y=(event.clientY-rect.top)/rect.height*100;
+  const dx=x-target.x,dy=y-target.y,distance=Math.sqrt(dx*dx+dy*dy);
+  if(distance<=Math.max(4.5,Number(target.tolerance)||7)){
+    geoCorrectAnswer(target);
+  }else{
+    geoErrors++;geoAttemptsById[target.id]=(geoAttemptsById[target.id]||0)+1;
+    const feedback=document.getElementById('geo-game-feedback');feedback.textContent='Pas tout à fait. Déplace l’étiquette et réessaie.';feedback.classList.remove('is-success');feedback.classList.add('is-error');
+  }
+}
+window.geoContinue=()=>{
+  if(!geoPendingContinue)return;
+  geoPendingContinue=false;geoCurrentTargetId=null;
+  if(geoCurrentExercise!=='complete')geoQuestionIndex++;
+  geoRenderQuestion();
+};
+window.geoSkip=()=>{
+  if(geoPendingContinue)return;
+  const target=geoCurrentTarget();if(!target)return;
+  geoSkippedIds.add(target.id);geoCurrentTargetId=null;
+  if(geoCurrentExercise!=='complete')geoQuestionIndex++;
+  geoRenderQuestion();
+};
+function geoShowResults(){
+  hideAll();document.getElementById('geo-results-screen').classList.remove('hidden');
+  const total=geoQuestionOrder.length,accuracy=total?Math.round(geoScore/total*100):0;
+  document.getElementById('geo-results-title').textContent=geoScore===total?'Carte maîtrisée':'Exercice terminé';
+  document.getElementById('geo-results-description').textContent=geoCurrentMap.title+' · '+(geoCurrentExercise==='identify'?'Identifier une figure':geoCurrentExercise==='complete'?'Compléter la carte':'Retrouver une zone de texte');
+  document.getElementById('geo-result-score').textContent=geoScore+'/'+total;
+  document.getElementById('geo-result-errors').textContent=String(geoErrors+geoSkippedIds.size);
+  document.getElementById('geo-result-accuracy').textContent=accuracy+' %';
+  document.getElementById('geo-result-detail').textContent=geoSkippedIds.size
+    ?geoSkippedIds.size+' élément(s) passé(s). Tu peux recommencer pour consolider les positions.'
+    :geoScore===total?'Toutes les réponses ont été trouvées du premier coup ou après correction.':(total-geoScore)+' élément(s) à revoir. Recommence pour améliorer ton score.';
+}
+window.quitGeoGame=()=>{
+  if((geoQuestionIndex>0||geoScore>0||geoErrors>0)&&!confirm('Quitter cet exercice ? La progression actuelle ne sera pas conservée.'))return;
+  showGeoChooser();
+};
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'){
+    const creator=document.getElementById('creator-panel-root');
+    if(creator&&creator.style.display==='block'){window.closeCreatorPanel();return;}
+    const game=document.getElementById('geo-game-screen');
+    if(game&&!game.classList.contains('hidden')){window.quitGeoGame();return;}
+    const exercise=document.getElementById('geo-exercise-screen');
+    if(exercise&&!exercise.classList.contains('hidden')){window.showGeoChooser();return;}
+    const chooser=document.getElementById('geo-chooser-screen');
+    if(chooser&&!chooser.classList.contains('hidden')){backToCategories();return;}
+  }
+});
+
 </script>
 </body>
 </html>
