@@ -1833,6 +1833,27 @@ body:not(.theme-light) #history-timeline-results .history-timeline-event-source{
 }
 </style>
 
+
+<style id="vocarace-geo-theme-fixes">
+body:not(.theme-light) .geo-screen{background:var(--vr-night)!important;color:var(--vr-night-text)}
+body:not(.theme-light) .geo-page-title,body:not(.theme-light) .geo-prompt,body:not(.theme-light) .geo-side-title{color:var(--vr-night-text)}
+body:not(.theme-light) .geo-page-header{border-color:var(--vr-night-border)}
+body:not(.theme-light) .geo-page-desc,body:not(.theme-light) .geo-status,body:not(.theme-light) .geo-card-desc,body:not(.theme-light) .geo-game-count,body:not(.theme-light) .geo-side-text,body:not(.theme-light) .geo-result-label{color:#B4B7AD}
+body:not(.theme-light) .geo-back-btn,body:not(.theme-light) .geo-quiet-btn,body:not(.theme-light) .geo-select-card,body:not(.theme-light) .geo-exercise-card,body:not(.theme-light) .geo-game-main,body:not(.theme-light) .geo-game-side,body:not(.theme-light) .geo-result-cell,body:not(.theme-light) .geo-map-chip{background:var(--vr-night-surface);border-color:var(--vr-night-border);color:var(--vr-night-text)}
+body:not(.theme-light) .geo-empty{border-color:var(--vr-night-border);color:#B4B7AD}
+body:not(.theme-light) .geo-card-meta{color:#E7B39D}
+body:not(.theme-light) .geo-select-card:hover{border-color:#A5C5AC;box-shadow:0 8px 24px #0003}
+body:not(.theme-light) .geo-map-chip.is-selected{background:#34483A;border-color:#8FB39B;color:#F1EEE6}
+body:not(.theme-light) .geo-primary-btn{background:var(--vr-forest);border-color:var(--vr-forest);color:#F1EEE6}
+body:not(.theme-light) .geo-secondary-btn{background:var(--vr-night-surface);border-color:var(--vr-night-border);color:var(--vr-night-text)}
+body.theme-light .geo-primary-btn{background:var(--vr-forest);border-color:var(--vr-forest);color:var(--vr-surface)}
+@media(max-width:480px){
+  #category-selection-screen .menu-title,#mode-selection-screen .menu-title{padding-top:2.25rem}
+  #category-selection-screen #voca-account-button-home,#mode-selection-screen #voca-account-button{right:3.5rem;max-width:7.5rem}
+  #category-selection-screen #voca-account-label-home,#mode-selection-screen #voca-account-label{right:3.5rem}
+}
+</style>
+
 </head>
 <body>
 <label id="theme-toggle-button" title="Basculer entre le thème clair et sombre" aria-label="Basculer entre le thème clair et sombre">
